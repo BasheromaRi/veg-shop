@@ -9,32 +9,56 @@ const multer = require('multer');
 const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// ================== Paths for Production ==================
+// على Render رح نخليهم على /var/data
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+const DB_PATH = process.env.DB_PATH || path.join(DATA_DIR, 'data.db');
+const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads');
+
+// تأكد مجلد الرفع موجود
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 // ================== DB ==================
-const db = new sqlite3.Database('./data.db', err => {
+const db = new sqlite3.Database(DB_PATH, err => {
   if (err) console.error('DB error', err);
-  else console.log('Connected to SQLite DB');
+  else console.log('Connected to SQLite DB at:', DB_PATH);
 });
 
 // ================== ADMIN ==================
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'Q1azP0lm';
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'Q1azP0lm';
 
 // ================== MIDDLEWARE ==================
-app.use(cors({ origin: true, credentials: true }));
+app.set('trust proxy', 1); // مهم على Render/Proxy
+
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 
 app.use(session({
   secret: 'veg-shop-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 6 }
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false, // Render يتعامل معها صح
+    maxAge: 1000 * 60 * 60 * 6
+  }
 }));
 
-// ================== STATIC (مهم جداً) ==================
+
+// ================== STATIC ==================
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+// نخدم الصور من UPLOADS_DIR على /uploads
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 // ================== AUTH ==================
 app.post('/api/login', (req, res) => {
@@ -47,8 +71,12 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => res.json({ success: true }));
+  req.session.destroy(err => {
+    res.clearCookie('connect.sid');
+    res.json({ success: true });
+  });
 });
+
 
 app.get('/api/me', (req, res) => {
   res.json({ isAdmin: !!req.session.isAdmin });
@@ -63,17 +91,23 @@ const protectedPages = [
 ];
 
 app.use((req, res, next) => {
-  if (protectedPages.includes(req.path) && !req.session.isAdmin) {
+  if (protectedPages.includes(req.path)) {
+  if (!req.session || !req.session.isAdmin) {
     return res.redirect('/login.html');
   }
+}
   next();
 });
 
 // ================== API GUARD ==================
 function apiGuard(req, res, next) {
+  // السماح بعرض الصور للكل
   if (req.path.startsWith('/uploads')) return next();
+
+  // السماح للـ admin
   if (req.session.isAdmin) return next();
 
+  // APIs المسموحة للزبون
   if (req.method === 'GET' && req.path.startsWith('/api/products')) return next();
   if (req.method === 'POST' && req.path === '/api/orders') return next();
   if (req.method === 'GET' && req.path === '/api/orders') return next();
@@ -87,7 +121,7 @@ app.use(apiGuard);
 // ================== MULTER ==================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, 'public/uploads/products', req.params.id);
+    const dir = path.join(UPLOADS_DIR, 'products', String(req.params.id));
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -111,12 +145,7 @@ app.get('/api/products', (req, res) => {
         map[img.product_id].push(`/uploads/products/${img.product_id}/${img.image}`);
       });
 
-      res.json(
-        products.map(p => ({
-          ...p,
-          images: map[p.id] || []
-        }))
-      );
+      res.json(products.map(p => ({ ...p, images: map[p.id] || [] })));
     });
   });
 });
@@ -137,24 +166,19 @@ app.post('/api/products', (req, res) => {
 
 // رفع صور المنتج
 app.post('/api/products/:id/images', upload.array('images'), (req, res) => {
-
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ error: 'لم يتم استلام أي صورة' });
   }
 
-  const stmt = db.prepare(
-    'INSERT INTO product_images (product_id, image) VALUES (?, ?)'
-  );
+  const stmt = db.prepare('INSERT INTO product_images (product_id, image) VALUES (?, ?)');
 
   req.files.forEach(file => {
     stmt.run(req.params.id, file.filename);
   });
 
   stmt.finalize();
-
   res.json({ success: true, files: req.files.length });
 });
-
 
 // ================== ORDERS ==================
 app.post('/api/orders', (req, res) => {
@@ -173,6 +197,7 @@ app.post('/api/orders', (req, res) => {
 
 app.get('/api/orders', (req, res) => {
   db.all('SELECT * FROM orders ORDER BY id DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
     res.json(rows.map(o => ({ ...o, items: JSON.parse(o.items) })));
   });
 });
