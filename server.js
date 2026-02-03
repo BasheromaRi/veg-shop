@@ -12,31 +12,40 @@ const sqlite3 = require('sqlite3').verbose();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/* ================== PATHS ================== */
-const DATA_DIR = path.join(__dirname, 'data');
-const UPLOADS_DIR = path.join(__dirname, 'public/uploads');
+/* ================== PATHS ==================
+   Render: اربط Disk على /var/data
+*/
+const DATA_DIR = process.env.DATA_DIR || '/var/data';
+const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads');
+const ADMIN_DIR = path.join(__dirname, 'admin'); // ✅ خارج public
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+fs.mkdirSync(DATA_DIR, { recursive: true });
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 /* ================== DB ================== */
-const db = new sqlite3.Database(path.join(DATA_DIR, 'data.db'), err => {
+const dbPath = path.join(DATA_DIR, 'data.db');
+const db = new sqlite3.Database(dbPath, err => {
   if (err) console.error('DB error', err);
-  else console.log('Connected to SQLite DB');
+  else console.log('Connected to SQLite DB:', dbPath);
 });
 
 /* ================== ADMIN ================== */
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'Q1azP0lm';
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'Q1azP0lm';
 
 /* ================== MIDDLEWARE ================== */
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
-
 app.set('trust proxy', 1);
 
+/* ✅ Session Store (ثابت) */
 app.use(session({
   name: 'vegshop.sid',
+  store: new SQLiteStore({
+    dir: DATA_DIR,
+    db: 'sessions.sqlite',
+    table: 'sessions'
+  }),
   secret: process.env.SESSION_SECRET || 'veg-shop-secret',
   resave: false,
   saveUninitialized: false,
@@ -48,9 +57,18 @@ app.use(session({
   }
 }));
 
+/* ✅ منع كاش للصفحات الحساسة (حل مشكلة "بيضل فاتح") */
+function noCache(req, res, next) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+}
 
-/* ================== STATIC ================== */
+/* ================== STATIC (متجر فقط) ================== */
 app.use(express.static(path.join(__dirname, 'public')));
+
+/* ✅ الصور من Disk */
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 /* ================== AUTH ================== */
@@ -71,48 +89,64 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-
 app.get('/api/me', (req, res) => {
   res.json({ isAdmin: !!req.session.isAdmin });
 });
 
-/* ================== PAGE GUARD ================== */
-const protectedPages = [
-  '/admin.html',
-  '/manage-products.html',
-  '/orders.html',
-  '/campaigns.html'
-];
+/* ================== ADMIN PAGES (منفصلة) ==================
+   بدل ما تكون داخل public
+   الرابط يصير:  /admin/secret-admin-9347
+*/
+function requireAdmin(req, res, next) {
+  if (req.session?.isAdmin) return next();
+  return res.redirect('/login.html');
+}
 
-app.use((req, res, next) => {
-  if (protectedPages.includes(req.path) && !req.session.isAdmin) {
-    return res.redirect('/login.html');
-  }
-  next();
+app.get('/admin/secret-admin-9347', noCache, requireAdmin, (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'secret-admin-9347.html'));
+});
+
+app.get('/admin/manage-products', noCache, requireAdmin, (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'manage-products.html'));
+});
+
+app.get('/admin/orders', noCache, requireAdmin, (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'orders.html'));
+});
+
+app.get('/admin/campaigns', noCache, requireAdmin, (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'campaigns.html'));
 });
 
 /* ================== API GUARD ================== */
-app.use((req, res, next) => {
+function apiGuard(req, res, next) {
   if (req.path.startsWith('/uploads')) return next();
-  if (req.session.isAdmin) return next();
 
+  // زبون:
   if (req.method === 'GET' && req.path === '/api/products') return next();
   if (req.method === 'POST' && req.path === '/api/orders') return next();
+
+  // auth:
   if (req.method === 'POST' && req.path === '/api/login') return next();
+  if (req.method === 'POST' && req.path === '/api/logout') return next();
   if (req.method === 'GET' && req.path === '/api/me') return next();
 
+  // إدارة: لازم يكون admin
+  if (req.session?.isAdmin) return next();
+
   return res.status(401).json({ error: 'غير مصرح' });
-});
+}
+app.use('/api', apiGuard);
 
 /* ================== MULTER ================== */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const dir = path.join(UPLOADS_DIR, 'products', req.params.id);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
+    cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'));
   }
 });
 const upload = multer({ storage });
@@ -128,17 +162,10 @@ app.get('/api/products', (req, res) => {
       const map = {};
       images.forEach(img => {
         if (!map[img.product_id]) map[img.product_id] = [];
-        map[img.product_id].push(
-          `/uploads/products/${img.product_id}/${img.image}`
-        );
+        map[img.product_id].push(`/uploads/products/${img.product_id}/${img.image}`);
       });
 
-      res.json(
-        products.map(p => ({
-          ...p,
-          images: map[p.id] || []
-        }))
-      );
+      res.json(products.map(p => ({ ...p, images: map[p.id] || [] })));
     });
   });
 });
@@ -157,44 +184,53 @@ app.post('/api/products', (req, res) => {
   );
 });
 
-app.post(
-  '/api/products/:id/images',
-  upload.array('images', 5),
-  (req, res) => {
-    if (!req.files?.length) {
-      return res.status(400).json({ error: 'لا توجد صور' });
+app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
+  if (!req.files?.length) return res.status(400).json({ error: 'لا توجد صور' });
+
+  const stmt = db.prepare('INSERT INTO product_images (product_id, image) VALUES (?, ?)');
+  req.files.forEach(f => stmt.run(req.params.id, f.filename));
+  stmt.finalize();
+
+  res.json({ success: true, files: req.files.length });
+});
+
+/* ================== ORDERS (لوحة الإدارة تحتاجها) ================== */
+app.get('/api/orders', (req, res) => {
+  db.all('SELECT * FROM orders ORDER BY id DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json(rows.map(o => ({ ...o, items: JSON.parse(o.items) })));
+  });
+});
+
+app.put('/api/orders/:id/status', (req, res) => {
+  db.run(
+    'UPDATE orders SET status = ? WHERE id = ?',
+    [req.body.status, req.params.id],
+    (err) => {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true });
     }
+  );
+});
 
-    const stmt = db.prepare(
-      'INSERT INTO product_images (product_id, image) VALUES (?, ?)'
-    );
-
-    req.files.forEach(f => stmt.run(req.params.id, f.filename));
-    stmt.finalize();
-
+app.delete('/api/orders/:id', (req, res) => {
+  db.run('DELETE FROM orders WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
     res.json({ success: true });
-  }
-);
+  });
+});
 
-/* ================== ORDERS ================== */
+/* ================== CUSTOMER ORDERS ================== */
 app.post('/api/orders', (req, res) => {
   const { items, phone, country, address, name } = req.body;
 
   db.run(
     `INSERT INTO orders (name, phone, country, address, items, status, createdAt)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      name,
-      phone,
-      country,
-      address,
-      JSON.stringify(items),
-      'new',
-      new Date().toISOString()
-    ],
+    [name, phone, country, address, JSON.stringify(items), 'new', new Date().toISOString()],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true });
+      res.json({ success: true, orderId: this.lastID });
     }
   );
 });
