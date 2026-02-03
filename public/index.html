@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>متجر الخضار</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="text-align:right;">
+
+<header>
+  <span>متجر الخضار</span>
+  <a href="admin.html" style="color:#fff; float:left; text-decoration:none; font-size:14px;">
+    لوحة المسؤول
+  </a>
+</header>
+
+<div class="container">
+
+  <div id="campaignBanner" class="campaign-banner" style="display:none;">
+    <h3>العروض الحالية</h3>
+    <div id="campaignContent"></div>
+  </div>
+
+  <h2>منتجاتنا</h2>
+  <div id="productsContainer">جاري تحميل المنتجات...</div>
+
+  <div style="margin-top:20px; text-align:left;">
+    <button onclick="goToCart()"
+      style="background:#2e8b57;color:white;padding:10px 16px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">
+      سلة المشتريات (<span id="cartCount">0</span>)
+    </button>
+  </div>
+</div>
+
+<script>
+let products = [];
+let cart = {};
+
+async function loadProducts() {
+  const res = await fetch('/api/products');
+  products = await res.json();
+  renderProducts();
+  loadCartFromStorage();
+}
+
+function renderProducts() {
+  const container = document.getElementById('productsContainer');
+  container.innerHTML = '';
+
+  products.forEach(p => {
+    if (!p.available) return;
+
+    const unitLabel = p.unitType === 'bag' ? 'كيس' : 'كغم';
+    const qty = cart[p.id]?.qty || 0;
+
+    const imageUrl = (p.images && p.images.length)
+      ? p.images[0]
+      : '/images/no-image.png';
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <img src="${imageUrl}"
+        style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:8px;">
+
+      <h3>${p.name}</h3>
+
+      <div style="font-size:13px;color:#555;margin-bottom:4px;">
+        ${p.description || ''}
+      </div>
+
+      <div style="font-weight:bold;margin-bottom:8px;">
+        ₪${p.price} / ${unitLabel}
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="decreaseQty(${p.id})"
+          style="width:30px;height:30px;border-radius:50%;border:none;background:#eee;">-</button>
+
+        <span id="qty-${p.id}" style="min-width:80px;text-align:center;">
+          ${qty} ${unitLabel}
+        </span>
+
+        <button onclick="increaseQty(${p.id})"
+          style="width:30px;height:30px;border-radius:50%;border:none;background:#2e8b57;color:white;">+</button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function increaseQty(id) {
+  const p = products.find(x => x.id === id);
+  if (!cart[id]) {
+    cart[id] = { id:p.id,name:p.name,price:p.price,unitType:p.unitType,qty:0 };
+  }
+  cart[id].qty++;
+  saveCart();
+  updateQtyLabel(id);
+}
+
+function decreaseQty(id) {
+  if (!cart[id]) return;
+  cart[id].qty--;
+  if (cart[id].qty <= 0) delete cart[id];
+  saveCart();
+  updateQtyLabel(id);
+}
+
+function updateQtyLabel(id) {
+  const p = products.find(x => x.id === id);
+  const unit = p.unitType === 'bag' ? 'كيس' : 'كغم';
+  const span = document.getElementById('qty-'+id);
+  if (span) span.textContent = `${cart[id]?.qty || 0} ${unit}`;
+}
+
+function saveCart() {
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+}
+
+function loadCartFromStorage() {
+  const saved = localStorage.getItem('cart');
+  if (saved) cart = JSON.parse(saved);
+  updateCartCount();
+}
+
+function updateCartCount() {
+  const total = Object.values(cart).reduce((s,i)=>s+i.qty,0);
+  document.getElementById('cartCount').textContent = total;
+}
+
+function goToCart() {
+  window.location.href = 'review.html';
+}
+
+document.addEventListener('DOMContentLoaded', loadProducts);
+</script>
+
+</body>
+</html>
