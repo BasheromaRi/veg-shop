@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8">
+  <title>سلة المشتريات</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="text-align:right;">
+
+  <header>
+    <span>سلة المشتريات</span>
+    <a href="index.html" style="color:#fff; float:left; text-decoration:none; font-size:14px;">
+      الرجوع للمتجر
+    </a>
+  </header>
+
+  <div class="container">
+    <h2>مراجعة الطلب</h2>
+
+    <div id="cartContainer">
+      جاري تحميل السلة...
+    </div>
+
+    <hr style="margin:20px 0;">
+
+    <h3>بيانات الزبون</h3>
+    <form id="orderForm">
+      <div style="margin-bottom:8px;">
+        <label>الاسم الكامل:</label><br>
+        <input type="text" id="name" required style="width:100%; padding:8px;">
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <label>رقم الهاتف:</label><br>
+        <input type="text" id="phone" required style="width:100%; padding:8px;">
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <label>البلد:</label><br>
+        <input type="text" id="country" required style="width:100%; padding:8px;">
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <label>العنوان (شارع / منطقة):</label><br>
+        <input type="text" id="address" required style="width:100%; padding:8px;">
+      </div>
+
+      <button type="submit"
+        style="
+          margin-top:10px;
+          background:#2e8b57;
+          color:white;
+          padding:10px 16px;
+          border:none;
+          border-radius:8px;
+          font-weight:bold;
+          cursor:pointer;
+        ">
+        تأكيد الطلب
+      </button>
+    </form>
+  </div>
+
+  <script>
+    let cart = {};
+
+    function loadCart() {
+      const container = document.getElementById('cartContainer');
+
+      try {
+        const saved = localStorage.getItem('cart');
+        if (!saved) {
+          container.innerHTML = '<p>السلة فارغة.</p>';
+          document.getElementById('orderForm').style.display = 'none';
+          return;
+        }
+
+        cart = JSON.parse(saved);
+
+        const items = Object.values(cart);
+        if (!items.length) {
+          container.innerHTML = '<p>السلة فارغة.</p>';
+          document.getElementById('orderForm').style.display = 'none';
+          return;
+        }
+
+        let html = `
+          <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+              <tr style="background:#f0f0f0;">
+                <th style="border:1px solid #ddd; padding:6px;">المنتج</th>
+                <th style="border:1px solid #ddd; padding:6px;">الكمية</th>
+                <th style="border:1px solid #ddd; padding:6px;">سعر الوحدة (₪)</th>
+                <th style="border:1px solid #ddd; padding:6px;">المجموع (₪)</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        let totalPrice = 0;
+
+        items.forEach(item => {
+          const unitType = item.unitType === 'bag' ? 'أكياس' : 'كغم';
+          const linePrice = item.price * item.qty;
+          totalPrice += linePrice;
+
+          html += `
+            <tr>
+              <td style="border:1px solid #ddd; padding:4px;">${item.name}</td>
+              <td style="border:1px solid #ddd; padding:4px;">${item.qty} ${unitType}</td>
+              <td style="border:1px solid #ddd; padding:4px;">${item.price}</td>
+              <td style="border:1px solid #ddd; padding:4px;">${linePrice}</td>
+            </tr>
+          `;
+        });
+
+        html += `
+            </tbody>
+          </table>
+          <div style="margin-top:10px; font-weight:bold;">
+            المجموع قبل التوصيل: ${totalPrice} شاقل
+          </div>
+        `;
+
+        container.innerHTML = html;
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p style="color:red;">خطأ في قراءة السلة</p>';
+        document.getElementById('orderForm').style.display = 'none';
+      }
+    }
+
+    async function sendOrder(e) {
+      e.preventDefault();
+
+      const items = Object.values(cart);
+      if (!items.length) {
+        alert('السلة فارغة، لا يمكن إرسال الطلب.');
+        return;
+      }
+
+      const name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+      const country = document.getElementById('country').value;
+      const address = document.getElementById('address').value;
+
+      const orderData = {
+        name,
+        phone,
+        country,
+        address,
+        items
+      };
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          alert(data.error || 'حدث خطأ أثناء إرسال الطلب');
+          console.log(data);
+          return;
+        }
+
+        // تفريغ السلة
+        localStorage.removeItem('cart');
+        alert('تم إرسال الطلب بنجاح ✅ سيتم التواصل معك قريباً.');
+        window.location.href = 'index.html';
+      } catch (err) {
+        console.error(err);
+        alert('مشكلة بالاتصال مع السيرفر');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCart();
+      const form = document.getElementById('orderForm');
+      form.addEventListener('submit', sendOrder);
+    });
+  </script>
+
+</body>
+</html>
