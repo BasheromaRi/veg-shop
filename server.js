@@ -33,24 +33,21 @@ const ADMIN_PASS = 'Q1azP0lm';
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-app.use(
-  session({
-    name: 'vegshop.sid',
-    secret: 'veg-shop-secret',
-    resave: false,
-    saveUninitialized: false,
-    store: new SQLiteStore({
-      db: 'sessions.db',
-      dir: DATA_DIR
-    }),
-    cookie: {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: false, // Render free = false
-      maxAge: 1000 * 60 * 60 * 6
-    }
-  })
-);
+app.set('trust proxy', 1);
+
+app.use(session({
+  name: 'vegshop.sid',
+  secret: process.env.SESSION_SECRET || 'veg-shop-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 6,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  }
+}));
+
 
 /* ================== STATIC ================== */
 app.use(express.static(path.join(__dirname, 'public')));
@@ -73,6 +70,7 @@ app.post('/api/logout', (req, res) => {
     res.json({ success: true });
   });
 });
+
 
 app.get('/api/me', (req, res) => {
   res.json({ isAdmin: !!req.session.isAdmin });
