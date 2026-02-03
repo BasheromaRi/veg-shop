@@ -50,6 +50,7 @@
         const res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',   // ✅ مهم للسيشن على Render
           body: JSON.stringify({ username, password })
         });
 
@@ -60,7 +61,8 @@
           return;
         }
 
-        window.location.href = '/admin.html';
+        // ✅ التحويل للوحة الإدارة الجديدة
+        window.location.href = '/admin/secret-admin-9347';
       } catch (err) {
         console.error(err);
         msg.textContent = 'مشكلة اتصال بالسيرفر';
