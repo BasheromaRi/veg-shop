@@ -5,212 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>طلبات الزبائن</title>
 
-  <!-- خليها absolute عشان تشتغل من /admin -->
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
-    /* ستايل خاص للصفحة فقط */
     .wrap { margin-top: 12px; }
 
     .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      margin: 10px 0 14px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; flex-wrap:wrap; margin: 10px 0 14px;
     }
-
-    .filters{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
+    .filters{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .pill{
-      border:1px solid #d7e2db;
-      background:#fff;
-      padding:8px 10px;
-      border-radius:999px;
-      cursor:pointer;
-      font-weight:900;
-      font-size:13px;
+      border:1px solid #d7e2db; background:#fff; padding:8px 10px;
+      border-radius:999px; cursor:pointer; font-weight:900; font-size:13px;
     }
-    .pill.active{
-      background:#eaf5ef;
-      border-color:#9dd3b1;
-    }
-
-    .search{
-      flex:1;
-      min-width: 220px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-
+    .pill.active{ background:#eaf5ef; border-color:#9dd3b1; }
+    .search{ flex:1; min-width: 220px; display:flex; gap:8px; align-items:center; }
     .search input{
-      width:100%;
-      padding:10px 12px;
-      border:1px solid #d7e2db;
-      border-radius:12px;
-      font-size:14px;
+      width:100%; padding:10px 12px; border:1px solid #d7e2db;
+      border-radius:12px; font-size:14px;
     }
+    .hint{ color:#6a7b72; font-size:12px; margin-top:6px; line-height:1.4; }
 
-    .hint{
-      color:#6a7b72;
-      font-size:12px;
-      margin-top:6px;
-      line-height:1.4;
-    }
-
-    .grid{
-      display:grid;
-      gap:12px;
-      margin: 12px 0 18px;
-    }
-
+    .grid{ display:grid; gap:12px; margin: 12px 0 18px; }
     .card{
-      background:#fff;
-      border:1px solid #dfe7e2;
-      border-radius:16px;
-      padding:12px;
-      box-shadow: 0 1px 10px rgba(0,0,0,.06);
+      background:#fff; border:1px solid #dfe7e2; border-radius:16px;
+      padding:12px; box-shadow: 0 1px 10px rgba(0,0,0,.06);
     }
-
     .card-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-bottom:10px;
+      display:flex; justify-content:space-between; align-items:flex-start;
+      gap:10px; flex-wrap:wrap; margin-bottom:10px;
     }
-
-    .order-title{
-      font-weight:1000;
-      color:#0f2b1f;
-      font-size:16px;
-    }
-
-    .meta{
-      color:#6a7b72;
-      font-size:12px;
-      margin-top:4px;
-    }
+    .order-title{ font-weight:1000; color:#0f2b1f; font-size:16px; }
+    .meta{ color:#6a7b72; font-size:12px; margin-top:4px; }
 
     .badge{
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:900;
-      font-size:12px;
-      border:1px solid transparent;
-      white-space:nowrap;
+      padding:6px 10px; border-radius:999px; font-weight:900;
+      font-size:12px; border:1px solid transparent; white-space:nowrap;
     }
-
     .b-new{ background:#fff7e6; border-color:#ffd38a; color:#7a4b00; }
     .b-progress{ background:#e9f3ff; border-color:#b7d8ff; color:#084b8a; }
     .b-done{ background:#eaf7ef; border-color:#a8e0be; color:#0f5a2a; }
     .b-cancel{ background:#ffecec; border-color:#ffc0c0; color:#8a1414; }
+    .b-contact{ background:#f1ecff; border-color:#d2c0ff; color:#4b2b8a; } /* ✅ تم التواصل */
 
-    .rows{
-      display:grid;
-      gap:8px;
-      margin: 8px 0 12px;
-    }
-
+    .rows{ display:grid; gap:8px; margin: 8px 0 12px; }
     .row{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      font-size:14px;
+      display:flex; justify-content:space-between; gap:10px;
+      flex-wrap:wrap; font-size:14px;
     }
-
     .label{ color:#6a7b72; font-size:12px; }
     .value{ font-weight:900; text-align:left; direction:ltr; }
-
     .addr{ direction:rtl; text-align:right; font-weight:800; }
 
-    .items{
-      margin-top:10px;
-      border-top:1px dashed #d7e2db;
-      padding-top:10px;
-    }
-
+    .items{ margin-top:10px; border-top:1px dashed #d7e2db; padding-top:10px; }
     .item{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      padding:8px 0;
-      border-bottom:1px solid #f0f3f1;
-      font-size:14px;
+      display:flex; justify-content:space-between; gap:10px;
+      padding:8px 0; border-bottom:1px solid #f0f3f1; font-size:14px;
     }
     .item:last-child{ border-bottom:none; }
-
     .item strong{ font-weight:1000; }
     .muted{ color:#6a7b72; font-size:12px; }
 
     .total{
-      margin-top:10px;
-      padding:10px;
-      border-radius:14px;
-      background:#f6fbf8;
-      border:1px solid #cfe3d6;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      font-weight:1000;
+      margin-top:10px; padding:10px; border-radius:14px;
+      background:#f6fbf8; border:1px solid #cfe3d6;
+      display:flex; justify-content:space-between; align-items:center;
+      gap:10px; font-weight:1000;
     }
 
     .actions{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
       margin-top:12px;
     }
-
     .btn{
-      border:none;
-      border-radius:12px;
-      padding:10px 12px;
-      cursor:pointer;
-      font-weight:1000;
-      font-size:13px;
+      border:none; border-radius:12px; padding:10px 12px;
+      cursor:pointer; font-weight:1000; font-size:13px;
     }
     .btn:active{ transform: scale(.99); }
-
     .btn-green{ background:#2e8b57; color:#fff; }
     .btn-blue{ background:#2b74c7; color:#fff; }
     .btn-red{ background:#d83a3a; color:#fff; }
     .btn-light{ background:#eaf5ef; color:#0f2b1f; }
 
     .status-line{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:space-between;
-      margin-top:12px;
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+      justify-content:space-between; margin-top:12px;
     }
     select{
-      padding:10px 12px;
-      border:1px solid #d7e2db;
-      border-radius:12px;
-      font-weight:900;
-      background:#fff;
+      padding:10px 12px; border:1px solid #d7e2db;
+      border-radius:12px; font-weight:900; background:#fff;
       min-width: 180px;
     }
 
     .empty{
-      padding:14px;
-      background:#fff;
-      border:1px solid #dfe7e2;
-      border-radius:14px;
-      color:#6a7b72;
+      padding:14px; background:#fff; border:1px solid #dfe7e2;
+      border-radius:14px; color:#6a7b72;
     }
 
     @media (max-width:700px){
@@ -234,6 +124,7 @@
       <div class="filters">
         <button class="pill active" data-filter="all">الكل</button>
         <button class="pill" data-filter="new">جديد</button>
+        <button class="pill" data-filter="contacted">تم التواصل</button>
         <button class="pill" data-filter="in_progress">قيد التحضير</button>
         <button class="pill" data-filter="done">تم التوصيل</button>
         <button class="pill" data-filter="cancelled">ملغي</button>
@@ -256,6 +147,9 @@
     let orders = [];
     let currentFilter = 'all';
 
+    // ✅ عدّلها إذا بدك دولة ثانية
+    const DEFAULT_COUNTRY_CODE = '972'; // إسرائيل
+
     function esc(s){
       return String(s ?? '').replace(/[&<>"']/g, (m) => ({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -265,58 +159,81 @@
     function formatDate(iso){
       try{
         const d = new Date(iso);
-        return d.toLocaleString('ar-EG', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return d.toLocaleString('ar-EG', {
+          year:'numeric', month:'2-digit', day:'2-digit',
+          hour:'2-digit', minute:'2-digit'
+        });
       }catch(e){ return iso || ''; }
     }
 
     function statusBadge(status){
-  const s = status || 'new';
-  if (s === 'done') return `<span class="badge b-done">تم التوصيل</span>`;
-  if (s === 'in_progress') return `<span class="badge b-progress">قيد التحضير</span>`;
-  if (s === 'contacted') return `<span class="badge b-progress">تم التواصل</span>`;
-  if (s === 'cancelled') return `<span class="badge b-cancel">ملغي</span>`;
-  return `<span class="badge b-new">جديد</span>`;
-}
-
-    function statusLabel(status){
       const s = status || 'new';
-      if (s === 'done') return 'تم التوصيل';
-      if (s === 'in_progress') return 'قيد التحضير';
-      if (s === 'cancelled') return 'ملغي';
-      return 'جديد';
+      if (s === 'done') return `<span class="badge b-done">تم التوصيل</span>`;
+      if (s === 'in_progress') return `<span class="badge b-progress">قيد التحضير</span>`;
+      if (s === 'contacted') return `<span class="badge b-contact">تم التواصل</span>`;
+      if (s === 'cancelled') return `<span class="badge b-cancel">ملغي</span>`;
+      return `<span class="badge b-new">جديد</span>`;
     }
-
-    function buildWhatsappText(order){
-  const items = (order.items || []).map(i =>
-    `- ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${i.price * i.qty}`
-  ).join('\n');
-
-  const total = calcTotal(order.items || []);
-
-  return `مرحباً ${order.name || ''} 👋
-تم التواصل بخصوص طلبك رقم #${order.id}
-
-🧺 المنتجات:
-${items}
-
-💰 المجموع: ₪${total}
-📍 العنوان: ${order.address || ''}`;
-}
 
     function calcTotal(items){
       return (items || []).reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
     }
 
     function normalizeOrder(o){
-      // items ممكن تكون string في بعض الحالات
       let items = o.items;
       if (typeof items === 'string'){
         try{ items = JSON.parse(items); } catch(e){ items = []; }
       }
-      return {
-        ...o,
-        items: Array.isArray(items) ? items : []
-      };
+      return { ...o, items: Array.isArray(items) ? items : [] };
+    }
+
+    // ✅ أهم جزء: تحويل رقم الهاتف لرقم واتساب دولي
+    function normalizePhoneToE164(phone){
+      let digits = String(phone || '').replace(/\D/g,'');
+      if (!digits) return '';
+
+      // 00xxxxx -> xxxxx
+      if (digits.startsWith('00')) digits = digits.slice(2);
+
+      // إذا الرقم أصلاً داخل بكود دولة (مثال 972...)
+      if (digits.startsWith(DEFAULT_COUNTRY_CODE)) return digits;
+
+      // رقم محلي يبدأ 0 (050/052...) => نشيل 0 ونضيف 972
+      if (digits.startsWith('0')) {
+        digits = digits.slice(1);
+        return DEFAULT_COUNTRY_CODE + digits;
+      }
+
+      // رقم بدون 0 (مثال 50xxxxxxx) => نضيف 972
+      if (digits.length >= 8 && digits.length <= 10) {
+        return DEFAULT_COUNTRY_CODE + digits;
+      }
+
+      // fallback
+      return digits;
+    }
+
+    function buildWhatsappText(order){
+      const items = (order.items || []).map(i =>
+        `- ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${(Number(i.price)||0) * (Number(i.qty)||0)}`
+      ).join('\n');
+
+      const total = calcTotal(order.items || []);
+
+      return `مرحباً ${order.name || ''} 👋
+بخصوص طلبك رقم #${order.id}
+
+🧺 المنتجات:
+${items || '- (لا يوجد منتجات)'}
+
+💰 المجموع: ₪${total}
+📍 العنوان: ${order.address || ''}`;
+    }
+
+    function makeWhatsAppLink(phoneE164, text){
+      const msg = encodeURIComponent(text || '');
+      // ✅ wa.me شغال ممتاز على iPhone/Android وكمان على الكمبيوتر
+      return `https://wa.me/${phoneE164}?text=${msg}`;
     }
 
     async function fetchOrders(){
@@ -366,17 +283,11 @@ ${items}
 
       list.innerHTML = filtered.map(o => {
         const total = calcTotal(o.items || []);
-        const phone = (o.phone || '').trim();
-        let waLink = null;
-if (phone) {
-  const cleanPhone = phone.replace(/\D/g, '');
-  const msg = encodeURIComponent(buildWhatsappText(o));
+        const phoneE164 = normalizePhoneToE164(o.phone || '');
 
-  const isMobile = /iPhone|Android/i.test(navigator.userAgent);
-  waLink = isMobile
-    ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`
-    : `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`;
-}
+        const waLink = phoneE164
+          ? makeWhatsAppLink(phoneE164, buildWhatsappText(o))
+          : null;
 
         const itemsHtml = (o.items || []).map(it => {
           const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
@@ -434,16 +345,21 @@ if (phone) {
             <div class="status-line">
               <div style="font-weight:1000;">تغيير الحالة</div>
               <select onchange="updateStatus(${esc(o.id)}, this.value)">
-  <option value="new" ${ (o.status||'new')==='new' ? 'selected':'' }>جديد</option>
-  <option value="contacted" ${ (o.status||'new')==='contacted' ? 'selected':'' }>تم التواصل</option>
-  <option value="in_progress" ${ (o.status||'new')==='in_progress' ? 'selected':'' }>قيد التحضير</option>
-  <option value="done" ${ (o.status||'new')==='done' ? 'selected':'' }>تم التوصيل</option>
-  <option value="cancelled" ${ (o.status||'new')==='cancelled' ? 'selected':'' }>ملغي</option>
-</select>
+                <option value="new" ${(o.status||'new')==='new' ? 'selected':''}>جديد</option>
+                <option value="contacted" ${(o.status||'new')==='contacted' ? 'selected':''}>تم التواصل</option>
+                <option value="in_progress" ${(o.status||'new')==='in_progress' ? 'selected':''}>قيد التحضير</option>
+                <option value="done" ${(o.status||'new')==='done' ? 'selected':''}>تم التوصيل</option>
+                <option value="cancelled" ${(o.status||'new')==='cancelled' ? 'selected':''}>ملغي</option>
+              </select>
             </div>
 
             <div class="actions">
-              ${waLink ? `<a class="btn btn-green" style="text-decoration:none; display:inline-block;" target="_blank" href="${waLink}">واتساب</a>` : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم واتساب</button>`}
+              ${
+                waLink
+                ? `<a class="btn btn-green" style="text-decoration:none; display:inline-block;" rel="noopener" target="_blank" href="${waLink}">واتساب</a>
+                   <button class="btn btn-blue" type="button" onclick="contactAndOpen(${esc(o.id)}, '${waLink.replace(/'/g,"\\'")}')">تم التواصل + واتساب</button>`
+                : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم واتساب</button>`
+              }
               <button class="btn btn-red" type="button" onclick="deleteOrder(${esc(o.id)})">حذف الطلب</button>
             </div>
           </div>
@@ -451,7 +367,7 @@ if (phone) {
       }).join('');
     }
 
-    // أحداث الفلاتر
+    // فلاتر
     document.querySelectorAll('.pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
@@ -479,7 +395,6 @@ if (phone) {
           return;
         }
 
-        // تحديث محلي
         const idx = orders.findIndex(o => o.id == id);
         if (idx >= 0) orders[idx].status = status;
         render();
@@ -487,7 +402,14 @@ if (phone) {
         console.error(err);
         alert('مشكلة اتصال بالسيرفر');
       }
-    }
+    };
+
+    // ✅ زر سريع: يغير للحالة "تم التواصل" وبعدين يفتح واتساب
+    window.contactAndOpen = async function(id, waLink){
+      await window.updateStatus(id, 'contacted');
+      // على iOS أحياناً target blank بيعمل مشاكل، فبنفتح مباشرة
+      window.location.href = waLink;
+    };
 
     window.deleteOrder = async function(id){
       if (!confirm('متأكد بدك تحذف الطلب؟')) return;
@@ -510,7 +432,7 @@ if (phone) {
         console.error(err);
         alert('مشكلة اتصال بالسيرفر');
       }
-    }
+    };
 
     fetchOrders();
   </script>
