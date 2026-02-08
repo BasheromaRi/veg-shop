@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || '/var/data';
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads');
 
-// ✅ أهم تعديل: صفحات الإدارة موجودة داخل public/admin
+// صفحات الإدارة داخل public/admin
 const ADMIN_DIR = path.join(__dirname, 'public', 'admin');
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -26,8 +26,30 @@ fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 /* ================== DB ================== */
 const dbPath = path.join(DATA_DIR, 'data.db');
-const db = new sqlite3.Database(dbPath, err => {
-  db.serialize(() => {
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) console.error('DB error', err);
+  else console.log('Connected to SQLite DB:', dbPath);
+});
+
+function ensureColumn(table, column, typeSql) {
+  return new Promise((resolve) => {
+    db.all(`PRAGMA table_info(${table})`, [], (err, rows) => {
+      if (err) return resolve(false);
+      const exists = rows.some(r => r.name === column);
+      if (exists) return resolve(true);
+
+      db.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${typeSql}`, [], (err2) => {
+        if (err2) {
+          console.error('ALTER TABLE error:', err2);
+          return resolve(false);
+        }
+        resolve(true);
+      });
+    });
+  });
+}
+
+db.serialize(async () => {
   db.run(`CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -54,10 +76,12 @@ const db = new sqlite3.Database(dbPath, err => {
     createdAt TEXT
   )`);
 
-  console.log('✅ DB tables ensured');
-});
-  if (err) console.error('DB error', err);
-  else console.log('Connected to SQLite DB:', dbPath);
+  // ✅ إضافة أعمدة للتوصيل والمجاميع (إذا مش موجودة)
+  await ensureColumn('orders', 'subtotal', 'REAL DEFAULT 0');
+  await ensureColumn('orders', 'deliveryFee', 'REAL DEFAULT 0');
+  await ensureColumn('orders', 'total', 'REAL DEFAULT 0');
+
+  console.log('✅ DB tables/columns ensured');
 });
 
 /* ================== ADMIN ================== */
@@ -96,6 +120,15 @@ function noCache(req, res, next) {
   next();
 }
 
+/* ================== ADMIN GUARD (قبل static) ================== */
+function requireAdmin(req, res, next) {
+  if (req.session?.isAdmin) return next();
+  return res.redirect('/login.html');
+}
+
+// ✅ حماية أي شيء تحت /admin
+app.use('/admin', noCache, requireAdmin);
+
 /* ================== STATIC (المتجر) ================== */
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -124,15 +157,7 @@ app.get('/api/me', (req, res) => {
   res.json({ isAdmin: !!req.session.isAdmin });
 });
 
-/* ================== ADMIN PAGES (محمية) ================== */
-function requireAdmin(req, res, next) {
-  if (req.session?.isAdmin) return next();
-  return res.redirect('/login.html');
-}
-
-// ✅ إذا حد حاول يفتح ملفات admin مباشرة: خليها محمية
-app.use('/admin', noCache, requireAdmin);
-
+/* ================== ADMIN PAGES ================== */
 app.get('/admin/secret-admin-9347', (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'secret-admin-9347.html'));
 });
@@ -149,8 +174,13 @@ app.get('/admin/campaigns', (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'campaigns.html'));
 });
 
+app.get('/admin/product-totals', (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'product-totals.html'));
+});
+
 /* ================== API GUARD ================== */
 function apiGuard(req, res, next) {
+  // ملاحظة: لأنه mounted على /api فـ req.path هون بدون /api
   if (req.path.startsWith('/uploads')) return next();
 
   // زبون:
@@ -169,13 +199,10 @@ function apiGuard(req, res, next) {
 }
 app.use('/api', apiGuard);
 
-app.get('/admin/product-totals', noCache, requireAdmin, (req, res) => {
-  res.sendFile(path.join(ADMIN_DIR, 'product-totals.html'));
-});
 /* ================== MULTER ================== */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(UPLOADS_DIR, 'products', req.params.id);
+    const dir = path.join(UPLOADS_DIR, 'products', String(req.params.id));
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -218,8 +245,7 @@ app.post('/api/products', (req, res) => {
   );
 });
 
-app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
-   /* ================== UPDATE PRODUCT ================== */
+/* ✅ UPDATE PRODUCT */
 app.put('/api/products/:id', (req, res) => {
   const { name, price, description, available, unitType } = req.body;
 
@@ -242,11 +268,10 @@ app.put('/api/products/:id', (req, res) => {
   );
 });
 
-/* ================== DELETE PRODUCT ================== */
+/* ✅ DELETE PRODUCT */
 app.delete('/api/products/:id', (req, res) => {
-  const id = req.params.id;
+  const id = String(req.params.id);
 
-  // امسح الصور من جدول الصور + الملفات (اختياري لكن الأفضل)
   db.all('SELECT image FROM product_images WHERE product_id = ?', [id], (err, rows) => {
     if (!err && rows?.length) {
       rows.forEach(r => {
@@ -261,7 +286,6 @@ app.delete('/api/products/:id', (req, res) => {
       db.run('DELETE FROM products WHERE id = ?', [id], function (err3) {
         if (err3) return res.status(500).json({ error: 'DB error' });
 
-        // امسح فولدر الصور للمنتج
         const dir = path.join(UPLOADS_DIR, 'products', id);
         try { fs.existsSync(dir) && fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
 
@@ -271,6 +295,7 @@ app.delete('/api/products/:id', (req, res) => {
   });
 });
 
+app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
   if (!req.files?.length) return res.status(400).json({ error: 'لا توجد صور' });
 
   const stmt = db.prepare('INSERT INTO product_images (product_id, image) VALUES (?, ?)');
@@ -284,7 +309,14 @@ app.delete('/api/products/:id', (req, res) => {
 app.get('/api/orders', (req, res) => {
   db.all('SELECT * FROM orders ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
-    res.json(rows.map(o => ({ ...o, items: JSON.parse(o.items) })));
+
+    const out = rows.map(o => {
+      let items = [];
+      try { items = JSON.parse(o.items || '[]'); } catch (e) { items = []; }
+      return { ...o, items };
+    });
+
+    res.json(out);
   });
 });
 
@@ -307,54 +339,88 @@ app.delete('/api/orders/:id', (req, res) => {
 });
 
 /* ================== CUSTOMER ORDERS ================== */
+function calcSubtotal(items) {
+  return (items || []).reduce((sum, it) => {
+    const price = Number(it.price) || 0;
+    const qty = Number(it.qty) || 0;
+    return sum + (price * qty);
+  }, 0);
+}
+
+// ✅ توصيل: إذا subtotal >= 300 مجاني، غير هيك 30
+function calcDeliveryFee(subtotal) {
+  return subtotal >= 300 ? 0 : 30;
+}
+
 app.post('/api/orders', (req, res) => {
   const { items, phone, country, address, name } = req.body;
 
+  const safeItems = Array.isArray(items) ? items : [];
+  const subtotal = calcSubtotal(safeItems);
+  const deliveryFee = calcDeliveryFee(subtotal);
+  const total = subtotal + deliveryFee;
+
   db.run(
-    `INSERT INTO orders (name, phone, country, address, items, status, createdAt)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [name, phone, country, address, JSON.stringify(items), 'new', new Date().toISOString()],
+    `INSERT INTO orders (name, phone, country, address, items, status, createdAt, subtotal, deliveryFee, total)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      name,
+      phone,
+      country,
+      address,
+      JSON.stringify(safeItems),
+      'new',
+      new Date().toISOString(),
+      subtotal,
+      deliveryFee,
+      total
+    ],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true, orderId: this.lastID });
+      res.json({ success: true, orderId: this.lastID, subtotal, deliveryFee, total });
     }
   );
 });
-/* ================== REPORTS ================== */
-/* مجموع الكميات حسب الحالة */
 
+/* ================== REPORTS ==================
+   مجموع الكميات حسب الحالة (من items المخزّنة)
+   /api/reports/totals?status=all|new|contacted|in_progress|done|cancelled
+*/
 app.get('/api/reports/totals', (req, res) => {
-  const status = req.query.status; // all / new / contacted / in_progress / done / cancelled
+  const status = (req.query.status || 'all').trim();
 
-  let where = '';
-  let params = [];
+  const where = (status && status !== 'all') ? 'WHERE status = ?' : '';
+  const params = (status && status !== 'all') ? [status] : [];
 
-  if (status && status !== 'all') {
-    where = 'WHERE o.status = ?';
-    params.push(status);
-  }
+  db.all(`SELECT id, items, status FROM orders ${where}`, params, (err, rows) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
 
-  const sql = `
-    SELECT
-      i.name,
-      i.unitType,
-      SUM(oi.qty) as totalQty
-    FROM orders o
-    JOIN json_each(o.items) AS oi
-    JOIN products i ON i.id = oi.value->>'id'
-    ${where}
-    GROUP BY i.name, i.unitType
-    ORDER BY i.name
-  `;
+    const map = new Map(); // key: name||unitType
 
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'DB error' });
-    }
-    res.json({ totals: rows });
+    rows.forEach(r => {
+      let items = [];
+      try { items = JSON.parse(r.items || '[]'); } catch (e) { items = []; }
+
+      items.forEach(it => {
+        const name = String(it.name || '').trim();
+        const unitType = (it.unitType === 'bag') ? 'bag' : 'kg';
+        const qty = Number(it.qty) || 0;
+        if (!name || qty <= 0) return;
+
+        const key = `${name}__${unitType}`;
+        map.set(key, (map.get(key) || 0) + qty);
+      });
+    });
+
+    const totals = Array.from(map.entries()).map(([key, totalQty]) => {
+      const [name, unitType] = key.split('__');
+      return { name, unitType, totalQty };
+    }).sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+
+    res.json({ totals });
   });
 });
+
 /* ================== START ================== */
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
