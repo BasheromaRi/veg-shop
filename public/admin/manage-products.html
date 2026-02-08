@@ -4,15 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إدارة المنتجات</title>
-  <link rel="stylesheet" href="styles.css">
+
+  <!-- مهم: خليها absolute عشان تشتغل سواء الملف داخل /admin أو داخل /public -->
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body style="text-align:right;">
 
 <header>
   <span>إدارة المنتجات</span>
-  <a href="admin.html" style="color:#fff; float:left;">رجوع</a>
+
+  <!-- مهم: هذا مسار لوحة المسؤول الصحيح عندك -->
+  <a href="/admin/secret-admin-9347" style="color:#fff; float:left;">رجوع</a>
 </header>
- 
+
 <div class="container">
   <h2>إضافة منتج جديد</h2>
 
@@ -32,6 +36,8 @@
     </label><br><br>
 
     <button type="submit">➕ إضافة المنتج</button>
+
+    <p id="msg" style="margin-top:10px;color:red;"></p>
   </form>
 
   <hr>
@@ -41,70 +47,144 @@
 </div>
 
 <script>
+const msg = document.getElementById('msg');
+
+function showError(text) {
+  msg.textContent = text || '';
+}
+
 async function loadProducts() {
-  const res = await fetch('/api/products');
-  const products = await res.json();
+  showError('');
   const div = document.getElementById('productsList');
-  div.innerHTML = '';
+  div.innerHTML = 'تحميل...';
 
-  products.forEach(p => {
-    div.innerHTML += `
-      <div style="border:1px solid #ccc; padding:10px; margin-bottom:15px;">
-        <b>${p.name}</b> — ₪${p.price}<br><br>
+  try {
+    const res = await fetch('/api/products', {
+      method: 'GET',
+      credentials: 'include'
+    });
 
-        <label style="font-size:13px;">رفع صور المنتج:</label><br>
-        <input type="file" multiple accept="image/*"
-          onchange="uploadImages(${p.id}, this.files)">
-        <br><br>
+    const products = await res.json().catch(() => []);
 
-        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-          ${(p.images || []).map(img =>
-            `<img src="${img}"
-              style="width:80px;height:80px;object-fit:cover;border:1px solid #ccc;">`
-          ).join('')}
+    if (!res.ok) {
+      // لو صار 401 يعني السشن مش واصل/انتهى
+      if (res.status === 401) {
+        div.innerHTML = '';
+        showError('انتهت الجلسة. ارجع سجّل دخول.');
+        window.location.href = '/login.html';
+        return;
+      }
+      div.innerHTML = '';
+      showError(products?.error || 'خطأ في تحميل المنتجات');
+      return;
+    }
+
+    div.innerHTML = '';
+
+    products.forEach(p => {
+      div.innerHTML += `
+        <div style="border:1px solid #ccc; padding:10px; margin-bottom:15px;">
+          <b>${p.name}</b> — ₪${p.price}<br><br>
+
+          <label style="font-size:13px;">رفع صور المنتج:</label><br>
+          <input type="file" multiple accept="image/*"
+            onchange="uploadImages(${p.id}, this.files)">
+          <br><br>
+
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            ${(p.images || []).map(img =>
+              `<img src="${img}"
+                style="width:80px;height:80px;object-fit:cover;border:1px solid #ccc;">`
+            ).join('')}
+          </div>
         </div>
-      </div>
-    `;
-  });
+      `;
+    });
+
+    if (products.length === 0) div.innerHTML = 'لا يوجد منتجات بعد.';
+  } catch (err) {
+    console.error(err);
+    div.innerHTML = '';
+    showError('مشكلة اتصال بالسيرفر');
+  }
 }
 
 async function uploadImages(id, files) {
+  showError('');
+  if (!files || !files.length) return;
+
   const fd = new FormData();
-  for (let f of files) {
-    fd.append('images', f);
-  }
+  for (let f of files) fd.append('images', f);
 
-  const res = await fetch(`/api/products/${id}/images`, {
-    method: 'POST',
-    body: fd   // ❗ لا تضيف headers أبداً مع FormData
-  });
+  try {
+    const res = await fetch(`/api/products/${id}/images`, {
+      method: 'POST',
+      credentials: 'include',   // ✅ مهم جداً
+      body: fd                 // ❗ لا تضيف headers مع FormData
+    });
 
-  if (res.ok) {
-    alert('تم حفظ الصور ✅');
-    loadProducts();
-  } else {
-    alert('خطأ في رفع الصور ❌');
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok) {
+      alert('تم حفظ الصور ✅');
+      loadProducts();
+    } else {
+      if (res.status === 401) {
+        alert('انتهت الجلسة. سجّل دخول من جديد.');
+        window.location.href = '/login.html';
+        return;
+      }
+      alert(data?.error || 'خطأ في رفع الصور ❌');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('مشكلة اتصال بالسيرفر');
   }
 }
 
-document.getElementById('productForm').onsubmit = async e => {
+document.getElementById('productForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  showError('');
 
-  await fetch('/api/products', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      name:name.value,
-      price:price.value,
-      description:description.value,
-      unitType:unitType.value,
-      available:available.checked
-    })
-  });
+  const nameEl = document.getElementById('name');
+  const priceEl = document.getElementById('price');
+  const descEl = document.getElementById('description');
+  const unitEl = document.getElementById('unitType');
+  const availEl = document.getElementById('available');
 
-  e.target.reset();
-  loadProducts();
-};
+  try {
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',  // ✅ مهم جداً
+      body: JSON.stringify({
+        name: nameEl.value.trim(),
+        price: Number(priceEl.value),
+        description: descEl.value.trim(),
+        unitType: unitEl.value,
+        available: !!availEl.checked
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        showError('انتهت الجلسة. ارجع سجّل دخول.');
+        window.location.href = '/login.html';
+        return;
+      }
+      showError(data?.error || 'فشل إضافة المنتج');
+      return;
+    }
+
+    e.target.reset();
+    await loadProducts();
+  } catch (err) {
+    console.error(err);
+    showError('مشكلة اتصال بالسيرفر');
+  }
+});
 
 loadProducts();
 </script>
