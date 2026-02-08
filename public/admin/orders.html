@@ -286,10 +286,21 @@
     }
 
     function buildWhatsappText(order){
-      const items = (order.items || []).map(i => `- ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${i.price*i.qty}`).join('\n');
-      const total = calcTotal(order.items || []);
-      return `مرحباً ${order.name || ''}\nطلبك رقم #${order.id} تم استلامه ✅\n\nالمنتجات:\n${items}\n\nالمجموع: ₪${total}\n\nالعنوان: ${order.address || ''}`;
-    }
+  const items = (order.items || []).map(i =>
+    `- ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${i.price * i.qty}`
+  ).join('\n');
+
+  const total = calcTotal(order.items || []);
+
+  return `مرحباً ${order.name || ''} 👋
+تم التواصل بخصوص طلبك رقم #${order.id}
+
+🧺 المنتجات:
+${items}
+
+💰 المجموع: ₪${total}
+📍 العنوان: ${order.address || ''}`;
+}
 
     function calcTotal(items){
       return (items || []).reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
