@@ -216,6 +216,58 @@ app.post('/api/products', (req, res) => {
 });
 
 app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
+   /* ================== UPDATE PRODUCT ================== */
+app.put('/api/products/:id', (req, res) => {
+  const { name, price, description, available, unitType } = req.body;
+
+  db.run(
+    `UPDATE products
+     SET name = ?, price = ?, description = ?, available = ?, unitType = ?
+     WHERE id = ?`,
+    [
+      name,
+      price,
+      description || '',
+      available ? 1 : 0,
+      unitType || 'kg',
+      req.params.id
+    ],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, changes: this.changes });
+    }
+  );
+});
+
+/* ================== DELETE PRODUCT ================== */
+app.delete('/api/products/:id', (req, res) => {
+  const id = req.params.id;
+
+  // امسح الصور من جدول الصور + الملفات (اختياري لكن الأفضل)
+  db.all('SELECT image FROM product_images WHERE product_id = ?', [id], (err, rows) => {
+    if (!err && rows?.length) {
+      rows.forEach(r => {
+        const filePath = path.join(UPLOADS_DIR, 'products', id, r.image);
+        try { fs.existsSync(filePath) && fs.unlinkSync(filePath); } catch (e) {}
+      });
+    }
+
+    db.run('DELETE FROM product_images WHERE product_id = ?', [id], (err2) => {
+      if (err2) return res.status(500).json({ error: 'DB error' });
+
+      db.run('DELETE FROM products WHERE id = ?', [id], function (err3) {
+        if (err3) return res.status(500).json({ error: 'DB error' });
+
+        // امسح فولدر الصور للمنتج
+        const dir = path.join(UPLOADS_DIR, 'products', id);
+        try { fs.existsSync(dir) && fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
+
+        res.json({ success: true, changes: this.changes });
+      });
+    });
+  });
+});
+
   if (!req.files?.length) return res.status(400).json({ error: 'لا توجد صور' });
 
   const stmt = db.prepare('INSERT INTO product_images (product_id, image) VALUES (?, ?)');
