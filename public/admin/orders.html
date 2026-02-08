@@ -366,7 +366,16 @@ ${items}
       list.innerHTML = filtered.map(o => {
         const total = calcTotal(o.items || []);
         const phone = (o.phone || '').trim();
-        const waLink = phone ? `https://wa.me/${encodeURIComponent(phone.replace(/\D/g,''))}?text=${encodeURIComponent(buildWhatsappText(o))}` : null;
+        let waLink = null;
+if (phone) {
+  const cleanPhone = phone.replace(/\D/g, '');
+  const msg = encodeURIComponent(buildWhatsappText(o));
+
+  const isMobile = /iPhone|Android/i.test(navigator.userAgent);
+  waLink = isMobile
+    ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`
+    : `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`;
+}
 
         const itemsHtml = (o.items || []).map(it => {
           const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
