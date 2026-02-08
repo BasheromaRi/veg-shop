@@ -169,6 +169,9 @@ function apiGuard(req, res, next) {
 }
 app.use('/api', apiGuard);
 
+app.get('/admin/product-totals', noCache, requireAdmin, (req, res) => {
+  res.sendFile(path.join(ADMIN_DIR, 'product-totals.html'));
+});
 /* ================== MULTER ================== */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
