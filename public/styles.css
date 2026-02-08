@@ -285,6 +285,134 @@ h2 {
     -webkit-overflow-scrolling: touch;
   }
 }
+/* =========================
+   Checkout mobile redesign
+   ========================= */
+
+/* عام */
+.container { max-width: 900px; margin: 0 auto; padding: 16px; }
+h2, h3 { margin: 10px 0; }
+
+/* كروت الطلب */
+.order-cards {
+  display: none;               /* رح نفعّلها بالموبايل */
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+
+.order-card {
+  border: 1px solid #dfe7e2;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+}
+
+.order-card .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.order-card .row strong {
+  color: #1f3b2c;
+}
+
+.order-card .label {
+  color: #6a7b72;
+  font-size: 12px;
+  min-width: 90px;
+}
+
+.order-card .value {
+  text-align: left;
+  font-weight: 600;
+  color: #1a1a1a;
+  word-break: break-word;
+}
+
+/* اسم المنتج بارز */
+.order-card .product-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f2b1f;
+  margin-bottom: 8px;
+}
+
+/* ملخّص المجموع */
+.order-summary {
+  border: 1px solid #cfe3d6;
+  background: #f6fbf8;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 10px 0 18px;
+}
+
+.order-summary .line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.order-summary .total {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f2b1f;
+}
+
+/* فورم بيانات الزبون */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-grid label { font-size: 13px; color:#244b36; font-weight:700; }
+.form-grid input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d7e2db;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.form-actions button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* =========================
+   Mobile rules
+   ========================= */
+@media (max-width: 700px) {
+  /* اخفي الجدول بالموبايل */
+  .order-table-wrap { display: none !important; }
+  table { display: none !important; }
+
+  /* فعّل الكروت */
+  .order-cards { display: grid; }
+
+  /* خلّي الفورم عمود واحد */
+  .form-grid { grid-template-columns: 1fr; }
+
+  /* عنوان المجموع يكون مرتب */
+  .order-summary .total { font-size: 17px; }
+}
+
 
 
 
