@@ -270,12 +270,13 @@
     }
 
     function statusBadge(status){
-      const s = status || 'new';
-      if (s === 'done') return `<span class="badge b-done">تم التوصيل</span>`;
-      if (s === 'in_progress') return `<span class="badge b-progress">قيد التحضير</span>`;
-      if (s === 'cancelled') return `<span class="badge b-cancel">ملغي</span>`;
-      return `<span class="badge b-new">جديد</span>`;
-    }
+  const s = status || 'new';
+  if (s === 'done') return `<span class="badge b-done">تم التوصيل</span>`;
+  if (s === 'in_progress') return `<span class="badge b-progress">قيد التحضير</span>`;
+  if (s === 'contacted') return `<span class="badge b-progress">تم التواصل</span>`;
+  if (s === 'cancelled') return `<span class="badge b-cancel">ملغي</span>`;
+  return `<span class="badge b-new">جديد</span>`;
+}
 
     function statusLabel(status){
       const s = status || 'new';
