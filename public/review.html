@@ -2,19 +2,155 @@
 <html lang="ar">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>سلة المشتريات</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/styles.css">
+
+  <style>
+    /* تحسينات خاصة بالسلة (موبايل + كمبيوتر) */
+    .cart-wrap { margin-top: 10px; }
+
+    .cart-cards{
+      display: grid;
+      gap: 12px;
+      margin: 12px 0 16px;
+    }
+
+    .cart-card{
+      background:#fff;
+      border:1px solid #dfe7e2;
+      border-radius:14px;
+      padding:12px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.06);
+    }
+
+    .cart-card .name{
+      font-weight:900;
+      color:#0f2b1f;
+      font-size:16px;
+      margin-bottom:10px;
+    }
+
+    .cart-card .row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin:6px 0;
+      font-size:14px;
+    }
+
+    .cart-card .label{ color:#6a7b72; font-size:12px; }
+    .cart-card .value{ font-weight:800; color:#1a1a1a; text-align:left; }
+
+    .qty-controls{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .qty-btn{
+      width:32px; height:32px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:900;
+      background:#eaf5ef;
+    }
+    .qty-btn:active{ transform: scale(.98); }
+
+    .remove-btn{
+      border:none;
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+      background:#ffeaea;
+      font-weight:900;
+    }
+
+    .summary{
+      border:1px solid #cfe3d6;
+      background:#f6fbf8;
+      border-radius:14px;
+      padding:12px;
+      margin: 10px 0 18px;
+    }
+
+    .summary .line{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin:6px 0;
+      font-size:14px;
+    }
+
+    .summary .total{
+      font-size:17px;
+      font-weight:900;
+      color:#0f2b1f;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .form-grid .field label{
+      display:block;
+      font-size:13px;
+      color:#244b36;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+    .form-grid .field input{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid #d7e2db;
+      border-radius:12px;
+      font-size:15px;
+      background:#fff;
+    }
+
+    .actions{
+      margin-top:12px;
+      display:flex;
+      justify-content:flex-end;
+    }
+    .btn-primary{
+      width: auto;
+      border:none;
+      border-radius:12px;
+      padding:12px 14px;
+      font-weight:900;
+      cursor:pointer;
+      background:#2e8b57;
+      color:#fff;
+    }
+
+    .hint{
+      color:#6a7b72;
+      font-size:12px;
+      margin-top:6px;
+      line-height:1.4;
+    }
+
+    @media (max-width: 700px){
+      .form-grid{ grid-template-columns: 1fr; }
+      .actions{ justify-content:stretch; }
+      .btn-primary{ width:100%; font-size:16px; }
+    }
+  </style>
 </head>
+
 <body style="text-align:right;">
 
   <header>
     <span>سلة المشتريات</span>
-    <a href="index.html" style="color:#fff; float:left; text-decoration:none; font-size:14px;">
+    <a href="/index.html" style="color:#fff; float:left; text-decoration:none; font-size:14px;">
       الرجوع للمتجر
     </a>
   </header>
 
-  <div class="container">
+  <div class="container cart-wrap">
     <h2>مراجعة الطلب</h2>
 
     <div id="cartContainer">
@@ -25,108 +161,166 @@
 
     <h3>بيانات الزبون</h3>
     <form id="orderForm">
-      <div style="margin-bottom:8px;">
-        <label>الاسم الكامل:</label><br>
-        <input type="text" id="name" required style="width:100%; padding:8px;">
+      <div class="form-grid">
+        <div class="field">
+          <label>الاسم الكامل</label>
+          <input type="text" id="name" required placeholder="مثال: بشير العمري">
+        </div>
+
+        <div class="field">
+          <label>رقم الهاتف</label>
+          <input type="text" id="phone" required placeholder="مثال: 0500000000">
+        </div>
+
+        <div class="field">
+          <label>البلد</label>
+          <input type="text" id="country" required placeholder="مثال: إسرائيل / فلسطين">
+        </div>
+
+        <div class="field">
+          <label>العنوان (شارع / منطقة)</label>
+          <input type="text" id="address" required placeholder="مثال: الناصرة - شارع ...">
+        </div>
       </div>
 
-      <div style="margin-bottom:8px;">
-        <label>رقم الهاتف:</label><br>
-        <input type="text" id="phone" required style="width:100%; padding:8px;">
-      </div>
+      <div class="hint">⚠️ تأكد من رقم الهاتف والعنوان عشان نوصل بسرعة.</div>
 
-      <div style="margin-bottom:8px;">
-        <label>البلد:</label><br>
-        <input type="text" id="country" required style="width:100%; padding:8px;">
+      <div class="actions">
+        <button type="submit" class="btn-primary">تأكيد الطلب</button>
       </div>
-
-      <div style="margin-bottom:8px;">
-        <label>العنوان (شارع / منطقة):</label><br>
-        <input type="text" id="address" required style="width:100%; padding:8px;">
-      </div>
-
-      <button type="submit"
-        style="
-          margin-top:10px;
-          background:#2e8b57;
-          color:white;
-          padding:10px 16px;
-          border:none;
-          border-radius:8px;
-          font-weight:bold;
-          cursor:pointer;
-        ">
-        تأكيد الطلب
-      </button>
     </form>
   </div>
 
   <script>
     let cart = {};
 
-    function loadCart() {
-      const container = document.getElementById('cartContainer');
+    function saveCart() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
 
+    function calcTotals(items) {
+      let totalPrice = 0;
+      items.forEach(item => totalPrice += (item.price * item.qty));
+      return { totalPrice };
+    }
+
+    function unitLabel(unitType) {
+      return unitType === 'bag' ? 'كيس' : 'كغم';
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartContainer');
+      const form = document.getElementById('orderForm');
+
+      const items = Object.values(cart);
+
+      if (!items.length) {
+        container.innerHTML = '<p>السلة فارغة.</p>';
+        form.style.display = 'none';
+        return;
+      }
+
+      form.style.display = 'block';
+
+      // كروت
+      let cardsHtml = `<div class="cart-cards">`;
+
+      items.forEach(item => {
+        const linePrice = item.price * item.qty;
+
+        cardsHtml += `
+          <div class="cart-card">
+            <div class="name">${item.name}</div>
+
+            <div class="row">
+              <div class="label">سعر الوحدة</div>
+              <div class="value">₪${item.price}</div>
+            </div>
+
+            <div class="row">
+              <div class="label">الكمية</div>
+              <div class="value">
+                <div class="qty-controls">
+                  <button class="qty-btn" type="button" onclick="changeQty('${item.id}', -1)">-</button>
+                  <span style="min-width:70px; display:inline-block; text-align:center; font-weight:900;">
+                    ${item.qty} ${unitLabel(item.unitType)}
+                  </span>
+                  <button class="qty-btn" type="button" onclick="changeQty('${item.id}', 1)">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="label"><strong>المجموع</strong></div>
+              <div class="value"><strong>₪${linePrice}</strong></div>
+            </div>
+
+            <div style="margin-top:10px; display:flex; justify-content:flex-start;">
+              <button class="remove-btn" type="button" onclick="removeItem('${item.id}')">حذف المنتج</button>
+            </div>
+          </div>
+        `;
+      });
+
+      cardsHtml += `</div>`;
+
+      const { totalPrice } = calcTotals(items);
+
+      const summaryHtml = `
+        <div class="summary">
+          <div class="line">
+            <div>المجموع قبل التوصيل</div>
+            <div class="total">₪${totalPrice}</div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = cardsHtml + summaryHtml;
+    }
+
+    // تغيير كمية
+    window.changeQty = function(id, delta) {
+      if (!cart[id]) return;
+
+      const newQty = (cart[id].qty || 0) + delta;
+      if (newQty <= 0) {
+        delete cart[id];
+      } else {
+        cart[id].qty = newQty;
+      }
+
+      saveCart();
+      renderCart();
+    }
+
+    // حذف منتج
+    window.removeItem = function(id) {
+      if (!cart[id]) return;
+      delete cart[id];
+      saveCart();
+      renderCart();
+    }
+
+    function loadCart() {
       try {
         const saved = localStorage.getItem('cart');
         if (!saved) {
-          container.innerHTML = '<p>السلة فارغة.</p>';
-          document.getElementById('orderForm').style.display = 'none';
+          cart = {};
+          renderCart();
           return;
         }
 
-        cart = JSON.parse(saved);
+        cart = JSON.parse(saved) || {};
 
-        const items = Object.values(cart);
-        if (!items.length) {
-          container.innerHTML = '<p>السلة فارغة.</p>';
-          document.getElementById('orderForm').style.display = 'none';
-          return;
-        }
-
-        let html = `
-          <table style="width:100%; border-collapse:collapse; font-size:14px;">
-            <thead>
-              <tr style="background:#f0f0f0;">
-                <th style="border:1px solid #ddd; padding:6px;">المنتج</th>
-                <th style="border:1px solid #ddd; padding:6px;">الكمية</th>
-                <th style="border:1px solid #ddd; padding:6px;">سعر الوحدة (₪)</th>
-                <th style="border:1px solid #ddd; padding:6px;">المجموع (₪)</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-
-        let totalPrice = 0;
-
-        items.forEach(item => {
-          const unitType = item.unitType === 'bag' ? 'أكياس' : 'كغم';
-          const linePrice = item.price * item.qty;
-          totalPrice += linePrice;
-
-          html += `
-            <tr>
-              <td style="border:1px solid #ddd; padding:4px;">${item.name}</td>
-              <td style="border:1px solid #ddd; padding:4px;">${item.qty} ${unitType}</td>
-              <td style="border:1px solid #ddd; padding:4px;">${item.price}</td>
-              <td style="border:1px solid #ddd; padding:4px;">${linePrice}</td>
-            </tr>
-          `;
+        // مهم: تأكد كل عنصر عنده id ثابت (لو مش موجود بنعمله)
+        Object.keys(cart).forEach(key => {
+          if (!cart[key].id) cart[key].id = key;
         });
 
-        html += `
-            </tbody>
-          </table>
-          <div style="margin-top:10px; font-weight:bold;">
-            المجموع قبل التوصيل: ${totalPrice} شاقل
-          </div>
-        `;
-
-        container.innerHTML = html;
-
+        renderCart();
       } catch (err) {
         console.error(err);
-        container.innerHTML = '<p style="color:red;">خطأ في قراءة السلة</p>';
+        document.getElementById('cartContainer').innerHTML = '<p style="color:red;">خطأ في قراءة السلة</p>';
         document.getElementById('orderForm').style.display = 'none';
       }
     }
@@ -140,18 +334,12 @@
         return;
       }
 
-      const name = document.getElementById('name').value;
-      const phone = document.getElementById('phone').value;
-      const country = document.getElementById('country').value;
-      const address = document.getElementById('address').value;
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const country = document.getElementById('country').value.trim();
+      const address = document.getElementById('address').value.trim();
 
-      const orderData = {
-        name,
-        phone,
-        country,
-        address,
-        items
-      };
+      const orderData = { name, phone, country, address, items };
 
       try {
         const res = await fetch('/api/orders', {
@@ -160,18 +348,16 @@
           body: JSON.stringify(orderData)
         });
 
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
         if (!res.ok || !data.success) {
           alert(data.error || 'حدث خطأ أثناء إرسال الطلب');
-          console.log(data);
           return;
         }
 
-        // تفريغ السلة
         localStorage.removeItem('cart');
         alert('تم إرسال الطلب بنجاح ✅ سيتم التواصل معك قريباً.');
-        window.location.href = 'index.html';
+        window.location.href = '/index.html';
       } catch (err) {
         console.error(err);
         alert('مشكلة بالاتصال مع السيرفر');
@@ -180,8 +366,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCart();
-      const form = document.getElementById('orderForm');
-      form.addEventListener('submit', sendOrder);
+      document.getElementById('orderForm').addEventListener('submit', sendOrder);
     });
   </script>
 
