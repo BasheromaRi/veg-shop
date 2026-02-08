@@ -434,11 +434,12 @@ if (phone) {
             <div class="status-line">
               <div style="font-weight:1000;">تغيير الحالة</div>
               <select onchange="updateStatus(${esc(o.id)}, this.value)">
-                <option value="new" ${ (o.status||'new')==='new' ? 'selected':'' }>جديد</option>
-                <option value="in_progress" ${ (o.status||'new')==='in_progress' ? 'selected':'' }>قيد التحضير</option>
-                <option value="done" ${ (o.status||'new')==='done' ? 'selected':'' }>تم التوصيل</option>
-                <option value="cancelled" ${ (o.status||'new')==='cancelled' ? 'selected':'' }>ملغي</option>
-              </select>
+  <option value="new" ${ (o.status||'new')==='new' ? 'selected':'' }>جديد</option>
+  <option value="contacted" ${ (o.status||'new')==='contacted' ? 'selected':'' }>تم التواصل</option>
+  <option value="in_progress" ${ (o.status||'new')==='in_progress' ? 'selected':'' }>قيد التحضير</option>
+  <option value="done" ${ (o.status||'new')==='done' ? 'selected':'' }>تم التوصيل</option>
+  <option value="cancelled" ${ (o.status||'new')==='cancelled' ? 'selected':'' }>ملغي</option>
+</select>
             </div>
 
             <div class="actions">
