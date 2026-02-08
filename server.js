@@ -317,7 +317,41 @@ app.post('/api/orders', (req, res) => {
     }
   );
 });
+/* ================== REPORTS ================== */
+/* مجموع الكميات حسب الحالة */
 
+app.get('/api/reports/totals', (req, res) => {
+  const status = req.query.status; // all / new / contacted / in_progress / done / cancelled
+
+  let where = '';
+  let params = [];
+
+  if (status && status !== 'all') {
+    where = 'WHERE o.status = ?';
+    params.push(status);
+  }
+
+  const sql = `
+    SELECT
+      i.name,
+      i.unitType,
+      SUM(oi.qty) as totalQty
+    FROM orders o
+    JOIN json_each(o.items) AS oi
+    JOIN products i ON i.id = oi.value->>'id'
+    ${where}
+    GROUP BY i.name, i.unitType
+    ORDER BY i.name
+  `;
+
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'DB error' });
+    }
+    res.json({ totals: rows });
+  });
+});
 /* ================== START ================== */
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
