@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>إحصائيات المنتجات</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .box{background:#fff;border:1px solid #dfe7e2;border-radius:16px;padding:12px;margin-top:12px;box-shadow:0 1px 10px rgba(0,0,0,.06)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .pills{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{border:1px solid #d7e2db;background:#fff;padding:10px 12px;border-radius:999px;font-weight:900;cursor:pointer;font-size:13px}
+    .pill.active{background:#eaf5ef;border-color:#9dd3b1}
+    .grid{display:grid;gap:10px;margin-top:12px}
+    .item{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f6fbf8;border:1px solid #cfe3d6;border-radius:14px;padding:10px}
+    .name{font-weight:1000}
+    .qty{font-weight:1000;direction:ltr}
+    .muted{color:#6a7b72;font-size:12px}
+  </style>
+</head>
+
+<body style="text-align:right;">
+  <header>
+    <span>إحصائيات المنتجات</span>
+    <a href="/admin/secret-admin-9347" style="color:#fff; float:left; text-decoration:none; font-size:14px;">رجوع</a>
+  </header>
+
+  <div class="container">
+    <div class="box">
+      <div class="row">
+        <div style="font-weight:1000;">اختار حالة الطلب</div>
+        <div class="pills">
+          <button class="pill active" data-s="all">الكل</button>
+          <button class="pill" data-s="new">جديد</button>
+          <button class="pill" data-s="contacted">تم التواصل</button>
+          <button class="pill" data-s="in_progress">قيد التحضير</button>
+          <button class="pill" data-s="done">تم التوصيل</button>
+          <button class="pill" data-s="cancelled">ملغي</button>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:8px;">
+        النتيجة بتعرض مجموع الكميات لكل منتج حسب الحالة اللي اخترتها.
+      </div>
+    </div>
+
+    <div id="list" class="grid">تحميل...</div>
+  </div>
+
+  <script>
+    const list = document.getElementById('list');
+    let currentStatus = 'all';
+
+    function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
+
+    async function loadTotals(){
+      list.textContent = 'تحميل...';
+      try{
+        const res = await fetch(`/api/reports/totals?status=${encodeURIComponent(currentStatus)}`, {
+          credentials:'include'
+        });
+        if(!res.ok){
+          if(res.status===401){ window.location.href='/login.html'; return; }
+          list.textContent = 'خطأ في تحميل الإحصائيات';
+          return;
+        }
+        const data = await res.json();
+        const totals = data.totals || [];
+
+        if(!totals.length){
+          list.textContent = 'لا توجد بيانات لهذه الحالة.';
+          return;
+        }
+
+        list.innerHTML = totals.map(t => `
+          <div class="item">
+            <div>
+              <div class="name">${t.name}</div>
+              <div class="muted">${unitLabel(t.unitType)}</div>
+            </div>
+            <div class="qty">${t.totalQty} ${unitLabel(t.unitType)}</div>
+          </div>
+        `).join('');
+      }catch(e){
+        console.error(e);
+        list.textContent = 'مشكلة اتصال بالسيرفر';
+      }
+    }
+
+    document.querySelectorAll('.pill').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        currentStatus = b.dataset.s;
+        loadTotals();
+      });
+    });
+
+    loadTotals();
+  </script>
+</body>
+</html>
