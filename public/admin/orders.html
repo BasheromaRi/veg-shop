@@ -47,7 +47,7 @@
     .b-progress{ background:#e9f3ff; border-color:#b7d8ff; color:#084b8a; }
     .b-done{ background:#eaf7ef; border-color:#a8e0be; color:#0f5a2a; }
     .b-cancel{ background:#ffecec; border-color:#ffc0c0; color:#8a1414; }
-    .b-contact{ background:#f1ecff; border-color:#d2c0ff; color:#4b2b8a; } /* ✅ تم التواصل */
+    .b-contact{ background:#f1ecff; border-color:#d2c0ff; color:#4b2b8a; }
 
     .rows{ display:grid; gap:8px; margin: 8px 0 12px; }
     .row{
@@ -67,11 +67,25 @@
     .item strong{ font-weight:1000; }
     .muted{ color:#6a7b72; font-size:12px; }
 
-    .total{
-      margin-top:10px; padding:10px; border-radius:14px;
-      background:#f6fbf8; border:1px solid #cfe3d6;
-      display:flex; justify-content:space-between; align-items:center;
-      gap:10px; font-weight:1000;
+    .summary{
+      margin-top:10px;
+      padding:10px;
+      border-radius:14px;
+      background:#f6fbf8;
+      border:1px solid #cfe3d6;
+      display:grid;
+      gap:8px;
+      font-weight:1000;
+    }
+    .sum-row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .sum-row small{
+      font-weight:900;
+      color:#6a7b72;
     }
 
     .actions{
@@ -135,7 +149,7 @@
       </div>
     </div>
 
-    <div class="hint">تقدر تغيّر الحالة، ترسل واتساب، أو تحذف الطلب.</div>
+    <div class="hint">التوصيل مجاني فوق 300₪ — وتحت 300₪ التوصيل 30₪. تقدر تغيّر الحالة، ترسل واتساب، أو تحذف الطلب.</div>
 
     <div id="list" class="grid">تحميل...</div>
   </div>
@@ -147,8 +161,12 @@
     let orders = [];
     let currentFilter = 'all';
 
+    // ✅ إعدادات التوصيل
+    const FREE_DELIVERY_FROM = 300;
+    const DELIVERY_FEE = 30;
+
     // ✅ عدّلها إذا بدك دولة ثانية
-    const DEFAULT_COUNTRY_CODE = '972'; // إسرائيل
+    const DEFAULT_COUNTRY_CODE = '972';
 
     function esc(s){
       return String(s ?? '').replace(/[&<>"']/g, (m) => ({
@@ -175,8 +193,18 @@
       return `<span class="badge b-new">جديد</span>`;
     }
 
-    function calcTotal(items){
+    function calcSubtotal(items){
       return (items || []).reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
+    }
+
+    function calcDelivery(subtotal){
+      return subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
+    }
+
+    function calcGrandTotal(items){
+      const subtotal = calcSubtotal(items);
+      const delivery = calcDelivery(subtotal);
+      return { subtotal, delivery, total: subtotal + delivery };
     }
 
     function normalizeOrder(o){
@@ -187,29 +215,13 @@
       return { ...o, items: Array.isArray(items) ? items : [] };
     }
 
-    // ✅ أهم جزء: تحويل رقم الهاتف لرقم واتساب دولي
     function normalizePhoneToE164(phone){
       let digits = String(phone || '').replace(/\D/g,'');
       if (!digits) return '';
-
-      // 00xxxxx -> xxxxx
       if (digits.startsWith('00')) digits = digits.slice(2);
-
-      // إذا الرقم أصلاً داخل بكود دولة (مثال 972...)
       if (digits.startsWith(DEFAULT_COUNTRY_CODE)) return digits;
-
-      // رقم محلي يبدأ 0 (050/052...) => نشيل 0 ونضيف 972
-      if (digits.startsWith('0')) {
-        digits = digits.slice(1);
-        return DEFAULT_COUNTRY_CODE + digits;
-      }
-
-      // رقم بدون 0 (مثال 50xxxxxxx) => نضيف 972
-      if (digits.length >= 8 && digits.length <= 10) {
-        return DEFAULT_COUNTRY_CODE + digits;
-      }
-
-      // fallback
+      if (digits.startsWith('0')) return DEFAULT_COUNTRY_CODE + digits.slice(1);
+      if (digits.length >= 8 && digits.length <= 10) return DEFAULT_COUNTRY_CODE + digits;
       return digits;
     }
 
@@ -218,21 +230,24 @@
         `- ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${(Number(i.price)||0) * (Number(i.qty)||0)}`
       ).join('\n');
 
-      const total = calcTotal(order.items || []);
+      const { subtotal, delivery, total } = calcGrandTotal(order.items || []);
+      const deliveryText = delivery === 0 ? 'توصيل مجاني ✅' : `₪${delivery}`;
 
-      return `مرحباً ${order.name || ''} 👋
-بخصوص طلبك رقم #${order.id}
+      return `مرحبا ${order.name || ''} 👋
+تم تلقي طلبك بنجاح ✅
+تفاصيل الطلب (#${order.id}):
 
-🧺 المنتجات:
 ${items || '- (لا يوجد منتجات)'}
 
-💰 المجموع: ₪${total}
-📍 العنوان: ${order.address || ''}`;
+المجموع قبل التوصيل: ₪${subtotal}
+تكلفة التوصيل: ${deliveryText}
+المجموع الكلي للدفع: ₪${total}
+
+يرجى إرسال מיקום (Location) على واتساب لتأكيد وتجهيز الطلب ✅`;
     }
 
     function makeWhatsAppLink(phoneE164, text){
       const msg = encodeURIComponent(text || '');
-      // ✅ wa.me شغال ممتاز على iPhone/Android وكمان على الكمبيوتر
       return `https://wa.me/${phoneE164}?text=${msg}`;
     }
 
@@ -282,12 +297,11 @@ ${items || '- (لا يوجد منتجات)'}
       }
 
       list.innerHTML = filtered.map(o => {
-        const total = calcTotal(o.items || []);
-        const phoneE164 = normalizePhoneToE164(o.phone || '');
+        const { subtotal, delivery, total } = calcGrandTotal(o.items || []);
+        const deliveryTextCard = delivery === 0 ? 'مجاني ✅' : `₪${delivery}`;
 
-        const waLink = phoneE164
-          ? makeWhatsAppLink(phoneE164, buildWhatsappText(o))
-          : null;
+        const phoneE164 = normalizePhoneToE164(o.phone || '');
+        const waLink = phoneE164 ? makeWhatsAppLink(phoneE164, buildWhatsappText(o)) : null;
 
         const itemsHtml = (o.items || []).map(it => {
           const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
@@ -337,9 +351,12 @@ ${items || '- (لا يوجد منتجات)'}
               ${itemsHtml || '<div class="muted">لا يوجد منتجات</div>'}
             </div>
 
-            <div class="total">
-              <div>المجموع</div>
-              <div>₪${esc(total)}</div>
+            <div class="summary">
+              <div class="sum-row"><small>المجموع قبل التوصيل</small><div>₪${esc(subtotal)}</div></div>
+              <div class="sum-row"><small>التوصيل</small><div>${delivery === 0 ? 'مجاني ✅' : '₪' + esc(delivery)}</div></div>
+              <div class="sum-row" style="border-top:1px dashed #cfe3d6; padding-top:8px;">
+                <small>المجموع الكلي</small><div>₪${esc(total)}</div>
+              </div>
             </div>
 
             <div class="status-line">
@@ -367,7 +384,6 @@ ${items || '- (لا يوجد منتجات)'}
       }).join('');
     }
 
-    // فلاتر
     document.querySelectorAll('.pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
@@ -379,7 +395,6 @@ ${items || '- (لا يوجد منتجات)'}
 
     q.addEventListener('input', () => render());
 
-    // API actions
     window.updateStatus = async function(id, status){
       try{
         const res = await fetch(`/api/orders/${id}/status`, {
@@ -404,10 +419,8 @@ ${items || '- (لا يوجد منتجات)'}
       }
     };
 
-    // ✅ زر سريع: يغير للحالة "تم التواصل" وبعدين يفتح واتساب
     window.contactAndOpen = async function(id, waLink){
       await window.updateStatus(id, 'contacted');
-      // على iOS أحياناً target blank بيعمل مشاكل، فبنفتح مباشرة
       window.location.href = waLink;
     };
 
