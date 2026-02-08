@@ -21,35 +21,21 @@ const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads');
 // صفحات الإدارة داخل public/admin
 const ADMIN_DIR = path.join(__dirname, 'public', 'admin');
 
+// صفحات الشليح داخل public/courier
+const COURIER_DIR = path.join(__dirname, 'public', 'courier');
+
 fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+fs.mkdirSync(path.join(UPLOADS_DIR, 'products'), { recursive: true });
 
 /* ================== DB ================== */
 const dbPath = path.join(DATA_DIR, 'data.db');
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(dbPath, err => {
   if (err) console.error('DB error', err);
   else console.log('Connected to SQLite DB:', dbPath);
 });
 
-function ensureColumn(table, column, typeSql) {
-  return new Promise((resolve) => {
-    db.all(`PRAGMA table_info(${table})`, [], (err, rows) => {
-      if (err) return resolve(false);
-      const exists = rows.some(r => r.name === column);
-      if (exists) return resolve(true);
-
-      db.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${typeSql}`, [], (err2) => {
-        if (err2) {
-          console.error('ALTER TABLE error:', err2);
-          return resolve(false);
-        }
-        resolve(true);
-      });
-    });
-  });
-}
-
-db.serialize(async () => {
+db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -76,24 +62,25 @@ db.serialize(async () => {
     createdAt TEXT
   )`);
 
-  // ✅ إضافة أعمدة للتوصيل والمجاميع (إذا مش موجودة)
-  await ensureColumn('orders', 'subtotal', 'REAL DEFAULT 0');
-  await ensureColumn('orders', 'deliveryFee', 'REAL DEFAULT 0');
-  await ensureColumn('orders', 'total', 'REAL DEFAULT 0');
+  // ✅ أعمدة جديدة (إذا مش موجودة رح نتجاهل الخطأ)
+  db.run(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`, () => {});
+  db.run(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`, () => {});
 
-  console.log('✅ DB tables/columns ensured');
+  console.log('✅ DB tables ensured + extra columns');
 });
 
-/* ================== ADMIN ================== */
+/* ================== USERS ================== */
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS || 'Q1azP0lm';
+
+// ✅ كود الشليح (غيره من Render ENV)
+const COURIER_PIN = process.env.COURIER_PIN || '7788';
 
 /* ================== MIDDLEWARE ================== */
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.set('trust proxy', 1);
 
-/* ✅ Session Store (ثابت) */
 app.use(session({
   name: 'vegshop.sid',
   store: new SQLiteStore({
@@ -112,7 +99,6 @@ app.use(session({
   }
 }));
 
-/* ✅ منع كاش للصفحات الحساسة */
 function noCache(req, res, next) {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -120,22 +106,11 @@ function noCache(req, res, next) {
   next();
 }
 
-/* ================== ADMIN GUARD (قبل static) ================== */
-function requireAdmin(req, res, next) {
-  if (req.session?.isAdmin) return next();
-  return res.redirect('/login.html');
-}
-
-// ✅ حماية أي شيء تحت /admin
-app.use('/admin', noCache, requireAdmin);
-
-/* ================== STATIC (المتجر) ================== */
+/* ================== STATIC ================== */
 app.use(express.static(path.join(__dirname, 'public')));
-
-/* ✅ الصور من Disk */
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-/* ================== AUTH ================== */
+/* ================== AUTH (ADMIN) ================== */
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -154,46 +129,87 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.get('/api/me', (req, res) => {
-  res.json({ isAdmin: !!req.session.isAdmin });
+  res.json({ isAdmin: !!req.session.isAdmin, isCourier: !!req.session.isCourier });
 });
 
-/* ================== ADMIN PAGES ================== */
+/* ================== AUTH (COURIER) ================== */
+app.post('/api/courier/login', (req, res) => {
+  const { pin } = req.body;
+  if (String(pin || '').trim() === String(COURIER_PIN)) {
+    req.session.isCourier = true;
+    return res.json({ success: true });
+  }
+  res.status(401).json({ error: 'كود الشليح غلط' });
+});
+
+app.post('/api/courier/logout', (req, res) => {
+  req.session.isCourier = false;
+  req.session.save(() => {
+    res.json({ success: true });
+  });
+});
+
+/* ================== GUARDS ================== */
+function requireAdmin(req, res, next) {
+  if (req.session?.isAdmin) return next();
+  return res.redirect('/login.html');
+}
+
+function requireCourier(req, res, next) {
+  if (req.session?.isCourier) return next();
+  return res.redirect('/courier-login');
+}
+
+/* ================== ADMIN PAGES (محمية) ================== */
+app.use('/admin', noCache, requireAdmin);
+
 app.get('/admin/secret-admin-9347', (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'secret-admin-9347.html'));
 });
-
 app.get('/admin/manage-products', (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'manage-products.html'));
 });
-
 app.get('/admin/orders', (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'orders.html'));
 });
-
 app.get('/admin/campaigns', (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'campaigns.html'));
 });
-
 app.get('/admin/product-totals', (req, res) => {
   res.sendFile(path.join(ADMIN_DIR, 'product-totals.html'));
 });
 
+/* ================== COURIER PAGES ================== */
+app.get('/courier-login', noCache, (req, res) => {
+  res.sendFile(path.join(COURIER_DIR, 'courier-login.html'));
+});
+
+app.get('/courier', noCache, requireCourier, (req, res) => {
+  res.sendFile(path.join(COURIER_DIR, 'courier.html'));
+});
+
 /* ================== API GUARD ================== */
 function apiGuard(req, res, next) {
-  // ملاحظة: لأنه mounted على /api فـ req.path هون بدون /api
   if (req.path.startsWith('/uploads')) return next();
 
   // زبون:
   if (req.method === 'GET' && req.path === '/products') return next();
   if (req.method === 'POST' && req.path === '/orders') return next();
 
-  // auth:
+  // admin auth:
   if (req.method === 'POST' && req.path === '/login') return next();
   if (req.method === 'POST' && req.path === '/logout') return next();
   if (req.method === 'GET' && req.path === '/me') return next();
 
-  // إدارة: لازم يكون admin
+  // courier auth:
+  if (req.method === 'POST' && req.path === '/courier/login') return next();
+  if (req.method === 'POST' && req.path === '/courier/logout') return next();
+
+  // إدارة:
   if (req.session?.isAdmin) return next();
+
+  // شليح:
+  if (req.session?.isCourier && req.path.startsWith('/courier/')) return next();
 
   return res.status(401).json({ error: 'غير مصرح' });
 }
@@ -202,7 +218,7 @@ app.use('/api', apiGuard);
 /* ================== MULTER ================== */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(UPLOADS_DIR, 'products', String(req.params.id));
+    const dir = path.join(UPLOADS_DIR, 'products', req.params.id);
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -245,7 +261,6 @@ app.post('/api/products', (req, res) => {
   );
 });
 
-/* ✅ UPDATE PRODUCT */
 app.put('/api/products/:id', (req, res) => {
   const { name, price, description, available, unitType } = req.body;
 
@@ -253,14 +268,7 @@ app.put('/api/products/:id', (req, res) => {
     `UPDATE products
      SET name = ?, price = ?, description = ?, available = ?, unitType = ?
      WHERE id = ?`,
-    [
-      name,
-      price,
-      description || '',
-      available ? 1 : 0,
-      unitType || 'kg',
-      req.params.id
-    ],
+    [name, price, description || '', available ? 1 : 0, unitType || 'kg', req.params.id],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true, changes: this.changes });
@@ -268,9 +276,8 @@ app.put('/api/products/:id', (req, res) => {
   );
 });
 
-/* ✅ DELETE PRODUCT */
 app.delete('/api/products/:id', (req, res) => {
-  const id = String(req.params.id);
+  const id = req.params.id;
 
   db.all('SELECT image FROM product_images WHERE product_id = ?', [id], (err, rows) => {
     if (!err && rows?.length) {
@@ -288,7 +295,6 @@ app.delete('/api/products/:id', (req, res) => {
 
         const dir = path.join(UPLOADS_DIR, 'products', id);
         try { fs.existsSync(dir) && fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
-
         res.json({ success: true, changes: this.changes });
       });
     });
@@ -305,25 +311,42 @@ app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
   res.json({ success: true, files: req.files.length });
 });
 
-/* ================== ORDERS (إدارة) ================== */
+/* ================== ORDERS ================== */
 app.get('/api/orders', (req, res) => {
   db.all('SELECT * FROM orders ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
-
-    const out = rows.map(o => {
-      let items = [];
-      try { items = JSON.parse(o.items || '[]'); } catch (e) { items = []; }
-      return { ...o, items };
-    });
-
-    res.json(out);
+    res.json(rows.map(o => ({ ...o, items: safeJson(o.items) })));
   });
+});
+
+app.post('/api/orders', (req, res) => {
+  const { items, phone, country, address, name } = req.body;
+
+  db.run(
+    `INSERT INTO orders (name, phone, country, address, items, status, createdAt, assignedToCourier, cancelReason)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      name,
+      phone,
+      country,
+      address,
+      JSON.stringify(items || []),
+      'new',
+      new Date().toISOString(),
+      0,
+      ''
+    ],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, orderId: this.lastID });
+    }
+  );
 });
 
 app.put('/api/orders/:id/status', (req, res) => {
   db.run(
-    'UPDATE orders SET status = ? WHERE id = ?',
-    [req.body.status, req.params.id],
+    'UPDATE orders SET status = ?, cancelReason = ? WHERE id = ?',
+    [req.body.status, req.body.cancelReason || '', req.params.id],
     (err) => {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true });
@@ -338,88 +361,69 @@ app.delete('/api/orders/:id', (req, res) => {
   });
 });
 
-/* ================== CUSTOMER ORDERS ================== */
-function calcSubtotal(items) {
-  return (items || []).reduce((sum, it) => {
-    const price = Number(it.price) || 0;
-    const qty = Number(it.qty) || 0;
-    return sum + (price * qty);
-  }, 0);
-}
-
-// ✅ توصيل: إذا subtotal >= 300 مجاني، غير هيك 30
-function calcDeliveryFee(subtotal) {
-  return subtotal >= 300 ? 0 : 30;
-}
-
-app.post('/api/orders', (req, res) => {
-  const { items, phone, country, address, name } = req.body;
-
-  const safeItems = Array.isArray(items) ? items : [];
-  const subtotal = calcSubtotal(safeItems);
-  const deliveryFee = calcDeliveryFee(subtotal);
-  const total = subtotal + deliveryFee;
-
+/* ================== ADMIN -> Assign to courier ================== */
+app.put('/api/orders/:id/assign', (req, res) => {
+  const assigned = req.body.assigned ? 1 : 0;
   db.run(
-    `INSERT INTO orders (name, phone, country, address, items, status, createdAt, subtotal, deliveryFee, total)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      name,
-      phone,
-      country,
-      address,
-      JSON.stringify(safeItems),
-      'new',
-      new Date().toISOString(),
-      subtotal,
-      deliveryFee,
-      total
-    ],
+    'UPDATE orders SET assignedToCourier = ? WHERE id = ?',
+    [assigned, req.params.id],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true, orderId: this.lastID, subtotal, deliveryFee, total });
+      res.json({ success: true, changes: this.changes });
     }
   );
 });
 
-/* ================== REPORTS ==================
-   مجموع الكميات حسب الحالة (من items المخزّنة)
-   /api/reports/totals?status=all|new|contacted|in_progress|done|cancelled
-*/
-app.get('/api/reports/totals', (req, res) => {
-  const status = (req.query.status || 'all').trim();
+/* ================== COURIER APIs ================== */
+app.get('/api/courier/orders', (req, res) => {
+  // لازم يكون isCourier (guard فوق)
+  const status = req.query.status; // all/new/contacted/in_progress/done/cancelled
+  let where = 'WHERE assignedToCourier = 1';
+  const params = [];
 
-  const where = (status && status !== 'all') ? 'WHERE status = ?' : '';
-  const params = (status && status !== 'all') ? [status] : [];
+  if (status && status !== 'all') {
+    where += ' AND status = ?';
+    params.push(status);
+  }
 
-  db.all(`SELECT id, items, status FROM orders ${where}`, params, (err, rows) => {
+  db.all(`SELECT * FROM orders ${where} ORDER BY id DESC`, params, (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
-
-    const map = new Map(); // key: name||unitType
-
-    rows.forEach(r => {
-      let items = [];
-      try { items = JSON.parse(r.items || '[]'); } catch (e) { items = []; }
-
-      items.forEach(it => {
-        const name = String(it.name || '').trim();
-        const unitType = (it.unitType === 'bag') ? 'bag' : 'kg';
-        const qty = Number(it.qty) || 0;
-        if (!name || qty <= 0) return;
-
-        const key = `${name}__${unitType}`;
-        map.set(key, (map.get(key) || 0) + qty);
-      });
-    });
-
-    const totals = Array.from(map.entries()).map(([key, totalQty]) => {
-      const [name, unitType] = key.split('__');
-      return { name, unitType, totalQty };
-    }).sort((a,b) => a.name.localeCompare(b.name, 'ar'));
-
-    res.json({ totals });
+    res.json(rows.map(o => ({ ...o, items: safeJson(o.items) })));
   });
 });
+
+app.put('/api/courier/orders/:id/delivered', (req, res) => {
+  db.run(
+    `UPDATE orders SET status = 'done' WHERE id = ? AND assignedToCourier = 1`,
+    [req.params.id],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, changes: this.changes });
+    }
+  );
+});
+
+app.put('/api/courier/orders/:id/cancel', (req, res) => {
+  const reason = String(req.body.reason || '').trim();
+  db.run(
+    `UPDATE orders SET status = 'cancelled', cancelReason = ? WHERE id = ? AND assignedToCourier = 1`,
+    [reason, req.params.id],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, changes: this.changes });
+    }
+  );
+});
+
+/* ================== HELPERS ================== */
+function safeJson(s) {
+  try {
+    if (!s) return [];
+    return JSON.parse(s);
+  } catch {
+    return [];
+  }
+}
 
 /* ================== START ================== */
 app.listen(PORT, () => {
