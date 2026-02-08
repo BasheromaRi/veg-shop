@@ -20,6 +20,7 @@
       border-radius:999px; cursor:pointer; font-weight:900; font-size:13px;
     }
     .pill.active{ background:#eaf5ef; border-color:#9dd3b1; }
+
     .search{ flex:1; min-width: 220px; display:flex; gap:8px; align-items:center; }
     .search input{
       width:100%; padding:10px 12px; border:1px solid #d7e2db;
@@ -42,12 +43,16 @@
     .badge{
       padding:6px 10px; border-radius:999px; font-weight:900;
       font-size:12px; border:1px solid transparent; white-space:nowrap;
+      display:inline-flex; align-items:center; gap:6px;
     }
     .b-new{ background:#fff7e6; border-color:#ffd38a; color:#7a4b00; }
     .b-progress{ background:#e9f3ff; border-color:#b7d8ff; color:#084b8a; }
     .b-done{ background:#eaf7ef; border-color:#a8e0be; color:#0f5a2a; }
     .b-cancel{ background:#ffecec; border-color:#ffc0c0; color:#8a1414; }
     .b-contact{ background:#f1ecff; border-color:#d2c0ff; color:#4b2b8a; }
+
+    /* ✅ بادج للشليح */
+    .b-courier{ background:#eef6ff; border-color:#b9d7ff; color:#0b3c75; }
 
     .rows{ display:grid; gap:8px; margin: 8px 0 12px; }
     .row{
@@ -102,6 +107,10 @@
     .btn-red{ background:#d83a3a; color:#fff; }
     .btn-light{ background:#eaf5ef; color:#0f2b1f; }
 
+    /* ✅ زر للشليح */
+    .btn-courier{ background:#0b5bd3; color:#fff; }
+    .btn-courier-off{ background:#e9f2ff; color:#0b3c75; border:1px solid #b9d7ff; }
+
     .status-line{
       display:flex; align-items:center; gap:8px; flex-wrap:wrap;
       justify-content:space-between; margin-top:12px;
@@ -137,6 +146,7 @@
     <div class="topbar">
       <div class="filters">
         <button class="pill active" data-filter="all">الكل</button>
+        <button class="pill" data-filter="courier">للشليح</button>
         <button class="pill" data-filter="new">جديد</button>
         <button class="pill" data-filter="contacted">تم التواصل</button>
         <button class="pill" data-filter="in_progress">قيد التحضير</button>
@@ -149,7 +159,10 @@
       </div>
     </div>
 
-    <div class="hint">التوصيل مجاني فوق 300₪ — وتحت 300₪ التوصيل 30₪. تقدر تغيّر الحالة، ترسل واتساب، أو تحذف الطلب.</div>
+    <div class="hint">
+      التوصيل مجاني فوق 300₪ — وتحت 300₪ التوصيل 30₪.
+      ✅ “للشليح” يعني الطلب تم اختياره للشليح فقط.
+    </div>
 
     <div id="list" class="grid">تحميل...</div>
   </div>
@@ -193,6 +206,10 @@
       return `<span class="badge b-new">جديد</span>`;
     }
 
+    function courierBadge(assigned){
+      return assigned ? `<span class="badge b-courier">للشليح ✅</span>` : '';
+    }
+
     function calcSubtotal(items){
       return (items || []).reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
     }
@@ -212,7 +229,11 @@
       if (typeof items === 'string'){
         try{ items = JSON.parse(items); } catch(e){ items = []; }
       }
-      return { ...o, items: Array.isArray(items) ? items : [] };
+      return {
+        ...o,
+        items: Array.isArray(items) ? items : [],
+        assignedToCourier: Number(o.assignedToCourier || 0)
+      };
     }
 
     function normalizePhoneToE164(phone){
@@ -281,6 +302,7 @@ ${items || '- (لا يوجد منتجات)'}
 
     function matchesFilter(order){
       if (currentFilter === 'all') return true;
+      if (currentFilter === 'courier') return Number(order.assignedToCourier || 0) === 1;
       return (order.status || 'new') === currentFilter;
     }
 
@@ -298,8 +320,6 @@ ${items || '- (لا يوجد منتجات)'}
 
       list.innerHTML = filtered.map(o => {
         const { subtotal, delivery, total } = calcGrandTotal(o.items || []);
-        const deliveryTextCard = delivery === 0 ? 'مجاني ✅' : `₪${delivery}`;
-
         const phoneE164 = normalizePhoneToE164(o.phone || '');
         const waLink = phoneE164 ? makeWhatsAppLink(phoneE164, buildWhatsappText(o)) : null;
 
@@ -317,6 +337,8 @@ ${items || '- (لا يوجد منتجات)'}
           `;
         }).join('');
 
+        const isAssigned = Number(o.assignedToCourier || 0) === 1;
+
         return `
           <div class="card">
             <div class="card-head">
@@ -324,7 +346,10 @@ ${items || '- (لا يوجد منتجات)'}
                 <div class="order-title">طلب رقم #${esc(o.id)}</div>
                 <div class="meta">${formatDate(o.createdAt)}</div>
               </div>
-              ${statusBadge(o.status)}
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                ${courierBadge(isAssigned)}
+                ${statusBadge(o.status)}
+              </div>
             </div>
 
             <div class="rows">
@@ -377,6 +402,15 @@ ${items || '- (لا يوجد منتجات)'}
                    <button class="btn btn-blue" type="button" onclick="contactAndOpen(${esc(o.id)}, '${waLink.replace(/'/g,"\\'")}')">تم التواصل + واتساب</button>`
                 : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم واتساب</button>`
               }
+
+              <!-- ✅ زر إرسال للشليح -->
+              <button
+                class="btn ${isAssigned ? 'btn-courier-off' : 'btn-courier'}"
+                type="button"
+                onclick="toggleCourier(${esc(o.id)}, ${isAssigned ? 'true' : 'false'})">
+                ${isAssigned ? 'إزالة من الشليح' : 'إرسال للشليح'}
+              </button>
+
               <button class="btn btn-red" type="button" onclick="deleteOrder(${esc(o.id)})">حذف الطلب</button>
             </div>
           </div>
@@ -421,7 +455,36 @@ ${items || '- (لا يوجد منتجات)'}
 
     window.contactAndOpen = async function(id, waLink){
       await window.updateStatus(id, 'contacted');
+      // افتح الواتساب
       window.location.href = waLink;
+    };
+
+    // ✅ إرسال/إزالة من الشليح
+    window.toggleCourier = async function(id, isAssignedNow){
+      const newVal = !isAssignedNow;
+      try{
+        const res = await fetch(`/api/orders/${id}/assign`, {
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          credentials:'include',
+          body: JSON.stringify({ assigned: newVal })
+        });
+
+        const data = await res.json().catch(()=>({}));
+
+        if (!res.ok){
+          if (res.status === 401){ window.location.href = '/login.html'; return; }
+          alert(data?.error || 'فشل إرسال الطلب للشليح');
+          return;
+        }
+
+        const idx = orders.findIndex(o => o.id == id);
+        if (idx >= 0) orders[idx].assignedToCourier = newVal ? 1 : 0;
+        render();
+      }catch(err){
+        console.error(err);
+        alert('مشكلة اتصال بالسيرفر');
+      }
     };
 
     window.deleteOrder = async function(id){
