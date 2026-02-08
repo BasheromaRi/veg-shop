@@ -27,6 +27,35 @@ fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 /* ================== DB ================== */
 const dbPath = path.join(DATA_DIR, 'data.db');
 const db = new sqlite3.Database(dbPath, err => {
+  db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    price REAL NOT NULL,
+    description TEXT DEFAULT '',
+    available INTEGER DEFAULT 1,
+    unitType TEXT DEFAULT 'kg'
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS product_images (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    image TEXT NOT NULL
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    phone TEXT,
+    country TEXT,
+    address TEXT,
+    items TEXT,
+    status TEXT DEFAULT 'new',
+    createdAt TEXT
+  )`);
+
+  console.log('✅ DB tables ensured');
+});
   if (err) console.error('DB error', err);
   else console.log('Connected to SQLite DB:', dbPath);
 });
