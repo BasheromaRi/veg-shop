@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إدارة المنتجات</title>
 
-  <!-- مهم: خليها absolute عشان تشتغل سواء الملف داخل /admin أو داخل /public -->
+  <!-- مهم: absolute عشان يشتغل سواء الملف داخل /admin أو /public -->
   <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body style="text-align:right;">
 
 <header>
   <span>إدارة المنتجات</span>
-
-  <!-- مهم: هذا مسار لوحة المسؤول الصحيح عندك -->
   <a href="/admin/secret-admin-9347" style="color:#fff; float:left;">رجوع</a>
 </header>
 
@@ -36,7 +35,6 @@
     </label><br><br>
 
     <button type="submit">➕ إضافة المنتج</button>
-
     <p id="msg" style="margin-top:10px;color:red;"></p>
   </form>
 
@@ -53,6 +51,18 @@ function showError(text) {
   msg.textContent = text || '';
 }
 
+function esc(s) {
+  return String(s ?? '').replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function mustLogin() {
+  alert('انتهت الجلسة. سجّل دخول من جديد.');
+  window.location.href = '/login.html';
+}
+
 async function loadProducts() {
   showError('');
   const div = document.getElementById('productsList');
@@ -67,45 +77,159 @@ async function loadProducts() {
     const products = await res.json().catch(() => []);
 
     if (!res.ok) {
-      // لو صار 401 يعني السشن مش واصل/انتهى
-      if (res.status === 401) {
-        div.innerHTML = '';
-        showError('انتهت الجلسة. ارجع سجّل دخول.');
-        window.location.href = '/login.html';
-        return;
-      }
       div.innerHTML = '';
+      if (res.status === 401) return mustLogin();
       showError(products?.error || 'خطأ في تحميل المنتجات');
       return;
     }
 
     div.innerHTML = '';
+    if (!products.length) {
+      div.innerHTML = 'لا يوجد منتجات بعد.';
+      return;
+    }
 
     products.forEach(p => {
+      const id = p.id;
       div.innerHTML += `
-        <div style="border:1px solid #ccc; padding:10px; margin-bottom:15px;">
-          <b>${p.name}</b> — ₪${p.price}<br><br>
+        <div style="border:1px solid #ccc; padding:10px; margin-bottom:15px; border-radius:10px;">
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+            <b>#${id} - ${esc(p.name)}</b>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" onclick="enableEdit(${id})">✏️ تعديل</button>
+              <button type="button" onclick="saveEdit(${id})">💾 حفظ</button>
+              <button type="button" onclick="deleteProduct(${id})"
+                style="background:#c0392b;color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;">
+                🗑️ حذف
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+              <label>الاسم</label><br>
+              <input id="p_name_${id}" value="${esc(p.name)}" disabled style="width:100%; padding:8px;">
+            </div>
+
+            <div>
+              <label>السعر</label><br>
+              <input id="p_price_${id}" type="number" value="${esc(p.price)}" disabled style="width:100%; padding:8px;">
+            </div>
+
+            <div style="grid-column:1 / -1;">
+              <label>الوصف</label><br>
+              <input id="p_desc_${id}" value="${esc(p.description)}" disabled style="width:100%; padding:8px;">
+            </div>
+
+            <div>
+              <label>الوحدة</label><br>
+              <select id="p_unit_${id}" disabled style="width:100%; padding:8px;">
+                <option value="kg" ${p.unitType === 'kg' ? 'selected' : ''}>كيلوغرام</option>
+                <option value="bag" ${p.unitType === 'bag' ? 'selected' : ''}>كيس</option>
+              </select>
+            </div>
+
+            <div style="display:flex; align-items:end;">
+              <label style="margin-bottom:6px;">
+                <input id="p_av_${id}" type="checkbox" ${p.available ? 'checked' : ''} disabled>
+                متوفر
+              </label>
+            </div>
+          </div>
+
+          <hr style="margin:14px 0;">
 
           <label style="font-size:13px;">رفع صور المنتج:</label><br>
           <input type="file" multiple accept="image/*"
-            onchange="uploadImages(${p.id}, this.files)">
+            onchange="uploadImages(${id}, this.files)">
           <br><br>
 
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            ${(p.images || []).map(img =>
-              `<img src="${img}"
-                style="width:80px;height:80px;object-fit:cover;border:1px solid #ccc;">`
-            ).join('')}
+            ${(p.images || []).map(img => `
+              <img src="${img}" style="width:80px;height:80px;object-fit:cover;border:1px solid #ccc;border-radius:8px;">
+            `).join('')}
           </div>
+
         </div>
       `;
     });
 
-    if (products.length === 0) div.innerHTML = 'لا يوجد منتجات بعد.';
   } catch (err) {
     console.error(err);
     div.innerHTML = '';
     showError('مشكلة اتصال بالسيرفر');
+  }
+}
+
+function enableEdit(id) {
+  document.getElementById(`p_name_${id}`).disabled = false;
+  document.getElementById(`p_price_${id}`).disabled = false;
+  document.getElementById(`p_desc_${id}`).disabled = false;
+  document.getElementById(`p_unit_${id}`).disabled = false;
+  document.getElementById(`p_av_${id}`).disabled = false;
+  alert('صار فيك تعدّل ✏️ وبعدها اضغط "حفظ"');
+}
+
+async function saveEdit(id) {
+  showError('');
+
+  const body = {
+    name: document.getElementById(`p_name_${id}`).value.trim(),
+    price: Number(document.getElementById(`p_price_${id}`).value),
+    description: document.getElementById(`p_desc_${id}`).value.trim(),
+    unitType: document.getElementById(`p_unit_${id}`).value,
+    available: document.getElementById(`p_av_${id}`).checked
+  };
+
+  try {
+    const res = await fetch(`/api/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      if (res.status === 401) return mustLogin();
+      alert(data?.error || 'فشل الحفظ ❌');
+      return;
+    }
+
+    alert('تم الحفظ ✅');
+    loadProducts();
+  } catch (err) {
+    console.error(err);
+    alert('مشكلة اتصال بالسيرفر');
+  }
+}
+
+async function deleteProduct(id) {
+  showError('');
+  if (!confirm('متأكد بدك تحذف المنتج نهائياً؟')) return;
+
+  try {
+    const res = await fetch(`/api/products/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      if (res.status === 401) return mustLogin();
+      alert(data?.error || 'فشل الحذف ❌');
+      return;
+    }
+
+    alert('تم الحذف ✅');
+    loadProducts();
+  } catch (err) {
+    console.error(err);
+    alert('مشكلة اتصال بالسيرفر');
   }
 }
 
@@ -119,8 +243,8 @@ async function uploadImages(id, files) {
   try {
     const res = await fetch(`/api/products/${id}/images`, {
       method: 'POST',
-      credentials: 'include',   // ✅ مهم جداً
-      body: fd                 // ❗ لا تضيف headers مع FormData
+      credentials: 'include',
+      body: fd
     });
 
     const data = await res.json().catch(() => ({}));
@@ -129,11 +253,7 @@ async function uploadImages(id, files) {
       alert('تم حفظ الصور ✅');
       loadProducts();
     } else {
-      if (res.status === 401) {
-        alert('انتهت الجلسة. سجّل دخول من جديد.');
-        window.location.href = '/login.html';
-        return;
-      }
+      if (res.status === 401) return mustLogin();
       alert(data?.error || 'خطأ في رفع الصور ❌');
     }
   } catch (err) {
@@ -156,7 +276,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     const res = await fetch('/api/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',  // ✅ مهم جداً
+      credentials: 'include',
       body: JSON.stringify({
         name: nameEl.value.trim(),
         price: Number(priceEl.value),
@@ -169,11 +289,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      if (res.status === 401) {
-        showError('انتهت الجلسة. ارجع سجّل دخول.');
-        window.location.href = '/login.html';
-        return;
-      }
+      if (res.status === 401) return mustLogin();
       showError(data?.error || 'فشل إضافة المنتج');
       return;
     }
