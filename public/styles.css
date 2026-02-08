@@ -233,4 +233,58 @@ h2 {
   font-weight: bold;
   cursor: pointer;
 }
+/* =========================
+   Mobile fixes for tables
+   ========================= */
+
+/* خلي الجداول ما تكسر التصميم */
+.container table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;         /* مهم: يخلي الأعمدة تثبت وتلف النص */
+}
+
+.container th,
+.container td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  vertical-align: top;
+  word-break: break-word;      /* لفّ الكلام */
+  overflow-wrap: anywhere;     /* لفّ قوي حتى لو كلمة طويلة */
+}
+
+/* عشان ما يطلع الجدول برا الشاشة */
+.container table {
+  max-width: 100%;
+}
+
+/* على الشاشات الصغيرة */
+@media (max-width: 600px) {
+
+  /* صغّر الخط والمسافات */
+  .container th,
+  .container td {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  /* خلي الأعمدة تتوزع أحسن */
+  .container table {
+    table-layout: fixed;
+  }
+
+  /* لو عندك أرقام طويلة (مثل رقم تلفون) خليها ما تمدّ */
+  .container td {
+    white-space: normal;
+  }
+
+  /* حل احتياطي: لو لسا الجدول مزعج، خليه يلف داخل سكرول */
+  .container table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+
 
