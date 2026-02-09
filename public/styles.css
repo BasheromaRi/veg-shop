@@ -450,3 +450,86 @@ h2{
 .phone-link{
   display: inline-block;
 }
+/* =========================
+   Contact card (Premium)
+   ========================= */
+.contact-card{
+  margin: 18px auto 10px;
+  max-width: 520px;
+  background:#fff;
+  border:1px solid #dfe7e2;
+  border-radius:18px;
+  padding:14px 14px 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.06);
+  text-align:center;
+}
+
+.contact-head h3{
+  margin: 0 0 4px;
+  color:#183a2a;
+  font-size:18px;
+  font-weight:1000;
+}
+
+.contact-head p{
+  margin: 0 0 12px;
+  color:#6a7b72;
+  font-size:13px;
+  font-weight:700;
+}
+
+.contact-icons{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.cicon{
+  width:54px;
+  height:54px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(0,0,0,.08);
+  box-shadow: 0 10px 20px rgba(0,0,0,.08);
+  background:#fff;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.cicon img{
+  width:26px;
+  height:26px;
+  display:block;
+}
+
+.cicon:active{ transform: scale(.96); }
+
+/* ألوان خفيفة لكل منصة */
+.cicon.wa{ background: rgba(37,211,102,.12); border-color: rgba(37,211,102,.25); }
+.cicon.ig{ background: rgba(225,48,108,.10); border-color: rgba(225,48,108,.22); }
+.cicon.fb{ background: rgba(24,119,242,.10); border-color: rgba(24,119,242,.22); }
+
+.contact-phone-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border-radius:999px;
+  background:#f6fbf8;
+  border:1px solid #cfe3d6;
+  font-weight:900;
+  color:#183a2a;
+}
+
+.contact-phone-pill a{
+  color:#0b5bd3;
+  text-decoration:none;
+  font-weight:1000;
+  direction:ltr;
+}
+
+.phone-emoji{ font-size:18px; }
+
