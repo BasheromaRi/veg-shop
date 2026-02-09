@@ -28,25 +28,31 @@
     }
     .hint{ color:#6a7b72; font-size:12px; margin-top:6px; line-height:1.4; }
 
-    /* ✅ يخلي الطلبات جنب بعض مثل قبل */
-    .grid{
+    /* ✅ Grid خاص بالطلبات (بدون تعارض مع styles.css) */
+    #ordersList{
       display:grid;
       gap:12px;
       margin: 12px 0 18px;
       grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      align-items: start;
+      align-items:start;
     }
 
-    .card{
-      background:#fff; border:1px solid #dfe7e2; border-radius:16px;
-      padding:12px; box-shadow: 0 1px 10px rgba(0,0,0,.06);
+    /* ✅ Card خاص بالطلبات */
+    .orderCard{
+      background:#fff;
+      border:1px solid #dfe7e2;
+      border-radius:16px;
+      padding:12px;
+      box-shadow: 0 1px 10px rgba(0,0,0,.06);
+      text-align:right; /* مهم عشان styles.css ما يعمل center */
+      cursor: default;  /* مهم عشان styles.css ما يعمل pointer */
     }
 
-    .card-head{
+    .cardHead{
       display:flex; justify-content:space-between; align-items:flex-start;
       gap:10px; flex-wrap:wrap; margin-bottom:10px;
     }
-    .order-title{ font-weight:1000; color:#0f2b1f; font-size:16px; }
+    .orderTitle{ font-weight:1000; color:#0f2b1f; font-size:16px; }
     .meta{ color:#6a7b72; font-size:12px; margin-top:4px; direction:ltr; text-align:left; }
 
     .badge{
@@ -68,29 +74,28 @@
     }
     .label{ color:#6a7b72; font-size:12px; }
 
-    /* ✅ حل الاسم: خلينا القيمة RTL افتراضي، ونخصص للأرقام/الهاتف */
-    .value{
+    /* ✅ هذا اللي بصلّح الاسم العربي */
+    .val{
       font-weight:900;
       text-align:right;
       direction:rtl;
       unicode-bidi: plaintext;
       max-width: 72%;
       word-break: break-word;
+      color:#111;
     }
-    .value.v-phone,
-    .value.v-num{
+    .valNum{
       direction:ltr;
       text-align:left;
       unicode-bidi: plaintext;
     }
 
     .items{ margin-top:10px; border-top:1px dashed #d7e2db; padding-top:10px; }
-    .item{
+    .itemLine{
       display:flex; justify-content:space-between; gap:10px;
       padding:8px 0; border-bottom:1px solid #f0f3f1; font-size:14px;
     }
-    .item:last-child{ border-bottom:none; }
-    .item strong{ font-weight:1000; }
+    .itemLine:last-child{ border-bottom:none; }
     .muted{ color:#6a7b72; font-size:12px; }
 
     .summary{
@@ -103,18 +108,15 @@
       gap:8px;
       font-weight:1000;
     }
-    .sum-row{
+    .sumRow{
       display:flex;
       justify-content:space-between;
       gap:10px;
       align-items:center;
     }
-    .sum-row small{
-      font-weight:900;
-      color:#6a7b72;
-    }
+    .sumRow small{ font-weight:900; color:#6a7b72; }
 
-    .cancel-box{
+    .cancelBox{
       margin-top:10px;
       padding:10px;
       border-radius:14px;
@@ -124,7 +126,7 @@
       font-weight:900;
       line-height:1.6;
     }
-    .cancel-box small{
+    .cancelBox small{
       display:block;
       color:#8a1414;
       opacity:.85;
@@ -139,6 +141,7 @@
     .btn{
       border:none; border-radius:12px; padding:10px 12px;
       cursor:pointer; font-weight:1000; font-size:13px;
+      text-decoration:none; display:inline-block;
     }
     .btn:active{ transform: scale(.99); }
     .btn-green{ background:#2e8b57; color:#fff; }
@@ -149,7 +152,7 @@
     .btn-courier{ background:#0b5bd3; color:#fff; }
     .btn-courier-off{ background:#e9f2ff; color:#0b3c75; border:1px solid #b9d7ff; }
 
-    .status-line{
+    .statusLine{
       display:flex; align-items:center; gap:8px; flex-wrap:wrap;
       justify-content:space-between; margin-top:12px;
     }
@@ -165,11 +168,11 @@
     }
 
     @media (max-width:700px){
-      .grid{ grid-template-columns: 1fr; }
+      #ordersList{ grid-template-columns: 1fr; }
       .actions{ justify-content:stretch; }
-      .btn{ width:100%; }
+      .btn{ width:100%; text-align:center; }
       select{ width:100%; }
-      .value{ max-width: 100%; }
+      .val{ max-width: 100%; }
     }
   </style>
 </head>
@@ -204,11 +207,11 @@
       ✅ “للشليح” يعني الطلب تم اختياره للشليح فقط.
     </div>
 
-    <div id="list" class="grid">تحميل...</div>
+    <div id="ordersList">تحميل...</div>
   </div>
 
   <script>
-    const list = document.getElementById('list');
+    const list = document.getElementById('ordersList');
     const q = document.getElementById('q');
 
     let orders = [];
@@ -301,7 +304,7 @@ ${items || '- (لا يوجد منتجات)'}
 تكلفة التوصيل: ${deliveryText}
 المجموع الكلي للدفع: ₪${total}
 
-يرجى إرسال מיקום (Location) على واتساب لتأكيد وتجهيز الطلب ✅`;
+يرجى إرسال مَوقع (Location) على واتساب لتأكيد وتجهيز الطلب ✅`;
     }
 
     function makeWhatsAppLink(phoneE164, text){
@@ -361,12 +364,12 @@ ${items || '- (لا يوجد منتجات)'}
           const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
           const line = (Number(it.price)||0) * (Number(it.qty)||0);
           return `
-            <div class="item">
+            <div class="itemLine">
               <div>
                 <strong>${esc(it.name)}</strong>
                 <div class="muted">${esc(it.qty)} ${unit} × ₪${esc(it.price)}</div>
               </div>
-              <div style="font-weight:1000;">₪${esc(line)}</div>
+              <div style="font-weight:1000;" class="valNum">₪${esc(line)}</div>
             </div>
           `;
         }).join('');
@@ -374,17 +377,14 @@ ${items || '- (لا يوجد منتجات)'}
         const isAssigned = Number(o.assignedToCourier || 0) === 1;
 
         const cancelHtml = (o.status === 'cancelled' && (o.cancelReason || '').trim())
-          ? `<div class="cancel-box">
-               <small>سبب الإلغاء</small>
-               ${esc(o.cancelReason)}
-             </div>`
+          ? `<div class="cancelBox"><small>سبب الإلغاء</small>${esc(o.cancelReason)}</div>`
           : '';
 
         return `
-          <div class="card">
-            <div class="card-head">
+          <div class="orderCard">
+            <div class="cardHead">
               <div>
-                <div class="order-title">طلب رقم #${esc(o.id)}</div>
+                <div class="orderTitle">طلب رقم #${esc(o.id)}</div>
                 <div class="meta">${formatDate(o.createdAt)}</div>
               </div>
               <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -394,30 +394,11 @@ ${items || '- (لا يوجد منتجات)'}
             </div>
 
             <div class="rows">
-              <div class="row">
-                <div class="label">الاسم</div>
-                <div class="value">${esc(o.name || '-')}</div>
-              </div>
-
-              <div class="row">
-                <div class="label">الهاتف</div>
-                <div class="value v-phone">${esc(o.phone || '-')}</div>
-              </div>
-
-              <div class="row">
-                <div class="label">البلد</div>
-                <div class="value">${esc(o.country || '-')}</div>
-              </div>
-
-              <div class="row">
-                <div class="label">العنوان</div>
-                <div class="value">${esc(o.address || '-')}</div>
-              </div>
-
-              <div class="row">
-                <div class="label">ملاحظات</div>
-                <div class="value">${esc(o.notes || '-')}</div>
-              </div>
+              <div class="row"><div class="label">الاسم</div><div class="val">${esc(o.name || '-')}</div></div>
+              <div class="row"><div class="label">الهاتف</div><div class="val valNum">${esc(o.phone || '-')}</div></div>
+              <div class="row"><div class="label">البلد</div><div class="val">${esc(o.country || '-')}</div></div>
+              <div class="row"><div class="label">العنوان</div><div class="val">${esc(o.address || '-')}</div></div>
+              <div class="row"><div class="label">ملاحظات</div><div class="val">${esc(o.notes || '-')}</div></div>
             </div>
 
             ${cancelHtml}
@@ -428,14 +409,14 @@ ${items || '- (لا يوجد منتجات)'}
             </div>
 
             <div class="summary">
-              <div class="sum-row"><small>المجموع قبل التوصيل</small><div class="value v-num">₪${esc(subtotal)}</div></div>
-              <div class="sum-row"><small>التوصيل</small><div class="value v-num">${delivery === 0 ? 'مجاني ✅' : '₪' + esc(delivery)}</div></div>
-              <div class="sum-row" style="border-top:1px dashed #cfe3d6; padding-top:8px;">
-                <small>المجموع الكلي</small><div class="value v-num">₪${esc(total)}</div>
+              <div class="sumRow"><small>المجموع قبل التوصيل</small><div class="val valNum">₪${esc(subtotal)}</div></div>
+              <div class="sumRow"><small>التوصيل</small><div class="val valNum">${delivery === 0 ? 'مجاني ✅' : '₪' + esc(delivery)}</div></div>
+              <div class="sumRow" style="border-top:1px dashed #cfe3d6; padding-top:8px;">
+                <small>المجموع الكلي</small><div class="val valNum">₪${esc(total)}</div>
               </div>
             </div>
 
-            <div class="status-line">
+            <div class="statusLine">
               <div style="font-weight:1000;">تغيير الحالة</div>
               <select onchange="updateStatus(${esc(o.id)}, this.value)">
                 <option value="new" ${(o.status||'new')==='new' ? 'selected':''}>جديد</option>
@@ -449,7 +430,7 @@ ${items || '- (لا يوجد منتجات)'}
             <div class="actions">
               ${
                 waLink
-                ? `<a class="btn btn-green" style="text-decoration:none; display:inline-block;" rel="noopener" target="_blank" href="${waLink}">واتساب</a>
+                ? `<a class="btn btn-green" rel="noopener" target="_blank" href="${waLink}">واتساب</a>
                    <button class="btn btn-blue" type="button" onclick="contactAndOpen(${esc(o.id)}, '${waLink.replace(/'/g,"\\'")}')">تم التواصل + واتساب</button>`
                 : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم واتساب</button>`
               }
@@ -482,11 +463,10 @@ ${items || '- (لا يوجد منتجات)'}
     window.updateStatus = async function(id, status){
       const prev = orders.find(o => o.id == id);
       const oldStatus = prev ? (prev.status || 'new') : 'new';
-      let cancelReason = '';
 
+      let cancelReason = '';
       if (status === 'cancelled'){
-        cancelReason = prompt('ليش انلغى الطلب؟ اكتب سبب الإلغاء:') || '';
-        cancelReason = cancelReason.trim();
+        cancelReason = (prompt('ليش انلغى الطلب؟ اكتب سبب الإلغاء:') || '').trim();
         if (!cancelReason){
           alert('لازم تكتب سبب الإلغاء');
           render();
@@ -540,7 +520,6 @@ ${items || '- (لا يوجد منتجات)'}
         });
 
         const data = await res.json().catch(()=>({}));
-
         if (!res.ok){
           if (res.status === 401){ window.location.href = '/login.html'; return; }
           alert(data?.error || 'فشل إرسال الطلب للشليح');
