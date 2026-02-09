@@ -363,4 +363,58 @@ h2{
   padding:6px 10px;
   border-radius:8px;
 }
+/* =========================
+   ADMIN ORDERS: grid + name fix
+   ========================= */
+
+/* خلّي قائمة الطلبات Grid حتى لو في CSS تاني كاسرها */
+#list.grid, #ordersContainer.grid{
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)) !important;
+  gap: 14px !important;
+  align-items: start !important;
+}
+
+/* الكرت لا ياخد عرض كامل بالغلط */
+#list.grid .card, #ordersContainer.grid .card{
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+/* ترتيب صفوف label/value */
+.rows{
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.row{
+  display:flex !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  flex-wrap:wrap !important;
+}
+
+/* بروز الاسم */
+.v-name{
+  font-size: 16px !important;
+  font-weight: 1000 !important;
+  color: #0f2b1f !important;
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* رقم التلفون LTR */
+.v-phone{
+  direction: ltr !important;
+  text-align: left !important;
+  font-weight: 900 !important;
+  color: #000 !important;
+}
+
+/* على الشاشات الصغيرة خليها عمود واحد */
+@media (max-width: 900px){
+  #list.grid, #ordersContainer.grid{
+    grid-template-columns: 1fr !important;
+  }
+}
 
