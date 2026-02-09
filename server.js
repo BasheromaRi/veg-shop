@@ -30,10 +30,43 @@ fs.mkdirSync(path.join(UPLOADS_DIR, 'products'), { recursive: true });
 
 /* ================== DB ================== */
 const dbPath = path.join(DATA_DIR, 'data.db');
-const db = new sqlite3.Database(dbPath, err => {
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) console.error('DB error', err);
   else console.log('Connected to SQLite DB:', dbPath);
 });
+
+// Helpers
+function safeJson(s) {
+  try {
+    if (!s) return [];
+    return JSON.parse(s);
+  } catch {
+    return [];
+  }
+}
+
+function ensureOrderColumns() {
+  // إضافة أعمدة فقط إذا ناقصة (بدون أخطاء Duplicate)
+  db.all(`PRAGMA table_info(orders)`, [], (err, cols) => {
+    if (err) {
+      console.error('PRAGMA error', err);
+      return;
+    }
+    const names = new Set((cols || []).map((c) => c.name));
+
+    const addCol = (sql) =>
+      db.run(sql, (e) => {
+        // تجاهل أخطاء الدوبليكيت بهدوء
+        if (e && !String(e.message || '').includes('duplicate column name')) {
+          console.error('ALTER error:', e.message);
+        }
+      });
+
+    if (!names.has('notes')) addCol(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`);
+    if (!names.has('assignedToCourier')) addCol(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`);
+    if (!names.has('cancelReason')) addCol(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`);
+  });
+}
 
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS products (
@@ -52,23 +85,23 @@ db.serialize(() => {
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS orders (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
-  phone TEXT,
-  country TEXT,
-  address TEXT,
-  notes TEXT DEFAULT '',
-  items TEXT,
-  status TEXT DEFAULT 'new',
-  createdAt TEXT
-)`);
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    phone TEXT,
+    country TEXT,
+    address TEXT,
+    notes TEXT DEFAULT '',
+    items TEXT,
+    status TEXT DEFAULT 'new',
+    assignedToCourier INTEGER DEFAULT 0,
+    cancelReason TEXT DEFAULT '',
+    createdAt TEXT
+  )`);
 
-   db.run(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`, () => {});
-  // ✅ أعمدة جديدة (إذا مش موجودة رح نتجاهل الخطأ)
-  db.run(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`, () => {});
-  db.run(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`, () => {});
+  // migrate (لو DB قديم)
+  ensureOrderColumns();
 
-  console.log('✅ DB tables ensured + extra columns');
+  console.log('✅ DB tables ensured + migrations checked');
 });
 
 /* ================== USERS ================== */
@@ -83,23 +116,25 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.set('trust proxy', 1);
 
-app.use(session({
-  name: 'vegshop.sid',
-  store: new SQLiteStore({
-    dir: DATA_DIR,
-    db: 'sessions.sqlite',
-    table: 'sessions'
-  }),
-  secret: process.env.SESSION_SECRET || 'veg-shop-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 6,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
-  }
-}));
+app.use(
+  session({
+    name: 'vegshop.sid',
+    store: new SQLiteStore({
+      dir: DATA_DIR,
+      db: 'sessions.sqlite',
+      table: 'sessions',
+    }),
+    secret: process.env.SESSION_SECRET || 'veg-shop-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 6,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    },
+  })
+);
 
 function noCache(req, res, next) {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -146,9 +181,7 @@ app.post('/api/courier/login', (req, res) => {
 
 app.post('/api/courier/logout', (req, res) => {
   req.session.isCourier = false;
-  req.session.save(() => {
-    res.json({ success: true });
-  });
+  req.session.save(() => res.json({ success: true }));
 });
 
 /* ================== GUARDS ================== */
@@ -226,7 +259,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'));
-  }
+  },
 });
 const upload = multer({ storage });
 
@@ -239,12 +272,12 @@ app.get('/api/products', (req, res) => {
       if (err2) return res.status(500).json({ error: 'DB error' });
 
       const map = {};
-      images.forEach(img => {
+      images.forEach((img) => {
         if (!map[img.product_id]) map[img.product_id] = [];
         map[img.product_id].push(`/uploads/products/${img.product_id}/${img.image}`);
       });
 
-      res.json(products.map(p => ({ ...p, images: map[p.id] || [] })));
+      res.json(products.map((p) => ({ ...p, images: map[p.id] || [] })));
     });
   });
 });
@@ -283,9 +316,11 @@ app.delete('/api/products/:id', (req, res) => {
 
   db.all('SELECT image FROM product_images WHERE product_id = ?', [id], (err, rows) => {
     if (!err && rows?.length) {
-      rows.forEach(r => {
+      rows.forEach((r) => {
         const filePath = path.join(UPLOADS_DIR, 'products', id, r.image);
-        try { fs.existsSync(filePath) && fs.unlinkSync(filePath); } catch (e) {}
+        try {
+          fs.existsSync(filePath) && fs.unlinkSync(filePath);
+        } catch (e) {}
       });
     }
 
@@ -296,7 +331,10 @@ app.delete('/api/products/:id', (req, res) => {
         if (err3) return res.status(500).json({ error: 'DB error' });
 
         const dir = path.join(UPLOADS_DIR, 'products', id);
-        try { fs.existsSync(dir) && fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
+        try {
+          fs.existsSync(dir) && fs.rmSync(dir, { recursive: true, force: true });
+        } catch (e) {}
+
         res.json({ success: true, changes: this.changes });
       });
     });
@@ -307,7 +345,7 @@ app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
   if (!req.files?.length) return res.status(400).json({ error: 'لا توجد صور' });
 
   const stmt = db.prepare('INSERT INTO product_images (product_id, image) VALUES (?, ?)');
-  req.files.forEach(f => stmt.run(req.params.id, f.filename));
+  req.files.forEach((f) => stmt.run(req.params.id, f.filename));
   stmt.finalize();
 
   res.json({ success: true, files: req.files.length });
@@ -317,7 +355,7 @@ app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
 app.get('/api/orders', (req, res) => {
   db.all('SELECT * FROM orders ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
-    res.json(rows.map(o => ({ ...o, items: safeJson(o.items) })));
+    res.json(rows.map((o) => ({ ...o, items: safeJson(o.items) })));
   });
 });
 
@@ -325,18 +363,18 @@ app.post('/api/orders', (req, res) => {
   const { items, phone, country, address, name, notes } = req.body;
 
   db.run(
-  INSERT INTO orders (name, phone, country, address, notes, items, status, createdAt)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  [
-    name,
-    phone,
-    country,
-    address,
-    notes || '',
-    JSON.stringify(items),
-    'new',
-    new Date().toISOString()
-  ],
+    `INSERT INTO orders (name, phone, country, address, notes, items, status, createdAt)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      name || '',
+      phone || '',
+      country || '',
+      address || '',
+      notes || '',
+      JSON.stringify(items || []),
+      'new',
+      new Date().toISOString(),
+    ],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true, orderId: this.lastID });
@@ -349,17 +387,14 @@ app.put('/api/orders/:id/status', (req, res) => {
 
   db.run(
     'UPDATE orders SET status = ?, cancelReason = ? WHERE id = ?',
-    [
-      status,
-      status === 'cancelled' ? (cancelReason || '') : '', // ✅ نخزن السبب بس لو ملغي
-      req.params.id
-    ],
+    [status, status === 'cancelled' ? (cancelReason || '') : '', req.params.id],
     (err) => {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true });
     }
   );
 });
+
 app.delete('/api/orders/:id', (req, res) => {
   db.run('DELETE FROM orders WHERE id = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: 'DB error' });
@@ -370,19 +405,14 @@ app.delete('/api/orders/:id', (req, res) => {
 /* ================== ADMIN -> Assign to courier ================== */
 app.put('/api/orders/:id/assign', (req, res) => {
   const assigned = req.body.assigned ? 1 : 0;
-  db.run(
-    'UPDATE orders SET assignedToCourier = ? WHERE id = ?',
-    [assigned, req.params.id],
-    function (err) {
-      if (err) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true, changes: this.changes });
-    }
-  );
+  db.run('UPDATE orders SET assignedToCourier = ? WHERE id = ?', [assigned, req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true, changes: this.changes });
+  });
 });
 
 /* ================== COURIER APIs ================== */
 app.get('/api/courier/orders', (req, res) => {
-  // لازم يكون isCourier (guard فوق)
   const status = req.query.status; // all/new/contacted/in_progress/done/cancelled
   let where = 'WHERE assignedToCourier = 1';
   const params = [];
@@ -394,7 +424,7 @@ app.get('/api/courier/orders', (req, res) => {
 
   db.all(`SELECT * FROM orders ${where} ORDER BY id DESC`, params, (err, rows) => {
     if (err) return res.status(500).json({ error: 'DB error' });
-    res.json(rows.map(o => ({ ...o, items: safeJson(o.items) })));
+    res.json(rows.map((o) => ({ ...o, items: safeJson(o.items) })));
   });
 });
 
@@ -420,16 +450,6 @@ app.put('/api/courier/orders/:id/cancel', (req, res) => {
     }
   );
 });
-
-/* ================== HELPERS ================== */
-function safeJson(s) {
-  try {
-    if (!s) return [];
-    return JSON.parse(s);
-  } catch {
-    return [];
-  }
-}
 
 /* ================== START ================== */
 app.listen(PORT, () => {
