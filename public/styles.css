@@ -468,6 +468,56 @@ h2, h3 { margin: 10px 0; }
   padding: 0 8px;
 }
 
+/* ✅ زر سلة صغير ومرتب */
+.fab-cart{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  width: auto !important;
+  height: auto !important;
+
+  padding: 10px 12px;
+  border-radius: 999px;
+
+  background: #2e8b57;
+  color: #fff;
+
+  border: 1px solid rgba(255,255,255,.25);
+  box-shadow: 0 10px 25px rgba(0,0,0,.18);
+
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.fab-cart:active{ transform: scale(.98); }
+
+/* ✅ عدّاد داخل كبسولة */
+.fab-cart #cartCount{
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,.22);
+  color: #fff;
+
+  font-weight: 1000;
+  font-size: 12px;
+}
+
+
 
 
 
