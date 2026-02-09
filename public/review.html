@@ -345,7 +345,16 @@
       const country = document.getElementById('country').value.trim();
       const address = document.getElementById('address').value.trim();
 
-      const orderData = { name, phone, country, address, items };
+      const notes = document.getElementById('notes').value;
+
+      const orderData = {
+        name,
+        phone,
+        country,
+        address,
+        notes,
+        items
+      };
 
       try {
         const res = await fetch('/api/orders', {
@@ -378,6 +387,7 @@
 
 </body>
 </html>
+
 
 
 
