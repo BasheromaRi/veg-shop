@@ -44,6 +44,31 @@
     .card .desc{ font-size:13px; color:#555; margin-bottom:6px; line-height:1.4; }
     .card .price{ font-weight:1000; margin-bottom:10px; }
 
+    /* ===== العروض ===== */
+    .campaign-banner{
+      background:#fdf3e7;
+      border:1px solid #f5c78b;
+      border-radius:14px;
+      padding:12px 14px;
+      margin: 14px 0 18px;
+    }
+    .campaign-banner h3{
+      margin:0 0 8px;
+      font-size:16px;
+      color:#c26b12;
+      font-weight:1000;
+    }
+    .campaign-item{
+      background:#fffaf2;
+      border:1px dashed #f0b168;
+      border-radius:12px;
+      padding:10px 10px;
+      margin-bottom:10px;
+    }
+    .campaign-title{ font-weight:1000; margin-bottom:4px; }
+    .campaign-desc{ font-size:13px; color:#444; line-height:1.5; }
+    .campaign-extra{ font-size:12px; color:#6a4b20; margin-top:4px; font-weight:900; }
+
     /* ✅ صندوق اختيار الكمية (ناعم) */
     .qty-panel{
       margin-top: 10px;
@@ -54,7 +79,6 @@
       display: grid;
       gap: 10px;
     }
-
     .qty-row{
       display:flex;
       gap:10px;
@@ -62,17 +86,16 @@
       flex-wrap:wrap;
       justify-content:space-between;
     }
-
     .qty-label{
       font-weight: 1000;
       color:#163628;
       font-size: 13px;
     }
-
     .qty-unit{
       font-size: 12px;
       color:#6a7b72;
       font-weight: 900;
+      margin-top:2px;
     }
 
     .qty-select{
@@ -87,17 +110,29 @@
       box-shadow: 0 1px 6px rgba(0,0,0,.05);
     }
 
-    .qty-input{
-      width: 100%;
+    /* ✅ خانة كتابة الكمية اليدوية (حلوة وناعمة) */
+    .quantity-input{
+      width:100%;
+      box-sizing:border-box;
       padding: 12px 12px;
       border-radius: 12px;
       border: 1px solid #d7e2db;
-      background: #fff;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfffd 100%);
+      box-shadow: 0 1px 6px rgba(0,0,0,.05);
+      outline: none;
       font-size: 16px;
       font-weight: 1000;
-      outline:none;
-      box-shadow: 0 1px 6px rgba(0,0,0,.05);
       text-align: center;
+      direction: ltr;
+      transition: border-color .15s, box-shadow .15s, transform .05s;
+    }
+    .quantity-input:focus{
+      border-color:#9dd3b1;
+      box-shadow: 0 0 0 4px rgba(46,139,87,.12), 0 1px 10px rgba(0,0,0,.06);
+    }
+    .quantity-input::placeholder{
+      color:#9aa8a0;
+      font-weight:900;
     }
 
     .qty-hint{
@@ -124,18 +159,85 @@
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
+      align-items:stretch;
     }
-
     @media (max-width: 520px){
       .grid-2{ grid-template-columns: 1fr; }
     }
 
-    .bottom-space{ height: 90px; }
+    .bottom-space{ height: 110px; }
+
+    /* ===== تواصل معنا (مرتب بالوسط) ===== */
+    .contact-card{
+      margin: 18px 0 10px;
+      background:#fff;
+      border:1px solid #dfe7e2;
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 1px 10px rgba(0,0,0,.06);
+      text-align:center;
+    }
+    .contact-head h3{
+      margin:0;
+      font-size:16px;
+      font-weight:1000;
+      color:#0f2b1f;
+    }
+    .contact-head p{
+      margin:6px 0 0;
+      font-size:12px;
+      color:#6a7b72;
+      font-weight:900;
+    }
+
+    .contact-icons{
+      margin-top:12px;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .cicon{
+      width:52px;
+      height:52px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid #dfe7e2;
+      background:#fff;
+      box-shadow:0 6px 16px rgba(0,0,0,.08);
+      transition: transform .1s, box-shadow .1s;
+    }
+    .cicon:active{ transform: scale(.97); }
+    .cicon img{ width:26px; height:26px; display:block; }
+
+    .cicon.wa{ background:#eafff2; border-color:#bdebd0; }
+    .cicon.ig{ background:#fff0fb; border-color:#f3c1e7; }
+    .cicon.fb{ background:#eef6ff; border-color:#b9d7ff; }
+
+    .contact-phone-pill{
+      margin-top:12px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border-radius:999px;
+      padding:10px 12px;
+      background:#f6fbf8;
+      border:1px solid #cfe3d6;
+      font-weight:1000;
+      color:#0f2b1f;
+    }
+    .contact-phone-pill a{
+      color:#2e8b57;
+      text-decoration:none;
+      font-weight:1000;
+      direction:ltr;
+    }
   </style>
 </head>
 
 <body style="text-align:right;">
-
 <header>
   <span>خَيْرَات صَنْدَلَه 💚</span>
 </header>
@@ -145,8 +247,44 @@
 </button>
 
 <div class="container">
+
+  <!-- ✅ العروض (لازم يكون موجود بالصفحة) -->
+  <div id="campaignBanner" class="campaign-banner" style="display:none;">
+    <h3>العروض الحالية</h3>
+    <div id="campaignContent"></div>
+  </div>
+
   <h2>منتجاتنا</h2>
   <div id="productsContainer">جاري تحميل المنتجات...</div>
+
+  <!-- ✅ تواصل معنا -->
+  <section class="contact-card" aria-label="تواصل معنا">
+    <div class="contact-head">
+      <h3>تواصل معنا</h3>
+      <p>نرد بسرعة على واتساب 💚</p>
+    </div>
+
+    <div class="contact-icons">
+      <a class="cicon wa" href="https://wa.me/972507979314" target="_blank" rel="noopener" aria-label="WhatsApp">
+        <img src="/images/whatsapp.svg" alt="WhatsApp">
+      </a>
+
+      <a class="cicon ig" href="https://www.instagram.com/sandala_mlokhea" target="_blank" rel="noopener" aria-label="Instagram">
+        <img src="/images/instagram.svg" alt="Instagram">
+      </a>
+
+      <a class="cicon fb" href="https://www.facebook.com/share/1WtoUbnS8W/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+        <img src="/images/facebook.svg" alt="Facebook">
+      </a>
+    </div>
+
+    <div class="contact-phone-pill">
+      <span>📞</span>
+      <span>الهاتف</span>
+      <a href="tel:0507979314">0507979314</a>
+    </div>
+  </section>
+
   <div class="bottom-space"></div>
 </div>
 
@@ -156,7 +294,7 @@ let cart = {};
 
 function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
-/* ✅ ملوخية العيدان/عروق = مضاعفات 5 */
+/* ✅ ملوخية العيدان/عروق = مضاعفات 5 (إذا بالكيلو) */
 function isStepFiveProduct(p){
   const n = String(p?.name || '');
   return n.includes('عروق') || n.includes('عيدان') || n.includes('عِيدان');
@@ -168,59 +306,60 @@ function buildSelectOptionsHTML(p, current){
   const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
 
   if (step5){
-    // ملوخية العيدان: 0,5,10,15,20
+    // 0,5,10,15,20
     opts = [0,5,10,15,20];
   } else {
-    // باقي المنتجات: 0..20
+    // 0..20
     opts = Array.from({length:21}, (_,i)=>i);
   }
 
   return opts.map(v => {
     const sel = Number(current) === v ? 'selected' : '';
-    const txt = v === 0 ? '0' : v;
-    return `<option value="${v}" ${sel}>${txt}</option>`;
+    return `<option value="${v}" ${sel}>${v}</option>`;
   }).join('');
 }
+
+/* ✅ تحميل العروض النشطة */
 async function loadCampaigns(){
   const banner = document.getElementById('campaignBanner');
   const content = document.getElementById('campaignContent');
-
   if (!banner || !content) return;
 
   try{
-    const res = await fetch('/api/campaigns/active');
-    const data = await res.json();
+    const res = await fetch('/api/campaigns/active', { cache:'no-store' });
+    const data = await res.json().catch(()=>null);
 
     if (!res.ok || !Array.isArray(data) || data.length === 0){
       banner.style.display = 'none';
+      content.innerHTML = '';
       return;
     }
 
     banner.style.display = 'block';
-
     content.innerHTML = data.map(c => {
-      const parts = [];
-
-      if (c.description) parts.push(`<div class="campaign-desc">${c.description}</div>`);
-      if (c.discountPercent != null && c.discountPercent !== '') parts.push(`<div class="campaign-extra">خصم: ${c.discountPercent}%</div>`);
-      if (c.minTotal != null && c.minTotal !== '') parts.push(`<div class="campaign-extra">الحد الأدنى للطلب: ₪${c.minTotal}</div>`);
-
+      const desc = (c.description || '').trim();
+      const dp = (c.discountPercent ?? '');
+      const mt = (c.minTotal ?? '');
       return `
         <div class="campaign-item">
-          <div class="campaign-title">${c.title}</div>
-          ${parts.join('')}
+          <div class="campaign-title">${c.title || ''}</div>
+          ${desc ? `<div class="campaign-desc">${desc}</div>` : ''}
+          ${(dp !== '' && dp != null) ? `<div class="campaign-extra">خصم: ${dp}%</div>` : ''}
+          ${(mt !== '' && mt != null) ? `<div class="campaign-extra">الحد الأدنى للطلب: ₪${mt}</div>` : ''}
         </div>
       `;
     }).join('');
   }catch(e){
-    console.error(e);
+    console.error('loadCampaigns error:', e);
     banner.style.display = 'none';
+    content.innerHTML = '';
   }
 }
-async function loadProducts() {
-  await loadCampaigns();  // ✅ خلي العروض تنحمل أولاً
 
-  const res = await fetch('/api/products');
+async function loadProducts() {
+  await loadCampaigns();  // ✅ العروض أولاً
+
+  const res = await fetch('/api/products', { cache:'no-store' });
   products = await res.json();
   loadCartFromStorage();
   renderProducts();
@@ -242,7 +381,7 @@ function renderProducts() {
 
     const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
     const hint = step5
-      ? `ملوخية العيدان: اكتب 5 أو 10 أو 15... (مضاعفات 5)`
+      ? `ملوخية العيدان: الكمية مضاعفات 5 (5، 10، 15...)`
       : `تقدر تختار من القائمة أو تكتب رقم أكبر من 20`;
 
     const card = document.createElement('div');
@@ -273,10 +412,14 @@ function renderProducts() {
 
         <div class="grid-2">
           <input
-  type="number"
-  class="quantity-input"
-  placeholder="مثال: 25"
->
+            type="number"
+            inputmode="numeric"
+            class="quantity-input"
+            placeholder="مثال: 25"
+            value="${qty > 20 ? qty : ''}"
+            oninput="setQtyFromInput(${p.id}, this.value)"
+            onchange="setQtyFromInput(${p.id}, this.value)"
+          >
           <button class="btn-clear" type="button" onclick="setQty(${p.id}, 0)">مسح الكمية</button>
         </div>
 
@@ -299,10 +442,8 @@ function setQty(id, q){
   q = Number(q || 0);
   if (!Number.isFinite(q) || q < 0) q = 0;
 
-  // حماية بسيطة
   if (q > 9999){ alert('الكمية كبيرة جداً'); return; }
 
-  // ملوخية العيدان: مضاعفات 5
   const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
   if (step5 && q !== 0 && (q % 5 !== 0)){
     alert('ملوخية العيدان: لازم الكمية تكون مضاعفات 5 (5، 10، 15...)');
@@ -320,8 +461,7 @@ function setQty(id, q){
 }
 
 window.setQtyFromSelect = function(id, val){
-  const n = Number(val || 0);
-  setQty(id, n);
+  setQty(id, Number(val || 0));
 };
 
 window.setQtyFromInput = function(id, val){
@@ -355,35 +495,6 @@ function goToCart() {
 
 document.addEventListener('DOMContentLoaded', loadProducts);
 </script>
-<!-- ====== تواصل معنا (ستايل جديد) ====== -->
-<section class="contact-card" aria-label="تواصل معنا">
-  <div class="contact-head">
-    <h3>تواصل معنا</h3>
-    <p>نرد بسرعة على واتساب 💚</p>
-  </div>
 
-  <div class="contact-icons">
-    <a class="cicon wa" href="https://wa.me/972507979314" target="_blank" rel="noopener" aria-label="WhatsApp">
-      <img src="/images/whatsapp.svg" alt="WhatsApp">
-    </a>
-
-    <a class="cicon ig" href="https://www.instagram.com/sandala_mlokhea" target="_blank" rel="noopener" aria-label="Instagram">
-      <img src="/images/instagram.svg" alt="Instagram">
-    </a>
-
-    <a class="cicon fb" href="https://www.facebook.com/share/1WtoUbnS8W/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
-      <img src="/images/facebook.svg" alt="Facebook">
-    </a>
-  </div>
-
-  <div class="contact-phone-pill">
-    <span class="phone-emoji">📞</span>
-    <span>الهاتف</span>
-    <a href="tel:0507979314">0507979314</a>
-  </div>
-</section>
 </body>
 </html>
-
-
-
