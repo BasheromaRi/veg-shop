@@ -1,393 +1,197 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سلة المشتريات</title>
+  <title>مراجعة الطلب</title>
   <link rel="stylesheet" href="/styles.css">
 
   <style>
-    /* تحسينات خاصة بالسلة (موبايل + كمبيوتر) */
-    .cart-wrap { margin-top: 10px; }
-
-    .cart-cards{
-      display: grid;
-      gap: 12px;
-      margin: 12px 0 16px;
-    }
-
-    .cart-card{
+    .cart-box{
       background:#fff;
       border:1px solid #dfe7e2;
-      border-radius:14px;
+      border-radius:16px;
       padding:12px;
-      box-shadow: 0 1px 8px rgba(0,0,0,.06);
+      margin-bottom:14px;
     }
 
-    .cart-card .name{
-      font-weight:900;
-      color:#0f2b1f;
-      font-size:16px;
-      margin-bottom:10px;
-    }
-
-    .cart-card .row{
+    .cart-item{
       display:flex;
       justify-content:space-between;
-      gap:10px;
-      margin:6px 0;
-      font-size:14px;
-    }
-
-    .cart-card .label{ color:#6a7b72; font-size:12px; }
-    .cart-card .value{ font-weight:800; color:#1a1a1a; text-align:left; }
-
-    .qty-controls{
-      display:flex;
-      align-items:center;
       gap:8px;
+      font-size:14px;
+      padding:6px 0;
+      border-bottom:1px dashed #eee;
     }
-    .qty-btn{
-      width:32px; height:32px;
-      border:none;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:900;
-      background:#eaf5ef;
-    }
-    .qty-btn:active{ transform: scale(.98); }
+    .cart-item:last-child{ border-bottom:none; }
 
-    .remove-btn{
-      border:none;
-      border-radius:10px;
-      padding:8px 10px;
-      cursor:pointer;
-      background:#ffeaea;
-      font-weight:900;
-    }
-
-    .summary{
-      border:1px solid #cfe3d6;
-      background:#f6fbf8;
-      border-radius:14px;
-      padding:12px;
-      margin: 10px 0 18px;
-    }
-
-    .summary .line{
+    .cart-total{
+      font-weight:1000;
+      margin-top:8px;
       display:flex;
       justify-content:space-between;
-      gap:10px;
-      margin:6px 0;
-      font-size:14px;
     }
 
-    .summary .total{
-      font-size:17px;
+    .field{ margin-bottom:10px; }
+    .field label{
       font-weight:900;
-      color:#0f2b1f;
-    }
-
-    .form-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .form-grid .field label{
-      display:block;
       font-size:13px;
-      color:#244b36;
-      font-weight:800;
-      margin-bottom:6px;
+      color:#2a3b33;
+      display:block;
+      margin-bottom:4px;
     }
-    .form-grid .field input{
+    .field input,
+    .field textarea{
       width:100%;
-      padding:10px 12px;
+      padding:9px 12px;
       border:1px solid #d7e2db;
       border-radius:12px;
-      font-size:15px;
+      font-size:14px;
       background:#fff;
     }
+    .field textarea{
+      min-height:80px;
+      resize:vertical;
+    }
 
-    .actions{
+    .btn-main{
+      width:100%;
       margin-top:12px;
-      display:flex;
-      justify-content:flex-end;
-    }
-    .btn-primary{
-      width: auto;
-      border:none;
-      border-radius:12px;
-      padding:12px 14px;
-      font-weight:900;
-      cursor:pointer;
       background:#2e8b57;
-      color:#fff;
-    }
-
-    .hint{
-      color:#6a7b72;
-      font-size:12px;
-      margin-top:6px;
-      line-height:1.4;
-    }
-
-    @media (max-width: 700px){
-      .form-grid{ grid-template-columns: 1fr; }
-      .actions{ justify-content:stretch; }
-      .btn-primary{ width:100%; font-size:16px; }
+      color:white;
+      padding:12px;
+      border:none;
+      border-radius:14px;
+      font-weight:1000;
+      cursor:pointer;
+      font-size:15px;
     }
   </style>
 </head>
 
 <body style="text-align:right;">
 
-  <header>
-    <span>سلة المشتريات</span>
-    <a href="/index.html" style="color:#fff; float:left; text-decoration:none; font-size:14px;">
-      الرجوع للمتجر
-    </a>
-  </header>
+<header>
+  <span>مراجعة الطلب</span>
+  <a href="/index.html" style="color:#fff; float:left; font-size:14px;">الرجوع للمتجر</a>
+</header>
 
-  <div class="container cart-wrap">
-    <h2>مراجعة الطلب</h2>
+<div class="container">
 
-    <div id="cartContainer">
-      جاري تحميل السلة...
-    </div>
-
-    <hr style="margin:20px 0;">
-
-    <h3>بيانات الزبون</h3>
-    <form id="orderForm">
-      <div class="form-grid">
-        <div class="field">
-          <label>الاسم الكامل</label>
-          <input type="text" id="address"">
-        </div>
-
-        <div class="field">
-          <label>رقم الهاتف</label>
-          <input type="text" id="address"">
-        </div>
-
-        <div class="field">
-          <label>البلد</label>
-          <input type="text" id="address"">
-        </div>
-
-        <div class="field">
-          <label>العنوان (شارع / منطقة)</label>
-          <input type="text" id="address" required placeholder="مثال: الناصرة - شارع ...">
-        </div>
-      </div>
-
-      <div class="hint">⚠️ تأكد من رقم الهاتف والعنوان عشان نوصل بسرعة.</div>
-
-      <div style="margin-bottom:8px;">
-        <label>ملاحظات (اختياري):</label><br>
-        <textarea id="notes" rows="3" placeholder="مثلاً: اتصال قبل الوصول، بدون بصل..."
-        style="width:100%; padding:8px; resize:vertical;"></textarea>
-      </div>
-      
-      <div class="actions">
-        <button type="submit" class="btn-primary">تأكيد الطلب</button>
-      </div>
-    </form>
+  <div id="cartBox" class="cart-box">
+    جاري تحميل السلة...
   </div>
 
-  <script>
-    let cart = {};
+  <form id="orderForm">
 
-    function saveCart() {
-      localStorage.setItem('cart', JSON.stringify(cart));
+    <div class="field">
+      <label>الاسم الكامل</label>
+      <input type="text" id="name" required>
+    </div>
+
+    <div class="field">
+      <label>رقم الهاتف</label>
+      <input type="text" id="phone" required>
+    </div>
+
+    <div class="field">
+      <label>البلد</label>
+      <input type="text" id="country" required>
+    </div>
+
+    <div class="field">
+      <label>العنوان</label>
+      <input type="text" id="address" required>
+    </div>
+
+    <!-- ✅ الملاحظات -->
+    <div class="field">
+      <label>ملاحظات (اختياري)</label>
+      <textarea id="notes" placeholder="مثال: الاتصال قبل الوصول، مدخل خلفي..."></textarea>
+    </div>
+
+    <button type="submit" class="btn-main">
+      تأكيد الطلب
+    </button>
+  </form>
+
+</div>
+
+<script>
+  let cart = {};
+
+  function loadCart(){
+    const box = document.getElementById('cartBox');
+    const saved = localStorage.getItem('cart');
+
+    if(!saved){
+      box.innerHTML = 'السلة فارغة';
+      return;
     }
 
-    function calcTotals(items) {
-      let totalPrice = 0;
-      items.forEach(item => totalPrice += (item.price * item.qty));
-      return { totalPrice };
+    cart = JSON.parse(saved);
+    const items = Object.values(cart);
+
+    if(!items.length){
+      box.innerHTML = 'السلة فارغة';
+      return;
     }
 
-    function unitLabel(unitType) {
-      return unitType === 'bag' ? 'كيس' : 'كغم';
-    }
+    let html = '';
+    let total = 0;
 
-    function renderCart() {
-      const container = document.getElementById('cartContainer');
-      const form = document.getElementById('orderForm');
-
-      const items = Object.values(cart);
-
-      if (!items.length) {
-        container.innerHTML = '<p>السلة فارغة.</p>';
-        form.style.display = 'none';
-        return;
-      }
-
-      form.style.display = 'block';
-
-      // كروت
-      let cardsHtml = `<div class="cart-cards">`;
-
-      items.forEach(item => {
-        const linePrice = item.price * item.qty;
-
-        cardsHtml += `
-          <div class="cart-card">
-            <div class="name">${item.name}</div>
-
-            <div class="row">
-              <div class="label">سعر الوحدة</div>
-              <div class="value">₪${item.price}</div>
-            </div>
-
-            <div class="row">
-              <div class="label">الكمية</div>
-              <div class="value">
-                <div class="qty-controls">
-                  <button class="qty-btn" type="button" onclick="changeQty('${item.id}', -1)">-</button>
-                  <span style="min-width:70px; display:inline-block; text-align:center; font-weight:900;">
-                    ${item.qty} ${unitLabel(item.unitType)}
-                  </span>
-                  <button class="qty-btn" type="button" onclick="changeQty('${item.id}', 1)">+</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="label"><strong>المجموع</strong></div>
-              <div class="value"><strong>₪${linePrice}</strong></div>
-            </div>
-
-            <div style="margin-top:10px; display:flex; justify-content:flex-start;">
-              <button class="remove-btn" type="button" onclick="removeItem('${item.id}')">حذف المنتج</button>
-            </div>
-          </div>
-        `;
-      });
-
-      cardsHtml += `</div>`;
-
-      const { totalPrice } = calcTotals(items);
-
-      const summaryHtml = `
-        <div class="summary">
-          <div class="line">
-            <div>المجموع قبل التوصيل</div>
-            <div class="total">₪${totalPrice}</div>
-          </div>
+    items.forEach(i=>{
+      const line = i.price * i.qty;
+      total += line;
+      html += `
+        <div class="cart-item">
+          <div>${i.name} (${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'})</div>
+          <div>₪${line}</div>
         </div>
       `;
-
-      container.innerHTML = cardsHtml + summaryHtml;
-    }
-
-    // تغيير كمية
-    window.changeQty = function(id, delta) {
-      if (!cart[id]) return;
-
-      const newQty = (cart[id].qty || 0) + delta;
-      if (newQty <= 0) {
-        delete cart[id];
-      } else {
-        cart[id].qty = newQty;
-      }
-
-      saveCart();
-      renderCart();
-    }
-
-    // حذف منتج
-    window.removeItem = function(id) {
-      if (!cart[id]) return;
-      delete cart[id];
-      saveCart();
-      renderCart();
-    }
-
-    function loadCart() {
-      try {
-        const saved = localStorage.getItem('cart');
-        if (!saved) {
-          cart = {};
-          renderCart();
-          return;
-        }
-
-        cart = JSON.parse(saved) || {};
-
-        // مهم: تأكد كل عنصر عنده id ثابت (لو مش موجود بنعمله)
-        Object.keys(cart).forEach(key => {
-          if (!cart[key].id) cart[key].id = key;
-        });
-
-        renderCart();
-      } catch (err) {
-        console.error(err);
-        document.getElementById('cartContainer').innerHTML = '<p style="color:red;">خطأ في قراءة السلة</p>';
-        document.getElementById('orderForm').style.display = 'none';
-      }
-    }
-
-    async function sendOrder(e) {
-      e.preventDefault();
-
-      const items = Object.values(cart);
-      if (!items.length) {
-        alert('السلة فارغة، لا يمكن إرسال الطلب.');
-        return;
-      }
-
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const country = document.getElementById('country').value.trim();
-      const address = document.getElementById('address').value.trim();
-
-      const notes = document.getElementById('notes').value;
-
-      const orderData = {
-        name,
-        phone,
-        country,
-        address,
-        notes,
-        items
-      };
-
-      try {
-        const res = await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData)
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok || !data.success) {
-          alert(data.error || 'حدث خطأ أثناء إرسال الطلب');
-          return;
-        }
-
-        localStorage.removeItem('cart');
-        alert('تم إرسال الطلب بنجاح ✅ سيتم التواصل معك قريباً.');
-        window.location.href = '/index.html';
-      } catch (err) {
-        console.error(err);
-        alert('مشكلة بالاتصال مع السيرفر');
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadCart();
-      document.getElementById('orderForm').addEventListener('submit', sendOrder);
     });
-  </script>
+
+    html += `
+      <div class="cart-total">
+        <span>المجموع</span>
+        <span>₪${total}</span>
+      </div>
+    `;
+
+    box.innerHTML = html;
+  }
+
+  document.getElementById('orderForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+
+    const order = {
+      name: name.value,
+      phone: phone.value,
+      country: country.value,
+      address: address.value,
+      notes: notes.value,   // ✅ الملاحظات
+      items: Object.values(cart)
+    };
+
+    const res = await fetch('/api/orders',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(order)
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      localStorage.removeItem('cart');
+      alert('تم إرسال الطلب بنجاح ✅');
+      window.location.href = '/index.html';
+    }else{
+      alert('حدث خطأ بإرسال الطلب');
+    }
+  });
+
+  loadCart();
+</script>
 
 </body>
 </html>
-
-
-
-
