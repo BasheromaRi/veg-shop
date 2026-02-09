@@ -534,13 +534,34 @@ h2{
 .phone-emoji{ font-size:18px; }
 /* خانة كتابة الكمية اليدوية */
 .quantity-input {
-  direction: ltr;        /* عشان الأرقام */
-  text-align: center;    /* بالنص */
   width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid #cfe3d6;
+  background: #f9fdfb;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f3b2d;
+
+  text-align: center;
+  direction: ltr;
   box-sizing: border-box;
+
+  transition: all 0.25s ease;
 }
+
+/* لما يكبس عليها */
+.quantity-input:focus {
+  outline: none;
+  border-color: #2e8b57;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
+}
+
+/* placeholder */
 .quantity-input::placeholder {
-  color: #9aa9a1;
+  color: #9fb6aa;
   font-weight: 600;
 }
+
 
