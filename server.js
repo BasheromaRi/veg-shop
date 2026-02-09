@@ -325,8 +325,8 @@ app.post('/api/orders', (req, res) => {
   const { items, phone, country, address, name, notes } = req.body;
 
   db.run(
-  `INSERT INTO orders (name, phone, country, address, notes, items, status, createdAt)
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  INSERT INTO orders (name, phone, country, address, notes, items, status, createdAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   [
     name,
     phone,
