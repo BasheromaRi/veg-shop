@@ -322,22 +322,21 @@ app.get('/api/orders', (req, res) => {
 });
 
 app.post('/api/orders', (req, res) => {
-  const { items, phone, country, address, name } = req.body;
+  const { items, phone, country, address, name, notes } = req.body;
 
   db.run(
-    `INSERT INTO orders (name, phone, country, address, items, status, createdAt, assignedToCourier, cancelReason)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      name,
-      phone,
-      country,
-      address,
-      JSON.stringify(items || []),
-      'new',
-      new Date().toISOString(),
-      0,
-      ''
-    ],
+  `INSERT INTO orders (name, phone, country, address, notes, items, status, createdAt)
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    name,
+    phone,
+    country,
+    address,
+    notes || '',
+    JSON.stringify(items),
+    'new',
+    new Date().toISOString()
+  ],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true, orderId: this.lastID });
