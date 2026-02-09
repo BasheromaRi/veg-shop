@@ -66,6 +66,10 @@
       cursor:pointer;
       font-size:15px;
     }
+    .btn-main:disabled{
+      opacity:.7;
+      cursor:not-allowed;
+    }
   </style>
 </head>
 
@@ -86,12 +90,12 @@
 
     <div class="field">
       <label>الاسم الكامل</label>
-      <input type="text" id="name" required>
+      <input type="text" id="name" required autocomplete="name">
     </div>
 
     <div class="field">
       <label>رقم الهاتف</label>
-      <input type="text" id="phone" required>
+      <input type="text" id="phone" required inputmode="tel" autocomplete="tel">
     </div>
 
     <div class="field">
@@ -101,16 +105,15 @@
 
     <div class="field">
       <label>العنوان</label>
-      <input type="text" id="address" required>
+      <input type="text" id="address" required autocomplete="street-address">
     </div>
 
-    <!-- ✅ الملاحظات -->
     <div class="field">
       <label>ملاحظات (اختياري)</label>
       <textarea id="notes" placeholder="مثال: الاتصال قبل الوصول، مدخل خلفي..."></textarea>
     </div>
 
-    <button type="submit" class="btn-main">
+    <button id="submitBtn" type="submit" class="btn-main">
       تأكيد الطلب
     </button>
   </form>
@@ -120,20 +123,34 @@
 <script>
   let cart = {};
 
+  const cartBox = document.getElementById('cartBox');
+  const form = document.getElementById('orderForm');
+  const submitBtn = document.getElementById('submitBtn');
+
+  const elName = document.getElementById('name');
+  const elPhone = document.getElementById('phone');
+  const elCountry = document.getElementById('country');
+  const elAddress = document.getElementById('address');
+  const elNotes = document.getElementById('notes');
+
   function loadCart(){
-    const box = document.getElementById('cartBox');
     const saved = localStorage.getItem('cart');
 
     if(!saved){
-      box.innerHTML = 'السلة فارغة';
+      cartBox.innerHTML = 'السلة فارغة';
       return;
     }
 
-    cart = JSON.parse(saved);
+    try{
+      cart = JSON.parse(saved) || {};
+    }catch(e){
+      cart = {};
+    }
+
     const items = Object.values(cart);
 
     if(!items.length){
-      box.innerHTML = 'السلة فارغة';
+      cartBox.innerHTML = 'السلة فارغة';
       return;
     }
 
@@ -141,8 +158,9 @@
     let total = 0;
 
     items.forEach(i=>{
-      const line = i.price * i.qty;
+      const line = (Number(i.price)||0) * (Number(i.qty)||0);
       total += line;
+
       html += `
         <div class="cart-item">
           <div>${i.name} (${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'})</div>
@@ -158,35 +176,57 @@
       </div>
     `;
 
-    box.innerHTML = html;
+    cartBox.innerHTML = html;
   }
 
-  document.getElementById('orderForm').addEventListener('submit', async (e)=>{
+  form.addEventListener('submit', async (e)=>{
     e.preventDefault();
 
+    const items = Object.values(cart || {});
+    if(!items.length){
+      alert('السلة فارغة');
+      return;
+    }
+
     const order = {
-      name: name.value,
-      phone: phone.value,
-      country: country.value,
-      address: address.value,
-      notes: notes.value,   // ✅ الملاحظات
-      items: Object.values(cart)
+      name: (elName.value || '').trim(),
+      phone: (elPhone.value || '').trim(),
+      country: (elCountry.value || '').trim(),
+      address: (elAddress.value || '').trim(),
+      notes: (elNotes.value || '').trim(),
+      items
     };
 
-    const res = await fetch('/api/orders',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(order)
-    });
+    if(!order.name || !order.phone || !order.country || !order.address){
+      alert('رجاءً عبّي كل الحقول المطلوبة');
+      return;
+    }
 
-    const data = await res.json();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جاري الإرسال...';
 
-    if(data.success){
-      localStorage.removeItem('cart');
-      alert('تم إرسال الطلب بنجاح ✅');
-      window.location.href = '/index.html';
-    }else{
-      alert('حدث خطأ بإرسال الطلب');
+    try{
+      const res = await fetch('/api/orders',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(order)
+      });
+
+      const data = await res.json().catch(()=>({}));
+
+      if(res.ok && data.success){
+        localStorage.removeItem('cart');
+        alert('تم إرسال الطلب بنجاح ✅');
+        window.location.href = '/index.html';
+      }else{
+        alert(data?.error || 'حدث خطأ بإرسال الطلب');
+      }
+    }catch(err){
+      console.error(err);
+      alert('مشكلة اتصال بالسيرفر');
+    }finally{
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'تأكيد الطلب';
     }
   });
 
