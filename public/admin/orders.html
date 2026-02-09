@@ -93,6 +93,25 @@
       color:#6a7b72;
     }
 
+    /* ✅ صندوق سبب الإلغاء */
+    .cancel-box{
+      margin-top:10px;
+      padding:10px;
+      border-radius:14px;
+      background:#ffecec;
+      border:1px solid #ffc0c0;
+      color:#8a1414;
+      font-weight:900;
+      line-height:1.6;
+    }
+    .cancel-box small{
+      display:block;
+      color:#8a1414;
+      opacity:.85;
+      margin-bottom:4px;
+      font-weight:1000;
+    }
+
     .actions{
       display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
       margin-top:12px;
@@ -232,7 +251,8 @@
       return {
         ...o,
         items: Array.isArray(items) ? items : [],
-        assignedToCourier: Number(o.assignedToCourier || 0)
+        assignedToCourier: Number(o.assignedToCourier || 0),
+        cancelReason: o.cancelReason || ''   // ✅ سبب الإلغاء
       };
     }
 
@@ -339,6 +359,13 @@ ${items || '- (لا يوجد منتجات)'}
 
         const isAssigned = Number(o.assignedToCourier || 0) === 1;
 
+        const cancelHtml = (o.status === 'cancelled' && (o.cancelReason || '').trim())
+          ? `<div class="cancel-box">
+               <small>سبب الإلغاء</small>
+               ${esc(o.cancelReason)}
+             </div>`
+          : '';
+
         return `
           <div class="card">
             <div class="card-head">
@@ -370,6 +397,8 @@ ${items || '- (لا يوجد منتجات)'}
                 <div class="addr">${esc(o.address)}</div>
               </div>
             </div>
+
+            ${cancelHtml}
 
             <div class="items">
               <div style="font-weight:1000; margin-bottom:8px;">المنتجات</div>
@@ -403,7 +432,6 @@ ${items || '- (لا يوجد منتجات)'}
                 : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم واتساب</button>`
               }
 
-              <!-- ✅ زر إرسال للشليح -->
               <button
                 class="btn ${isAssigned ? 'btn-courier-off' : 'btn-courier'}"
                 type="button"
@@ -429,33 +457,61 @@ ${items || '- (لا يوجد منتجات)'}
 
     q.addEventListener('input', () => render());
 
+    // ✅ تحديث الحالة + سبب الإلغاء
     window.updateStatus = async function(id, status){
+      const prev = orders.find(o => o.id == id);
+      const oldStatus = prev ? (prev.status || 'new') : 'new';
+
+      let cancelReason = '';
+
+      if (status === 'cancelled'){
+        cancelReason = prompt('ليش انلغى الطلب؟ اكتب سبب الإلغاء:') || '';
+        cancelReason = cancelReason.trim();
+
+        if (!cancelReason){
+          alert('لازم تكتب سبب الإلغاء');
+          // رجّع القائمة للحالة القديمة بصرياً
+          render();
+          return;
+        }
+      }
+
       try{
         const res = await fetch(`/api/orders/${id}/status`, {
           method: 'PUT',
           headers: { 'Content-Type':'application/json' },
           credentials:'include',
-          body: JSON.stringify({ status })
+          body: JSON.stringify({
+            status,
+            cancelReason: status === 'cancelled' ? cancelReason : '' // ✅
+          })
         });
 
         if (!res.ok){
           if (res.status === 401){ window.location.href = '/login.html'; return; }
           alert('فشل تغيير الحالة');
+          // رجّع بصرياً
+          if (prev) prev.status = oldStatus;
+          render();
           return;
         }
 
         const idx = orders.findIndex(o => o.id == id);
-        if (idx >= 0) orders[idx].status = status;
+        if (idx >= 0){
+          orders[idx].status = status;
+          orders[idx].cancelReason = (status === 'cancelled') ? cancelReason : '';
+        }
         render();
       }catch(err){
         console.error(err);
         alert('مشكلة اتصال بالسيرفر');
+        if (prev) prev.status = oldStatus;
+        render();
       }
     };
 
     window.contactAndOpen = async function(id, waLink){
       await window.updateStatus(id, 'contacted');
-      // افتح الواتساب
       window.location.href = waLink;
     };
 
