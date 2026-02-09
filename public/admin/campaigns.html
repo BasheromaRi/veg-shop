@@ -43,6 +43,11 @@
       font-size:14px;
       background:#fff;
       box-sizing:border-box;
+      outline:none;
+    }
+    input:focus, textarea:focus{
+      border-color:#9dd3b1;
+      box-shadow:0 0 0 4px rgba(46,139,87,.10);
     }
     textarea{ min-height:90px; resize:vertical; }
 
@@ -74,7 +79,6 @@
       margin-top:6px;
     }
 
-    /* عرض الحملات */
     .list{
       display:grid;
       gap:12px;
@@ -135,6 +139,24 @@
       border:1px solid #dfe7e2;
       border-radius:14px;
       color:#6a7b72;
+    }
+
+    .err{
+      padding:14px;
+      background:#ffecec;
+      border:1px solid #ffc0c0;
+      border-radius:14px;
+      color:#8a1414;
+      font-weight:900;
+      line-height:1.5;
+    }
+
+    .mini{
+      font-size:12px;
+      color:#6a7b72;
+      font-weight:900;
+      direction:ltr;
+      text-align:left;
     }
   </style>
 </head>
@@ -253,7 +275,7 @@
         loadCampaigns();
       } catch (err) {
         console.error(err);
-        alert('مشكلة بالاتصال مع السيرفر (تحقق من وجود API /api/campaigns)');
+        alert('مشكلة بالاتصال مع السيرفر');
       }
     });
 
@@ -261,16 +283,21 @@
       campaignsListEl.innerHTML = 'تحميل...';
 
       try {
-        const res = await fetch('/api/campaigns', { credentials:'include' });
+        const res = await fetch('/api/campaigns', { credentials:'include', cache:'no-store' });
 
         if (res.status === 401) { window.location.href = '/login.html'; return; }
 
+        const data = await res.json().catch(()=>null);
+
         if (!res.ok) {
-          campaignsListEl.innerHTML = `<div class="empty">خطأ في تحميل الحملات (قد يكون API غير موجود).</div>`;
+          campaignsListEl.innerHTML = `
+            <div class="err">
+              السيرفر ما رجّع البيانات.<br>
+              غالباً Route /api/campaigns مش موجود بالسيرفر أو في خطأ داخلي.
+              <div class="mini">HTTP ${res.status}</div>
+            </div>`;
           return;
         }
-
-        const data = await res.json();
 
         if (!Array.isArray(data) || !data.length) {
           campaignsListEl.innerHTML = '<div class="empty">لا توجد حملات حتى الآن.</div>';
@@ -284,7 +311,6 @@
             <div class="card">
               <div class="camp-head">
                 <div style="font-weight:1000; color:#0f2b1f;">#${esc(c.id)} — ${badge}</div>
-                <div class="hint">آخر تحديث: ${esc(c.updatedAt || c.createdAt || '')}</div>
               </div>
 
               <div class="split">
@@ -327,7 +353,7 @@
 
       } catch (err) {
         console.error(err);
-        campaignsListEl.innerHTML = `<div class="empty" style="color:#8a1414;">مشكلة بالاتصال مع السيرفر.</div>`;
+        campaignsListEl.innerHTML = `<div class="err">مشكلة بالاتصال مع السيرفر.</div>`;
       }
     }
 
