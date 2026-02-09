@@ -68,9 +68,8 @@
 </header>
 
 <!-- زر سلة عائم (واحد فقط) -->
-<button class="fab-cart" onclick="goToCart()">
-  <span class="fab-count" id="cartCount">0</span>
-  سلة المشتريات
+<button class="fab-cart" onclick="goToCart()" aria-label="سلة المشتريات">
+  🛒 <span id="cartCount">0</span>
 </button>
 
 <div class="container">
@@ -194,3 +193,4 @@ document.addEventListener('DOMContentLoaded', loadProducts);
 
 </body>
 </html>
+
