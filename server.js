@@ -96,6 +96,18 @@ db.serialize(() => {
     createdAt TEXT
   )`);
 
+  // ✅ جدول الحملات (العروض)
+  db.run(`CREATE TABLE IF NOT EXISTS campaigns (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    discountPercent REAL,
+    minTotal REAL,
+    active INTEGER DEFAULT 1,
+    createdAt TEXT,
+    updatedAt TEXT
+  )`);
+
   ensureOrderColumns();
   console.log('✅ DB tables ensured + migrations checked');
 });
@@ -226,6 +238,9 @@ function apiGuard(req, res, next) {
   // زبون:
   if (req.method === 'GET' && req.path === '/products') return next();
   if (req.method === 'POST' && req.path === '/orders') return next();
+
+  // ✅ زبون: العروض الفعالة
+  if (req.method === 'GET' && req.path === '/campaigns/active') return next();
 
   // admin auth:
   if (req.method === 'POST' && req.path === '/login') return next();
@@ -445,6 +460,98 @@ app.get('/api/reports/totals', (req, res) => {
     }).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
     res.json({ totals });
+  });
+});
+
+/* ================== CAMPAIGNS (Admin + Customer) ================== */
+
+// ✅ للزبون: بس العروض النشطة (بتطلع بالاندكس)
+app.get('/api/campaigns/active', (req, res) => {
+  db.all(
+    `SELECT id, title, description, discountPercent, minTotal
+     FROM campaigns
+     WHERE active = 1
+     ORDER BY id DESC`,
+    [],
+    (err, rows) => {
+      if (err) return res.status(500).json({ success: false, error: 'DB error' });
+      res.json(rows || []);
+    }
+  );
+});
+
+// ✅ للإدارة: كل الحملات
+app.get('/api/campaigns', (req, res) => {
+  db.all('SELECT * FROM campaigns ORDER BY id DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ success:false, error:'DB error' });
+    res.json(rows || []);
+  });
+});
+
+app.post('/api/campaigns', (req, res) => {
+  const { title, description, discountPercent, minTotal, active } = req.body;
+
+  if (!title || !String(title).trim()) {
+    return res.status(400).json({ success:false, error:'العنوان مطلوب' });
+  }
+
+  const now = new Date().toISOString();
+
+  db.run(
+    `INSERT INTO campaigns (title, description, discountPercent, minTotal, active, createdAt, updatedAt)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      String(title).trim(),
+      String(description || ''),
+      (discountPercent === '' || discountPercent == null) ? null : Number(discountPercent),
+      (minTotal === '' || minTotal == null) ? null : Number(minTotal),
+      active ? 1 : 0,
+      now,
+      now,
+    ],
+    function (err) {
+      if (err) return res.status(500).json({ success:false, error:'DB error' });
+      res.json({ success:true, id: this.lastID });
+    }
+  );
+});
+
+app.put('/api/campaigns/:id', (req, res) => {
+  const id = req.params.id;
+  const { title, description, discountPercent, minTotal, active } = req.body;
+
+  if (!title || !String(title).trim()) {
+    return res.status(400).json({ success:false, error:'العنوان مطلوب' });
+  }
+
+  const now = new Date().toISOString();
+
+  db.run(
+    `UPDATE campaigns
+     SET title = ?, description = ?, discountPercent = ?, minTotal = ?, active = ?, updatedAt = ?
+     WHERE id = ?`,
+    [
+      String(title).trim(),
+      String(description || ''),
+      (discountPercent === '' || discountPercent == null) ? null : Number(discountPercent),
+      (minTotal === '' || minTotal == null) ? null : Number(minTotal),
+      active ? 1 : 0,
+      now,
+      id,
+    ],
+    function (err) {
+      if (err) return res.status(500).json({ success:false, error:'DB error' });
+      res.json({ success:true, changes: this.changes });
+    }
+  );
+});
+
+app.delete('/api/campaigns/:id', (req, res) => {
+  const id = req.params.id;
+
+  db.run('DELETE FROM campaigns WHERE id = ?', [id], function (err) {
+    if (err) return res.status(500).json({ success:false, error:'DB error' });
+    res.json({ success:true, changes: this.changes });
   });
 });
 
