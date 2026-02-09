@@ -367,19 +367,25 @@ h2{
    ADMIN ORDERS: grid + name fix
    ========================= */
 
-/* خلّي قائمة الطلبات Grid حتى لو في CSS تاني كاسرها */
-#list.grid, #ordersContainer.grid{
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)) !important;
-  gap: 14px !important;
-  align-items: start !important;
+/* ✅ خلي الطلبات شبّاك (2 جنب بعض) */
+#list.grid, .grid{
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-/* الكرت لا ياخد عرض كامل بالغلط */
-#list.grid .card, #ordersContainer.grid .card{
-  width: auto !important;
-  max-width: 100% !important;
+/* على الشاشات الأكبر خليهم 3 إذا بتحب */
+@media (min-width: 900px){
+  #list.grid, .grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
+
+/* لو بدك بالكمبيوتر يرجع عمود واحد بدل 3، استعمل هيك:
+@media (min-width: 900px){
+  #list.grid, .grid{ grid-template-columns: 1fr; }
+}
+*/
 
 /* ترتيب صفوف label/value */
 .rows{
@@ -563,5 +569,6 @@ h2{
   color: #9fb6aa;
   font-weight: 600;
 }
+
 
 
