@@ -380,29 +380,31 @@ ${items || '- (لا يوجد منتجات)'}
             </div>
 
             <div class="rows">
-              <div class="row">
-                <div class="label">الاسم</div>
-                <div class="value" style="direction:rtl; text-align:right; font-weight:1000;">${esc(o.name)}</div>
-              </div>
-              <div class="row">
-                <div class="label">الهاتف</div>
-                <div class="value">${esc(o.phone)}</div>
-              </div>
-              <div class="row">
-                <div class="label">البلد</div>
-                <div class="value" style="direction:rtl; text-align:right;">${esc(o.country)}</div>
-              </div>
-              <div class="row">
-                <div class="label">العنوان</div>
-                <div class="addr">${esc(o.address)}</div>
-              </div>
-              ${o.notes ? `
-                <div class="row">
-                <div class="label">ملاحظات</div>
-                <div class="addr">${esc(o.notes)}</div>
-              </div>
-            ` : ''}
-            </div>
+  <div class="row">
+    <div class="label">الاسم</div>
+    <div class="value v-name">${esc(o.name || '-')}</div>
+  </div>
+
+  <div class="row">
+    <div class="label">الهاتف</div>
+    <div class="value v-phone">${esc(o.phone || '-')}</div>
+  </div>
+
+  <div class="row">
+    <div class="label">البلد</div>
+    <div class="value">${esc(o.country || '-')}</div>
+  </div>
+
+  <div class="row">
+    <div class="label">العنوان</div>
+    <div class="value">${esc(o.address || '-')}</div>
+  </div>
+
+  <div class="row">
+    <div class="label">ملاحظات</div>
+    <div class="value">${esc(o.notes || '-')}</div>
+  </div>
+</div>
 
             ${cancelHtml}
 
