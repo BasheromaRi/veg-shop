@@ -46,7 +46,6 @@ function safeJson(s) {
 }
 
 function ensureOrderColumns() {
-  // إضافة أعمدة فقط إذا ناقصة (بدون أخطاء Duplicate)
   db.all(`PRAGMA table_info(orders)`, [], (err, cols) => {
     if (err) {
       console.error('PRAGMA error', err);
@@ -56,7 +55,6 @@ function ensureOrderColumns() {
 
     const addCol = (sql) =>
       db.run(sql, (e) => {
-        // تجاهل أخطاء الدوبليكيت بهدوء
         if (e && !String(e.message || '').includes('duplicate column name')) {
           console.error('ALTER error:', e.message);
         }
@@ -98,9 +96,7 @@ db.serialize(() => {
     createdAt TEXT
   )`);
 
-  // migrate (لو DB قديم)
   ensureOrderColumns();
-
   console.log('✅ DB tables ensured + migrations checked');
 });
 
@@ -318,9 +314,7 @@ app.delete('/api/products/:id', (req, res) => {
     if (!err && rows?.length) {
       rows.forEach((r) => {
         const filePath = path.join(UPLOADS_DIR, 'products', id, r.image);
-        try {
-          fs.existsSync(filePath) && fs.unlinkSync(filePath);
-        } catch (e) {}
+        try { fs.existsSync(filePath) && fs.unlinkSync(filePath); } catch (e) {}
       });
     }
 
@@ -331,9 +325,7 @@ app.delete('/api/products/:id', (req, res) => {
         if (err3) return res.status(500).json({ error: 'DB error' });
 
         const dir = path.join(UPLOADS_DIR, 'products', id);
-        try {
-          fs.existsSync(dir) && fs.rmSync(dir, { recursive: true, force: true });
-        } catch (e) {}
+        try { fs.existsSync(dir) && fs.rmSync(dir, { recursive: true, force: true }); } catch (e) {}
 
         res.json({ success: true, changes: this.changes });
       });
@@ -408,6 +400,51 @@ app.put('/api/orders/:id/assign', (req, res) => {
   db.run('UPDATE orders SET assignedToCourier = ? WHERE id = ?', [assigned, req.params.id], function (err) {
     if (err) return res.status(500).json({ error: 'DB error' });
     res.json({ success: true, changes: this.changes });
+  });
+});
+
+/* ================== REPORTS (Admin) ================== */
+/* ✅ مجموع الكميات لكل منتج حسب الحالة (بدون SQL JSON) */
+app.get('/api/reports/totals', (req, res) => {
+  const status = String(req.query.status || 'all').trim();
+
+  let sql = 'SELECT status, items FROM orders';
+  const params = [];
+
+  if (status !== 'all') {
+    sql += ' WHERE status = ?';
+    params.push(status);
+  }
+
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error('reports/totals db error:', err);
+      return res.status(500).json({ error: 'DB error' });
+    }
+
+    const map = new Map();
+
+    for (const r of (rows || [])) {
+      const items = safeJson(r.items);
+
+      for (const it of items) {
+        const name = String(it.name || '').trim();
+        const unitType = (it.unitType === 'bag') ? 'bag' : 'kg';
+        const qty = Number(it.qty || 0);
+
+        if (!name || !qty) continue;
+
+        const key = `${name}||${unitType}`;
+        map.set(key, (map.get(key) || 0) + qty);
+      }
+    }
+
+    const totals = Array.from(map.entries()).map(([key, totalQty]) => {
+      const [name, unitType] = key.split('||');
+      return { name, unitType, totalQty };
+    }).sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+    res.json({ totals });
   });
 });
 
