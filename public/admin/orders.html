@@ -28,17 +28,26 @@
     }
     .hint{ color:#6a7b72; font-size:12px; margin-top:6px; line-height:1.4; }
 
-    .grid{ display:grid; gap:12px; margin: 12px 0 18px; }
+    /* ✅ يخلي الطلبات جنب بعض مثل قبل */
+    .grid{
+      display:grid;
+      gap:12px;
+      margin: 12px 0 18px;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      align-items: start;
+    }
+
     .card{
       background:#fff; border:1px solid #dfe7e2; border-radius:16px;
       padding:12px; box-shadow: 0 1px 10px rgba(0,0,0,.06);
     }
+
     .card-head{
       display:flex; justify-content:space-between; align-items:flex-start;
       gap:10px; flex-wrap:wrap; margin-bottom:10px;
     }
     .order-title{ font-weight:1000; color:#0f2b1f; font-size:16px; }
-    .meta{ color:#6a7b72; font-size:12px; margin-top:4px; }
+    .meta{ color:#6a7b72; font-size:12px; margin-top:4px; direction:ltr; text-align:left; }
 
     .badge{
       padding:6px 10px; border-radius:999px; font-weight:900;
@@ -50,8 +59,6 @@
     .b-done{ background:#eaf7ef; border-color:#a8e0be; color:#0f5a2a; }
     .b-cancel{ background:#ffecec; border-color:#ffc0c0; color:#8a1414; }
     .b-contact{ background:#f1ecff; border-color:#d2c0ff; color:#4b2b8a; }
-
-    /* ✅ بادج للشليح */
     .b-courier{ background:#eef6ff; border-color:#b9d7ff; color:#0b3c75; }
 
     .rows{ display:grid; gap:8px; margin: 8px 0 12px; }
@@ -60,8 +67,22 @@
       flex-wrap:wrap; font-size:14px;
     }
     .label{ color:#6a7b72; font-size:12px; }
-    .value{ font-weight:900; text-align:left; direction:ltr; }
-    .addr{ direction:rtl; text-align:right; font-weight:800; }
+
+    /* ✅ حل الاسم: خلينا القيمة RTL افتراضي، ونخصص للأرقام/الهاتف */
+    .value{
+      font-weight:900;
+      text-align:right;
+      direction:rtl;
+      unicode-bidi: plaintext;
+      max-width: 72%;
+      word-break: break-word;
+    }
+    .value.v-phone,
+    .value.v-num{
+      direction:ltr;
+      text-align:left;
+      unicode-bidi: plaintext;
+    }
 
     .items{ margin-top:10px; border-top:1px dashed #d7e2db; padding-top:10px; }
     .item{
@@ -93,7 +114,6 @@
       color:#6a7b72;
     }
 
-    /* ✅ صندوق سبب الإلغاء */
     .cancel-box{
       margin-top:10px;
       padding:10px;
@@ -126,7 +146,6 @@
     .btn-red{ background:#d83a3a; color:#fff; }
     .btn-light{ background:#eaf5ef; color:#0f2b1f; }
 
-    /* ✅ زر للشليح */
     .btn-courier{ background:#0b5bd3; color:#fff; }
     .btn-courier-off{ background:#e9f2ff; color:#0b3c75; border:1px solid #b9d7ff; }
 
@@ -146,9 +165,11 @@
     }
 
     @media (max-width:700px){
+      .grid{ grid-template-columns: 1fr; }
       .actions{ justify-content:stretch; }
       .btn{ width:100%; }
       select{ width:100%; }
+      .value{ max-width: 100%; }
     }
   </style>
 </head>
@@ -193,11 +214,8 @@
     let orders = [];
     let currentFilter = 'all';
 
-    // ✅ إعدادات التوصيل
     const FREE_DELIVERY_FROM = 300;
     const DELIVERY_FEE = 30;
-
-    // ✅ عدّلها إذا بدك دولة ثانية
     const DEFAULT_COUNTRY_CODE = '972';
 
     function esc(s){
@@ -211,7 +229,7 @@
         const d = new Date(iso);
         return d.toLocaleString('en-GB', {
           year:'numeric', month:'2-digit', day:'2-digit',
-          hour:'2-digit', minute:'2-digit',hour12: false
+          hour:'2-digit', minute:'2-digit', hour12:false
         });
       }catch(e){ return iso || ''; }
     }
@@ -232,11 +250,9 @@
     function calcSubtotal(items){
       return (items || []).reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
     }
-
     function calcDelivery(subtotal){
       return subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
     }
-
     function calcGrandTotal(items){
       const subtotal = calcSubtotal(items);
       const delivery = calcDelivery(subtotal);
@@ -252,7 +268,8 @@
         ...o,
         items: Array.isArray(items) ? items : [],
         assignedToCourier: Number(o.assignedToCourier || 0),
-        cancelReason: o.cancelReason || ''   // ✅ سبب الإلغاء
+        cancelReason: o.cancelReason || '',
+        notes: o.notes || ''
       };
     }
 
@@ -297,10 +314,7 @@ ${items || '- (لا يوجد منتجات)'}
       try{
         const res = await fetch('/api/orders', { credentials:'include' });
         if (!res.ok){
-          if (res.status === 401){
-            window.location.href = '/login.html';
-            return;
-          }
+          if (res.status === 401){ window.location.href = '/login.html'; return; }
           list.innerHTML = `<div class="empty">خطأ في تحميل الطلبات.</div>`;
           return;
         }
@@ -380,31 +394,31 @@ ${items || '- (لا يوجد منتجات)'}
             </div>
 
             <div class="rows">
-  <div class="row">
-    <div class="label">الاسم</div>
-    <div class="value v-name">${esc(o.name || '-')}</div>
-  </div>
+              <div class="row">
+                <div class="label">الاسم</div>
+                <div class="value">${esc(o.name || '-')}</div>
+              </div>
 
-  <div class="row">
-    <div class="label">الهاتف</div>
-    <div class="value v-phone">${esc(o.phone || '-')}</div>
-  </div>
+              <div class="row">
+                <div class="label">الهاتف</div>
+                <div class="value v-phone">${esc(o.phone || '-')}</div>
+              </div>
 
-  <div class="row">
-    <div class="label">البلد</div>
-    <div class="value">${esc(o.country || '-')}</div>
-  </div>
+              <div class="row">
+                <div class="label">البلد</div>
+                <div class="value">${esc(o.country || '-')}</div>
+              </div>
 
-  <div class="row">
-    <div class="label">العنوان</div>
-    <div class="value">${esc(o.address || '-')}</div>
-  </div>
+              <div class="row">
+                <div class="label">العنوان</div>
+                <div class="value">${esc(o.address || '-')}</div>
+              </div>
 
-  <div class="row">
-    <div class="label">ملاحظات</div>
-    <div class="value">${esc(o.notes || '-')}</div>
-  </div>
-</div>
+              <div class="row">
+                <div class="label">ملاحظات</div>
+                <div class="value">${esc(o.notes || '-')}</div>
+              </div>
+            </div>
 
             ${cancelHtml}
 
@@ -414,10 +428,10 @@ ${items || '- (لا يوجد منتجات)'}
             </div>
 
             <div class="summary">
-              <div class="sum-row"><small>المجموع قبل التوصيل</small><div>₪${esc(subtotal)}</div></div>
-              <div class="sum-row"><small>التوصيل</small><div>${delivery === 0 ? 'مجاني ✅' : '₪' + esc(delivery)}</div></div>
+              <div class="sum-row"><small>المجموع قبل التوصيل</small><div class="value v-num">₪${esc(subtotal)}</div></div>
+              <div class="sum-row"><small>التوصيل</small><div class="value v-num">${delivery === 0 ? 'مجاني ✅' : '₪' + esc(delivery)}</div></div>
               <div class="sum-row" style="border-top:1px dashed #cfe3d6; padding-top:8px;">
-                <small>المجموع الكلي</small><div>₪${esc(total)}</div>
+                <small>المجموع الكلي</small><div class="value v-num">₪${esc(total)}</div>
               </div>
             </div>
 
@@ -465,20 +479,16 @@ ${items || '- (لا يوجد منتجات)'}
 
     q.addEventListener('input', () => render());
 
-    // ✅ تحديث الحالة + سبب الإلغاء
     window.updateStatus = async function(id, status){
       const prev = orders.find(o => o.id == id);
       const oldStatus = prev ? (prev.status || 'new') : 'new';
-
       let cancelReason = '';
 
       if (status === 'cancelled'){
         cancelReason = prompt('ليش انلغى الطلب؟ اكتب سبب الإلغاء:') || '';
         cancelReason = cancelReason.trim();
-
         if (!cancelReason){
           alert('لازم تكتب سبب الإلغاء');
-          // رجّع القائمة للحالة القديمة بصرياً
           render();
           return;
         }
@@ -489,16 +499,12 @@ ${items || '- (لا يوجد منتجات)'}
           method: 'PUT',
           headers: { 'Content-Type':'application/json' },
           credentials:'include',
-          body: JSON.stringify({
-            status,
-            cancelReason: status === 'cancelled' ? cancelReason : '' // ✅
-          })
+          body: JSON.stringify({ status, cancelReason: status === 'cancelled' ? cancelReason : '' })
         });
 
         if (!res.ok){
           if (res.status === 401){ window.location.href = '/login.html'; return; }
           alert('فشل تغيير الحالة');
-          // رجّع بصرياً
           if (prev) prev.status = oldStatus;
           render();
           return;
@@ -523,7 +529,6 @@ ${items || '- (لا يوجد منتجات)'}
       window.location.href = waLink;
     };
 
-    // ✅ إرسال/إزالة من الشليح
     window.toggleCourier = async function(id, isAssignedNow){
       const newVal = !isAssignedNow;
       try{
@@ -555,10 +560,7 @@ ${items || '- (لا يوجد منتجات)'}
       if (!confirm('متأكد بدك تحذف الطلب؟')) return;
 
       try{
-        const res = await fetch(`/api/orders/${id}`, {
-          method:'DELETE',
-          credentials:'include'
-        });
+        const res = await fetch(`/api/orders/${id}`, { method:'DELETE', credentials:'include' });
 
         if (!res.ok){
           if (res.status === 401){ window.location.href = '/login.html'; return; }
