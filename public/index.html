@@ -236,14 +236,10 @@ function renderProducts() {
 
         <div class="grid-2">
           <input
-            class="qty-input"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            placeholder="مثال: 25"
-            value="${qty ? qty : ''}"
-            onblur="setQtyFromInput(${p.id}, this.value)"
-            aria-label="اكتب الكمية"
-          />
+  type="number"
+  class="quantity-input"
+  placeholder="مثال: 25"
+>
           <button class="btn-clear" type="button" onclick="setQty(${p.id}, 0)">مسح الكمية</button>
         </div>
 
@@ -351,4 +347,5 @@ document.addEventListener('DOMContentLoaded', loadProducts);
 </section>
 </body>
 </html>
+
 
