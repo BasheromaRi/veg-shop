@@ -58,12 +58,14 @@
         const res = await fetch(`/api/reports/totals?status=${encodeURIComponent(currentStatus)}`, {
           credentials:'include'
         });
+
         if(!res.ok){
           if(res.status===401){ window.location.href='/login.html'; return; }
           list.textContent = 'خطأ في تحميل الإحصائيات';
           return;
         }
-        const data = await res.json();
+
+        const data = await res.json().catch(()=>({}));
         const totals = data.totals || [];
 
         if(!totals.length){
@@ -77,9 +79,10 @@
               <div class="name">${t.name}</div>
               <div class="muted">${unitLabel(t.unitType)}</div>
             </div>
-            <div class="qty">${t.totalQty} ${unitLabel(t.unitType)}</div>
+            <div class="qty">${Number(t.totalQty || 0)} ${unitLabel(t.unitType)}</div>
           </div>
         `).join('');
+
       }catch(e){
         console.error(e);
         list.textContent = 'مشكلة اتصال بالسيرفر';
