@@ -559,3 +559,98 @@ h2{
     -webkit-overflow-scrolling:touch;
   }
 }
+/* =========================
+   Orders Compact Mode (Mobile)
+   ========================= */
+
+/* موبايل: خلي الطلبات 2 جنب بعض + تصغير لطيف للكرت */
+@media (max-width: 600px){
+  #list.grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap:10px !important;
+  }
+
+  #list.grid .card{
+    padding:10px !important;
+    border-radius:14px !important;
+  }
+
+  #list.grid .order-title{
+    font-size:14px !important;
+  }
+
+  #list.grid .meta{
+    font-size:11px !important;
+  }
+
+  #list.grid .badge{
+    font-size:11px !important;
+    padding:5px 8px !important;
+  }
+
+  #list.grid .rows{
+    gap:6px !important;
+    margin: 6px 0 8px !important;
+  }
+
+  #list.grid .label{
+    font-size:11px !important;
+  }
+
+  #list.grid .value{
+    font-size:12px !important;
+  }
+
+  #list.grid .items{
+    padding-top:8px !important;
+    margin-top:8px !important;
+  }
+
+  #list.grid .item{
+    padding:6px 0 !important;
+    font-size:12px !important;
+  }
+
+  #list.grid .summary{
+    padding:8px !important;
+    border-radius:12px !important;
+    gap:6px !important;
+  }
+
+  #list.grid .sum-row small{
+    font-size:11px !important;
+  }
+
+  #list.grid .actions{
+    margin-top:10px !important;
+    gap:6px !important;
+  }
+
+  #list.grid .btn{
+    padding:9px 10px !important;
+    font-size:12px !important;
+    border-radius:12px !important;
+  }
+
+  /* خلي الأزرار جنب بعض بدل ما يصير كل زر سطر لحاله */
+  #list.grid .actions .btn,
+  #list.grid .actions a.btn{
+    width:auto !important;
+    flex:1 1 auto !important;
+    text-align:center !important;
+  }
+
+  /* select أصغر */
+  #list.grid select{
+    min-width: 140px !important;
+    padding:9px 10px !important;
+    font-size:12px !important;
+  }
+}
+
+/* موبايل صغير جدًا: رجّع عمود واحد */
+@media (max-width: 360px){
+  #list.grid{
+    grid-template-columns: 1fr !important;
+  }
+}
