@@ -417,81 +417,36 @@ h2{
     grid-template-columns: 1fr !important;
   }
 }
-/* ====== Contact box ====== */
+/* ====== تواصل معنا ====== */
 .contact-box{
-  margin-top: 18px;
-  background:#fff;
-  border:1px solid #dfe7e2;
-  border-radius:16px;
-  padding:14px;
-  box-shadow: 0 1px 10px rgba(0,0,0,.06);
+  text-align: center;
 }
 
 .contact-title{
-  margin:0 0 12px 0;
-  color:#0f2b1f;
-  font-weight:1000;
-  font-size:16px;
+  text-align: center;
 }
 
 .contact-links{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
+  display: flex;
+  justify-content: center;   /* ✅ توسيط أفقي */
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 10px 0;
 }
 
 .contact-btn{
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 14px;
-  border-radius:14px;
-  font-weight:1000;
-  font-size:14px;
-  border:1px solid #dfe7e2;
-  background:#f6fbf8;
-  color:#0f2b1f;
-}
-
-.contact-btn img{
-  width:22px;
-  height:22px;
-  object-fit:contain;
-}
-
-.contact-btn.wa{
-  background:#25D366;
-  color:#fff;
-}
-
-.contact-btn.ig{
-  background:#f1ecff;
-  color:#4b2b8a;
-}
-
-.contact-btn.fb{
-  background:#e9f3ff;
-  color:#084b8a;
-}
-
-.contact-btn:hover{
-  transform: translateY(-1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .contact-phone{
-  margin-top:14px;
-  display:flex;
-  gap:8px;
-  align-items:center;
-  font-weight:900;
-  color:#2a3b33;
+  text-align: center;
+  margin-top: 10px;
 }
 
 .phone-link{
-  direction:ltr;
-  text-decoration:none;
-  color:#2e8b57;
-  font-weight:1000;
+  display: inline-block;
 }
-.phone-link:hover{ text-decoration:underline; }
