@@ -177,7 +177,7 @@ function buildSelectOptionsHTML(p, current){
 
   return opts.map(v => {
     const sel = Number(current) === v ? 'selected' : '';
-    const txt = v === 0 ? '0 (بدون)' : v;
+    const txt = v === 0 ? '0' : v;
     return `<option value="${v}" ${sel}>${txt}</option>`;
   }).join('');
 }
@@ -351,3 +351,4 @@ document.addEventListener('DOMContentLoaded', loadProducts);
 </section>
 </body>
 </html>
+
