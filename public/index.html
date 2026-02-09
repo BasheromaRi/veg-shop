@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/styles.css">
 
   <style>
+    /* زر سلة عائم مرتب */
     .fab-cart{
       position: fixed;
       right: 16px;
@@ -43,7 +44,7 @@
     .card .desc{ font-size:13px; color:#555; margin-bottom:6px; line-height:1.4; }
     .card .price{ font-weight:1000; margin-bottom:10px; }
 
-    /* ✅ كمية واضحة: إدخال رقم + سلايدر */
+    /* ✅ صندوق اختيار الكمية (عملي لكبار السن) */
     .qty-box{
       margin-top: 10px;
       background: #f6fbf8;
@@ -53,7 +54,6 @@
       display: grid;
       gap: 10px;
     }
-
     .qty-head{
       display:flex;
       align-items:center;
@@ -63,46 +63,77 @@
       color:#163628;
       font-size:14px;
     }
+    .qty-unit{
+      font-size:12px;
+      color:#6a7b72;
+      font-weight:900;
+      margin-top:-6px;
+    }
 
-    .qty-row{
+    .qty-chips{
       display:flex;
-      align-items:center;
-      gap:10px;
       flex-wrap:wrap;
-      justify-content:space-between;
+      gap:8px;
+      justify-content:center;
+    }
+
+    .chip{
+      border:1px solid #cfe3d6;
+      background:#fff;
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-weight: 1000;
+      font-size: 14px;
+      cursor:pointer;
+      min-width: 64px;
+      text-align:center;
+      box-shadow: 0 1px 6px rgba(0,0,0,.05);
+      user-select:none;
+    }
+    .chip:active{ transform: scale(.98); }
+    .chip.active{
+      background:#2e8b57;
+      border-color:#2e8b57;
+      color:#fff;
+    }
+
+    .qty-actions{
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 2px;
     }
 
     .qty-input{
       width: 120px;
-      padding: 12px 12px;
+      padding: 10px 12px;
       border-radius: 12px;
       border: 1px solid #d7e2db;
-      background:#fff;
-      font-size:18px;
-      font-weight:1000;
+      font-size: 16px;
+      font-weight: 1000;
       text-align:center;
+      background:#fff;
       outline:none;
     }
 
-    .qty-slider{
-      flex: 1;
-      min-width: 160px;
-      height: 36px;
+    .btn-clear{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #ffd0d0;
+      background: #ffecec;
+      color: #8a1414;
+      font-weight: 1000;
+      cursor:pointer;
     }
-
-    .unit-under{
-      font-size:12px;
-      color:#6a7b72;
-      font-weight:900;
-      text-align:center;
-      margin-top: -2px;
-    }
+    .btn-clear:active{ transform: scale(.98); }
 
     .qty-hint{
-      font-size:12px;
-      color:#557264;
-      font-weight:800;
       text-align:center;
+      font-size: 12px;
+      color:#557264;
+      font-weight: 800;
     }
 
     .bottom-space{ height: 90px; }
@@ -137,6 +168,14 @@ function isStepFiveProduct(p){
   return n.includes('عروق') || n.includes('عيدان') || n.includes('عِيدان');
 }
 
+function presetsForProduct(p){
+  // للعيـدان (كغم) مضاعفات 5
+  if (isStepFiveProduct(p) && p.unitType !== 'bag') return [5,10,15,20,25,30];
+  // للمنتجات العادية
+  if (p.unitType === 'bag') return [1,2,3,5,10,20];
+  return [1,2,3,5,10,20];
+}
+
 async function loadProducts() {
   const res = await fetch('/api/products');
   products = await res.json();
@@ -151,51 +190,58 @@ function renderProducts() {
   products.forEach(p => {
     if (!p.available) return;
 
-    const uLabel = unitLabel(p.unitType);
+    const u = unitLabel(p.unitType);
     const qty = Number(cart[p.id]?.qty || 0);
-    const imageUrl = (p.images && p.images.length) ? p.images[0] : '/images/no-image.png';
 
-    const step = (isStepFiveProduct(p) && p.unitType !== 'bag') ? 5 : 1;
-    const hint = (step === 5) ? 'للعيـدان: اختار 5، 10، 15، 20، 25…' : 'اكتب أي رقم (مثلاً 2 أو 3 أو 12)';
+    const imageUrl = (p.images && p.images.length)
+      ? p.images[0]
+      : '/images/no-image.png';
+
+    const presets = presetsForProduct(p);
+    const hint = (isStepFiveProduct(p) && p.unitType !== 'bag')
+      ? 'ملوخية العيدان: الكمية تكون 5،10،15… (مضاعفات 5)'
+      : 'اختار كبسة أو اكتب رقم إذا بدك';
+
+    const chipsHtml = presets.map(n => {
+      const active = (qty === n) ? 'active' : '';
+      return `<button class="chip ${active}" type="button" onclick="setQty(${p.id}, ${n})">${n}</button>`;
+    }).join('');
 
     const card = document.createElement('div');
     card.className = 'card';
 
     card.innerHTML = `
-      <img src="${imageUrl}" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
+      <img src="${imageUrl}"
+        style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
+
       <h3>${p.name}</h3>
       <div class="desc">${p.description || ''}</div>
-      <div class="price">₪${p.price} / ${uLabel}</div>
+      <div class="price">₪${p.price} / ${u}</div>
 
       <div class="qty-box">
         <div class="qty-head">
           <span>اختار الكمية</span>
           <span style="color:#2e8b57;">${qty}</span>
         </div>
+        <div class="qty-unit">${u}</div>
 
-        <div class="qty-row">
+        <div class="qty-chips">
+          ${chipsHtml}
+        </div>
+
+        <div class="qty-actions">
           <input
             class="qty-input"
             inputmode="numeric"
             pattern="[0-9]*"
-            value="${qty}"
-            oninput="onQtyInput(${p.id}, this.value)"
-            aria-label="كمية المنتج"
+            placeholder="اكتب رقم"
+            value="${qty ? qty : ''}"
+            onblur="onQtyTyped(${p.id}, this.value)"
+            aria-label="اكتب الكمية"
           />
-
-          <input
-            class="qty-slider"
-            type="range"
-            min="0"
-            max="20"
-            step="${step}"
-            value="${Math.min(qty, 20)}"
-            oninput="onQtySlider(${p.id}, this.value)"
-            aria-label="سلايدر الكمية حتى 20"
-          />
+          <button class="btn-clear" type="button" onclick="setQty(${p.id}, 0)">مسح</button>
         </div>
 
-        <div class="unit-under">${uLabel}</div>
         <div class="qty-hint">${hint}</div>
       </div>
     `;
@@ -203,7 +249,9 @@ function renderProducts() {
     container.appendChild(card);
   });
 
-  if (!container.innerHTML.trim()) container.innerHTML = 'لا يوجد منتجات متاحة حالياً.';
+  if (!container.innerHTML.trim()) {
+    container.innerHTML = 'لا يوجد منتجات متاحة حالياً.';
+  }
 }
 
 function setQty(id, q){
@@ -213,12 +261,12 @@ function setQty(id, q){
   q = Number(q || 0);
   if (!Number.isFinite(q) || q < 0) q = 0;
 
-  // حد حماية
+  // حماية
   if (q > 999) { alert('الكمية كبيرة جدًا'); return; }
 
-  const stepFive = (isStepFiveProduct(p) && p.unitType !== 'bag');
-  if (stepFive && q !== 0 && (q % 5 !== 0)){
-    alert('ملوخية العيدان تُباع بمضاعفات 5 (5، 10، 15...)');
+  // للعيـدان: لازم مضاعف 5
+  if (isStepFiveProduct(p) && p.unitType !== 'bag' && q !== 0 && (q % 5 !== 0)){
+    alert('ملوخية العيدان: لازم الكمية تكون مضاعفات 5 (5، 10، 15...)');
     return;
   }
 
@@ -232,16 +280,10 @@ function setQty(id, q){
   renderProducts();
 }
 
-// إدخال يدوي (يسمح أكثر من 20)
-window.onQtyInput = function(id, val){
+window.onQtyTyped = function(id, val){
   const digits = String(val || '').replace(/[^\d]/g,'');
   const num = digits ? Number(digits) : 0;
   setQty(id, num);
-};
-
-// السلايدر فقط حتى 20 (للسهولة)
-window.onQtySlider = function(id, val){
-  setQty(id, Number(val || 0));
 };
 
 function saveCart() {
