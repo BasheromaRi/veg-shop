@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="/styles.css">
 
   <style>
-    /* زر سلة عائم */
     .fab-cart{
       position: fixed;
       right: 16px;
@@ -40,22 +39,22 @@
       font-size: 12px;
     }
 
-    /* كروت المنتجات */
     .card h3{ margin: 6px 0 4px; }
     .card .desc{ font-size:13px; color:#555; margin-bottom:6px; line-height:1.4; }
     .card .price{ font-weight:1000; margin-bottom:10px; }
 
-    /* ✅ كمية أسهل لكبار السن */
-    .qty-wrap{
+    /* ✅ كمية واضحة: إدخال رقم + سلايدر */
+    .qty-box{
       margin-top: 10px;
       background: #f6fbf8;
       border: 1px solid #cfe3d6;
       border-radius: 14px;
       padding: 10px;
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
-    .qty-top{
+
+    .qty-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -64,37 +63,33 @@
       color:#163628;
       font-size:14px;
     }
-    .qty-select-row{
+
+    .qty-row{
       display:flex;
-      gap:10px;
       align-items:center;
-      justify-content:space-between;
+      gap:10px;
       flex-wrap:wrap;
+      justify-content:space-between;
     }
-    .qty-select{
-      flex:1;
-      min-width: 160px;
+
+    .qty-input{
+      width: 120px;
       padding: 12px 12px;
       border-radius: 12px;
-      border:1px solid #d7e2db;
+      border: 1px solid #d7e2db;
       background:#fff;
-      font-size:16px;
+      font-size:18px;
       font-weight:1000;
+      text-align:center;
       outline:none;
     }
-    .qty-more{
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: none;
-      background:#2e8b57;
-      color:#fff;
-      font-weight:1000;
-      cursor:pointer;
-      white-space:nowrap;
-    }
-    .qty-more:active{ transform: scale(.99); }
 
-    /* ✅ كغم/كيس تحت خانة الاختيار */
+    .qty-slider{
+      flex: 1;
+      min-width: 160px;
+      height: 36px;
+    }
+
     .unit-under{
       font-size:12px;
       color:#6a7b72;
@@ -103,7 +98,13 @@
       margin-top: -2px;
     }
 
-    /* مساحة تحت عشان الزر العائم ما يغطي آخر المنتجات */
+    .qty-hint{
+      font-size:12px;
+      color:#557264;
+      font-weight:800;
+      text-align:center;
+    }
+
     .bottom-space{ height: 90px; }
   </style>
 </head>
@@ -119,15 +120,8 @@
 </button>
 
 <div class="container">
-
-  <div id="campaignBanner" class="campaign-banner" style="display:none;">
-    <h3>العروض الحالية</h3>
-    <div id="campaignContent"></div>
-  </div>
-
   <h2>منتجاتنا</h2>
   <div id="productsContainer">جاري تحميل المنتجات...</div>
-
   <div class="bottom-space"></div>
 </div>
 
@@ -137,21 +131,10 @@ let cart = {};
 
 function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
-// ✅ هل المنتج ينباع بالخمسات؟ (ملوخية عروق/عيدان)
+// ✅ ملوخية العيدان/عروق = مضاعفات 5
 function isStepFiveProduct(p){
   const n = String(p?.name || '');
   return n.includes('عروق') || n.includes('عيدان') || n.includes('عِيدان');
-}
-
-// ✅ تجهيز خيارات الكمية
-function buildQtyOptions(p){
-  // للعروق/العيدان: 0,5,10..30 (وإنت بتقدر تزود)
-  if (isStepFiveProduct(p) && p.unitType !== 'bag'){
-    const arr = [0,5,10,15,20,25,30];
-    return arr;
-  }
-  // لباقي المنتجات: 0..20
-  return Array.from({length: 21}, (_,i)=>i);
 }
 
 async function loadProducts() {
@@ -170,75 +153,73 @@ function renderProducts() {
 
     const uLabel = unitLabel(p.unitType);
     const qty = Number(cart[p.id]?.qty || 0);
+    const imageUrl = (p.images && p.images.length) ? p.images[0] : '/images/no-image.png';
 
-    const imageUrl = (p.images && p.images.length)
-      ? p.images[0]
-      : '/images/no-image.png';
-
-    const options = buildQtyOptions(p);
-    const hasMoreButton = true; // دايمًا بنعرض “أكثر”
+    const step = (isStepFiveProduct(p) && p.unitType !== 'bag') ? 5 : 1;
+    const hint = (step === 5) ? 'للعيـدان: اختار 5، 10، 15، 20، 25…' : 'اكتب أي رقم (مثلاً 2 أو 3 أو 12)';
 
     const card = document.createElement('div');
     card.className = 'card';
 
-    // بناء خيارات select
-    let optionsHtml = options.map(v => {
-      const selected = (v === qty) ? 'selected' : '';
-      return `<option value="${v}" ${selected}>${v}</option>`;
-    }).join('');
-
-    // إذا الكمية الحالية مش ضمن الخيارات (مثلاً كتب أكثر من 30)
-    if (!options.includes(qty) && qty > 0){
-      optionsHtml += `<option value="${qty}" selected>${qty}</option>`;
-    }
-
     card.innerHTML = `
-      <img src="${imageUrl}"
-        style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
-
+      <img src="${imageUrl}" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
       <h3>${p.name}</h3>
       <div class="desc">${p.description || ''}</div>
       <div class="price">₪${p.price} / ${uLabel}</div>
 
-      <div class="qty-wrap">
-        <div class="qty-top">
+      <div class="qty-box">
+        <div class="qty-head">
           <span>اختار الكمية</span>
           <span style="color:#2e8b57;">${qty}</span>
         </div>
 
-        <div class="qty-select-row">
-          <select class="qty-select" onchange="setQty(${p.id}, this.value)">
-            ${optionsHtml}
-          </select>
+        <div class="qty-row">
+          <input
+            class="qty-input"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            value="${qty}"
+            oninput="onQtyInput(${p.id}, this.value)"
+            aria-label="كمية المنتج"
+          />
 
-          ${hasMoreButton ? `<button class="qty-more" type="button" onclick="askMore(${p.id})">أكثر من 20؟</button>` : ''}
+          <input
+            class="qty-slider"
+            type="range"
+            min="0"
+            max="20"
+            step="${step}"
+            value="${Math.min(qty, 20)}"
+            oninput="onQtySlider(${p.id}, this.value)"
+            aria-label="سلايدر الكمية حتى 20"
+          />
         </div>
 
         <div class="unit-under">${uLabel}</div>
+        <div class="qty-hint">${hint}</div>
       </div>
     `;
 
     container.appendChild(card);
   });
 
-  if (!container.innerHTML.trim()) {
-    container.innerHTML = 'لا يوجد منتجات متاحة حالياً.';
-  }
+  if (!container.innerHTML.trim()) container.innerHTML = 'لا يوجد منتجات متاحة حالياً.';
 }
 
-function setQty(id, val){
+function setQty(id, q){
   const p = products.find(x => x.id === id);
   if (!p) return;
 
-  let q = Number(val || 0);
+  q = Number(q || 0);
   if (!Number.isFinite(q) || q < 0) q = 0;
 
-  // ✅ للعروق/العيدان: لازم مضاعفات 5 (أو 0)
-  if (isStepFiveProduct(p) && p.unitType !== 'bag'){
-    if (q !== 0 && q % 5 !== 0){
-      alert('ملوخية العيدان تُباع بمضاعفات 5 (5، 10، 15...)');
-      return;
-    }
+  // حد حماية
+  if (q > 999) { alert('الكمية كبيرة جدًا'); return; }
+
+  const stepFive = (isStepFiveProduct(p) && p.unitType !== 'bag');
+  if (stepFive && q !== 0 && (q % 5 !== 0)){
+    alert('ملوخية العيدان تُباع بمضاعفات 5 (5، 10، 15...)');
+    return;
   }
 
   if (q === 0){
@@ -246,42 +227,22 @@ function setQty(id, val){
   } else {
     cart[id] = { id:p.id, name:p.name, price:p.price, unitType:p.unitType, qty:q };
   }
+
   saveCart();
-  renderProducts(); // حتى تتحدث كل الأرقام
+  renderProducts();
 }
 
-// ✅ زر “أكثر من 20؟”
-function askMore(id){
-  const p = products.find(x => x.id === id);
-  if (!p) return;
+// إدخال يدوي (يسمح أكثر من 20)
+window.onQtyInput = function(id, val){
+  const digits = String(val || '').replace(/[^\d]/g,'');
+  const num = digits ? Number(digits) : 0;
+  setQty(id, num);
+};
 
-  const stepFive = isStepFiveProduct(p) && p.unitType !== 'bag';
-  const hint = stepFive
-    ? 'اكتب كمية (بالكغم) مضاعفات 5 مثل: 25 أو 30 أو 35'
-    : 'اكتب كمية رقمية مثل: 25 أو 30';
-
-  let input = prompt(hint);
-  if (input === null) return;
-
-  let q = Number(String(input).replace(/[^\d]/g,''));
-  if (!Number.isFinite(q) || q <= 0){
-    alert('الرجاء إدخال رقم صحيح');
-    return;
-  }
-
-  if (stepFive && q % 5 !== 0){
-    alert('لازم تكون الكمية مضاعفات 5 (5، 10، 15...)');
-    return;
-  }
-
-  // (اختياري) حد أعلى حماية
-  if (q > 999){
-    alert('الكمية كبيرة جدًا');
-    return;
-  }
-
-  setQty(id, q);
-}
+// السلايدر فقط حتى 20 (للسهولة)
+window.onQtySlider = function(id, val){
+  setQty(id, Number(val || 0));
+};
 
 function saveCart() {
   localStorage.setItem('cart', JSON.stringify(cart));
@@ -308,6 +269,32 @@ function goToCart() {
 
 document.addEventListener('DOMContentLoaded', loadProducts);
 </script>
+<!-- ====== تواصل معنا (ستايل جديد) ====== -->
+<section class="contact-card" aria-label="تواصل معنا">
+  <div class="contact-head">
+    <h3>تواصل معنا</h3>
+    <p>نرد بسرعة على واتساب 💚</p>
+  </div>
 
+  <div class="contact-icons">
+    <a class="cicon wa" href="https://wa.me/972507979314" target="_blank" rel="noopener" aria-label="WhatsApp">
+      <img src="/images/whatsapp.svg" alt="WhatsApp">
+    </a>
+
+    <a class="cicon ig" href="https://www.instagram.com/sandala_mlokhea" target="_blank" rel="noopener" aria-label="Instagram">
+      <img src="/images/instagram.svg" alt="Instagram">
+    </a>
+
+    <a class="cicon fb" href="https://www.facebook.com/share/1WtoUbnS8W/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+      <img src="/images/facebook.svg" alt="Facebook">
+    </a>
+  </div>
+
+  <div class="contact-phone-pill">
+    <span class="phone-emoji">📞</span>
+    <span>الهاتف</span>
+    <a href="tel:0507979314">0507979314</a>
+  </div>
+</section>
 </body>
 </html>
