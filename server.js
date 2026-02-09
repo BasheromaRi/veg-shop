@@ -57,12 +57,13 @@ db.serialize(() => {
   phone TEXT,
   country TEXT,
   address TEXT,
+  notes TEXT DEFAULT '',
   items TEXT,
   status TEXT DEFAULT 'new',
-  createdAt TEXT,
-  cancelReason TEXT DEFAULT ''   -- ✅ سبب الإلغاء
+  createdAt TEXT
 )`);
 
+   db.run(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`, () => {});
   // ✅ أعمدة جديدة (إذا مش موجودة رح نتجاهل الخطأ)
   db.run(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`, () => {});
   db.run(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`, () => {});
