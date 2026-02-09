@@ -412,6 +412,27 @@ h2, h3 { margin: 10px 0; }
   /* عنوان المجموع يكون مرتب */
   .order-summary .total { font-size: 17px; }
 }
+.fab-cart{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  background: #2e8b57;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 14px;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+  cursor: pointer;
+}
+
+.fab-cart span{
+  background: rgba(255,255,255,.2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-right: 8px;
+}
 
 
 
