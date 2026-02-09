@@ -396,6 +396,12 @@ ${items || '- (لا يوجد منتجات)'}
                 <div class="label">العنوان</div>
                 <div class="addr">${esc(o.address)}</div>
               </div>
+              ${o.notes ? `
+                <div class="row">
+                <div class="label">ملاحظات</div>
+                <div class="addr">${esc(o.notes)}</div>
+              </div>
+            ` : ''}
             </div>
 
             ${cancelHtml}
