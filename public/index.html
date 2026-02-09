@@ -13,9 +13,9 @@
       right: 16px;
       bottom: 16px;
       z-index: 9999;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
       padding: 10px 12px;
       border: 1px solid rgba(255,255,255,.25);
       border-radius: 999px;
@@ -23,8 +23,8 @@
       color: #fff;
       font-weight: 1000;
       font-size: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.18);
       cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,.18);
     }
     .fab-cart:active{ transform: scale(.98); }
     .fab-cart #cartCount{
@@ -32,9 +32,9 @@
       height: 22px;
       padding: 0 8px;
       border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       background: rgba(255,255,255,.22);
       font-weight: 1000;
       font-size: 12px;
@@ -44,8 +44,8 @@
     .card .desc{ font-size:13px; color:#555; margin-bottom:6px; line-height:1.4; }
     .card .price{ font-weight:1000; margin-bottom:10px; }
 
-    /* ✅ صندوق اختيار الكمية (عملي لكبار السن) */
-    .qty-box{
+    /* ✅ صندوق اختيار الكمية (ناعم) */
+    .qty-panel{
       margin-top: 10px;
       background: #f6fbf8;
       border: 1px solid #cfe3d6;
@@ -54,86 +54,80 @@
       display: grid;
       gap: 10px;
     }
-    .qty-head{
+
+    .qty-row{
       display:flex;
-      align-items:center;
-      justify-content:space-between;
       gap:10px;
-      font-weight:1000;
-      color:#163628;
-      font-size:14px;
-    }
-    .qty-unit{
-      font-size:12px;
-      color:#6a7b72;
-      font-weight:900;
-      margin-top:-6px;
-    }
-
-    .qty-chips{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      justify-content:center;
-    }
-
-    .chip{
-      border:1px solid #cfe3d6;
-      background:#fff;
-      border-radius: 999px;
-      padding: 10px 12px;
-      font-weight: 1000;
-      font-size: 14px;
-      cursor:pointer;
-      min-width: 64px;
-      text-align:center;
-      box-shadow: 0 1px 6px rgba(0,0,0,.05);
-      user-select:none;
-    }
-    .chip:active{ transform: scale(.98); }
-    .chip.active{
-      background:#2e8b57;
-      border-color:#2e8b57;
-      color:#fff;
-    }
-
-    .qty-actions{
-      display:flex;
-      gap:8px;
-      justify-content:center;
       align-items:center;
       flex-wrap:wrap;
-      margin-top: 2px;
+      justify-content:space-between;
+    }
+
+    .qty-label{
+      font-weight: 1000;
+      color:#163628;
+      font-size: 13px;
+    }
+
+    .qty-unit{
+      font-size: 12px;
+      color:#6a7b72;
+      font-weight: 900;
+    }
+
+    .qty-select{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid #d7e2db;
+      background: #fff;
+      font-size: 15px;
+      font-weight: 900;
+      outline: none;
+      box-shadow: 0 1px 6px rgba(0,0,0,.05);
     }
 
     .qty-input{
-      width: 120px;
-      padding: 10px 12px;
+      width: 100%;
+      padding: 12px 12px;
       border-radius: 12px;
       border: 1px solid #d7e2db;
+      background: #fff;
       font-size: 16px;
       font-weight: 1000;
-      text-align:center;
-      background:#fff;
       outline:none;
+      box-shadow: 0 1px 6px rgba(0,0,0,.05);
+      text-align: center;
     }
-
-    .btn-clear{
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid #ffd0d0;
-      background: #ffecec;
-      color: #8a1414;
-      font-weight: 1000;
-      cursor:pointer;
-    }
-    .btn-clear:active{ transform: scale(.98); }
 
     .qty-hint{
-      text-align:center;
       font-size: 12px;
       color:#557264;
       font-weight: 800;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .btn-clear{
+      border: 1px solid #ffd0d0;
+      background: #ffecec;
+      color:#8a1414;
+      font-weight: 1000;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      width: 100%;
+    }
+    .btn-clear:active{ transform: scale(.99); }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+
+    @media (max-width: 520px){
+      .grid-2{ grid-template-columns: 1fr; }
     }
 
     .bottom-space{ height: 90px; }
@@ -162,18 +156,30 @@ let cart = {};
 
 function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
-// ✅ ملوخية العيدان/عروق = مضاعفات 5
+/* ✅ ملوخية العيدان/عروق = مضاعفات 5 */
 function isStepFiveProduct(p){
   const n = String(p?.name || '');
   return n.includes('عروق') || n.includes('عيدان') || n.includes('عِيدان');
 }
 
-function presetsForProduct(p){
-  // للعيـدان (كغم) مضاعفات 5
-  if (isStepFiveProduct(p) && p.unitType !== 'bag') return [5,10,15,20,25,30];
-  // للمنتجات العادية
-  if (p.unitType === 'bag') return [1,2,3,5,10,20];
-  return [1,2,3,5,10,20];
+/* ✅ بناء خيارات القائمة */
+function buildSelectOptionsHTML(p, current){
+  let opts = [];
+  const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
+
+  if (step5){
+    // ملوخية العيدان: 0,5,10,15,20
+    opts = [0,5,10,15,20];
+  } else {
+    // باقي المنتجات: 0..20
+    opts = Array.from({length:21}, (_,i)=>i);
+  }
+
+  return opts.map(v => {
+    const sel = Number(current) === v ? 'selected' : '';
+    const txt = v === 0 ? '0 (بدون)' : v;
+    return `<option value="${v}" ${sel}>${txt}</option>`;
+  }).join('');
 }
 
 async function loadProducts() {
@@ -197,15 +203,10 @@ function renderProducts() {
       ? p.images[0]
       : '/images/no-image.png';
 
-    const presets = presetsForProduct(p);
-    const hint = (isStepFiveProduct(p) && p.unitType !== 'bag')
-      ? 'ملوخية العيدان: الكمية تكون 5،10،15… (مضاعفات 5)'
-      : 'اختار كبسة أو اكتب رقم إذا بدك';
-
-    const chipsHtml = presets.map(n => {
-      const active = (qty === n) ? 'active' : '';
-      return `<button class="chip ${active}" type="button" onclick="setQty(${p.id}, ${n})">${n}</button>`;
-    }).join('');
+    const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
+    const hint = step5
+      ? `ملوخية العيدان: اكتب 5 أو 10 أو 15... (مضاعفات 5)`
+      : `تقدر تختار من القائمة أو تكتب رقم أكبر من 20`;
 
     const card = document.createElement('div');
     card.className = 'card';
@@ -218,28 +219,32 @@ function renderProducts() {
       <div class="desc">${p.description || ''}</div>
       <div class="price">₪${p.price} / ${u}</div>
 
-      <div class="qty-box">
-        <div class="qty-head">
-          <span>اختار الكمية</span>
-          <span style="color:#2e8b57;">${qty}</span>
-        </div>
-        <div class="qty-unit">${u}</div>
-
-        <div class="qty-chips">
-          ${chipsHtml}
+      <div class="qty-panel">
+        <div class="qty-row">
+          <div>
+            <div class="qty-label">اختار الكمية</div>
+            <div class="qty-unit">${u}</div>
+          </div>
+          <div style="font-weight:1000;color:#2e8b57;">${qty}</div>
         </div>
 
-        <div class="qty-actions">
+        <select class="qty-select" onchange="setQtyFromSelect(${p.id}, this.value)">
+          ${buildSelectOptionsHTML(p, qty)}
+        </select>
+
+        <div class="qty-label" style="text-align:center;">أو اكتب الكمية</div>
+
+        <div class="grid-2">
           <input
             class="qty-input"
             inputmode="numeric"
             pattern="[0-9]*"
-            placeholder="اكتب رقم"
+            placeholder="مثال: 25"
             value="${qty ? qty : ''}"
-            onblur="onQtyTyped(${p.id}, this.value)"
+            onblur="setQtyFromInput(${p.id}, this.value)"
             aria-label="اكتب الكمية"
           />
-          <button class="btn-clear" type="button" onclick="setQty(${p.id}, 0)">مسح</button>
+          <button class="btn-clear" type="button" onclick="setQty(${p.id}, 0)">مسح الكمية</button>
         </div>
 
         <div class="qty-hint">${hint}</div>
@@ -261,11 +266,12 @@ function setQty(id, q){
   q = Number(q || 0);
   if (!Number.isFinite(q) || q < 0) q = 0;
 
-  // حماية
-  if (q > 999) { alert('الكمية كبيرة جدًا'); return; }
+  // حماية بسيطة
+  if (q > 9999){ alert('الكمية كبيرة جداً'); return; }
 
-  // للعيـدان: لازم مضاعف 5
-  if (isStepFiveProduct(p) && p.unitType !== 'bag' && q !== 0 && (q % 5 !== 0)){
+  // ملوخية العيدان: مضاعفات 5
+  const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
+  if (step5 && q !== 0 && (q % 5 !== 0)){
     alert('ملوخية العيدان: لازم الكمية تكون مضاعفات 5 (5، 10، 15...)');
     return;
   }
@@ -280,10 +286,15 @@ function setQty(id, q){
   renderProducts();
 }
 
-window.onQtyTyped = function(id, val){
+window.setQtyFromSelect = function(id, val){
+  const n = Number(val || 0);
+  setQty(id, n);
+};
+
+window.setQtyFromInput = function(id, val){
   const digits = String(val || '').replace(/[^\d]/g,'');
-  const num = digits ? Number(digits) : 0;
-  setQty(id, num);
+  const n = digits ? Number(digits) : 0;
+  setQty(id, n);
 };
 
 function saveCart() {
