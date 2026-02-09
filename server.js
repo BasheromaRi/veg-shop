@@ -345,16 +345,21 @@ app.post('/api/orders', (req, res) => {
 });
 
 app.put('/api/orders/:id/status', (req, res) => {
+  const { status, cancelReason } = req.body;
+
   db.run(
     'UPDATE orders SET status = ?, cancelReason = ? WHERE id = ?',
-    [req.body.status, req.body.cancelReason || '', req.params.id],
+    [
+      status,
+      status === 'cancelled' ? (cancelReason || '') : '', // ✅ نخزن السبب بس لو ملغي
+      req.params.id
+    ],
     (err) => {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true });
     }
   );
 });
-
 app.delete('/api/orders/:id', (req, res) => {
   db.run('DELETE FROM orders WHERE id = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: 'DB error' });
