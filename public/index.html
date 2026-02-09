@@ -181,7 +181,42 @@ function buildSelectOptionsHTML(p, current){
     return `<option value="${v}" ${sel}>${txt}</option>`;
   }).join('');
 }
+async function loadCampaigns(){
+  const banner = document.getElementById('campaignBanner');
+  const content = document.getElementById('campaignContent');
 
+  if (!banner || !content) return;
+
+  try{
+    const res = await fetch('/api/campaigns/active');
+    const data = await res.json();
+
+    if (!res.ok || !Array.isArray(data) || data.length === 0){
+      banner.style.display = 'none';
+      return;
+    }
+
+    banner.style.display = 'block';
+
+    content.innerHTML = data.map(c => {
+      const parts = [];
+
+      if (c.description) parts.push(`<div class="campaign-desc">${c.description}</div>`);
+      if (c.discountPercent != null && c.discountPercent !== '') parts.push(`<div class="campaign-extra">خصم: ${c.discountPercent}%</div>`);
+      if (c.minTotal != null && c.minTotal !== '') parts.push(`<div class="campaign-extra">الحد الأدنى للطلب: ₪${c.minTotal}</div>`);
+
+      return `
+        <div class="campaign-item">
+          <div class="campaign-title">${c.title}</div>
+          ${parts.join('')}
+        </div>
+      `;
+    }).join('');
+  }catch(e){
+    console.error(e);
+    banner.style.display = 'none';
+  }
+}
 async function loadProducts() {
   const res = await fetch('/api/products');
   products = await res.json();
