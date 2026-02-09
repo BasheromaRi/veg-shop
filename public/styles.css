@@ -532,4 +532,11 @@ h2{
 }
 
 .phone-emoji{ font-size:18px; }
+/* خانة كتابة الكمية اليدوية */
+.quantity-input {
+  direction: ltr;        /* عشان الأرقام */
+  text-align: center;    /* بالنص */
+  width: 100%;
+  box-sizing: border-box;
+}
 
