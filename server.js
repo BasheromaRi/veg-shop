@@ -52,15 +52,16 @@ db.serialize(() => {
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS orders (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    phone TEXT,
-    country TEXT,
-    address TEXT,
-    items TEXT,
-    status TEXT DEFAULT 'new',
-    createdAt TEXT
-  )`);
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  phone TEXT,
+  country TEXT,
+  address TEXT,
+  items TEXT,
+  status TEXT DEFAULT 'new',
+  createdAt TEXT,
+  cancelReason TEXT DEFAULT ''   -- ✅ سبب الإلغاء
+)`);
 
   // ✅ أعمدة جديدة (إذا مش موجودة رح نتجاهل الخطأ)
   db.run(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`, () => {});
