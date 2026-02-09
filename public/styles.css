@@ -72,6 +72,7 @@ h2{
   text-align:center;
   box-shadow:0 2px 10px rgba(0,0,0,.08);
   font-weight:600;
+  height:100%;
 }
 
 .card img{
@@ -109,7 +110,7 @@ h2{
 .card .price .num{ direction:ltr; }
 .card .price .unit{ white-space:nowrap; }
 
-/* ✅ Quantity picker (for كبار بالعمر: واضح) */
+/* ✅ Quantity picker (classic) */
 .qty-wrap{
   margin-top:8px;
   padding:10px;
@@ -140,7 +141,7 @@ h2{
 }
 
 /* =========================
-   Floating Cart Button (✅ واحد فقط)
+   Floating Cart Button
    ========================= */
 .fab-cart{
   position: fixed;
@@ -186,7 +187,7 @@ h2{
 }
 
 /* =========================
-   Cart / Checkout blocks (review page)
+   Cart / Checkout blocks
    ========================= */
 .cart-section{
   background:#fff;
@@ -248,9 +249,8 @@ h2{
 }
 
 /* =========================
-   Admin Orders (✅ جنب بعض)
+   Admin Orders container (old admin page using #ordersContainer)
    ========================= */
-/* خلي كروت الطلبات بجريد */
 #ordersContainer{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
@@ -258,7 +258,6 @@ h2{
   align-items:start;
 }
 
-/* شكل كرت الطلب */
 #ordersContainer .card{
   text-align:right;
   cursor:default;
@@ -271,6 +270,12 @@ h2{
 #ordersContainer .card div{
   margin-bottom:4px;
   line-height:1.45;
+}
+
+#ordersContainer .card .customer-name{
+  background:#f6fbf8;
+  padding:6px 10px;
+  border-radius:8px;
 }
 
 /* فلتر الطلبات */
@@ -328,69 +333,36 @@ h2{
 }
 
 /* =========================
-   Mobile
+   Orders page NEW (#list.grid)
+   ✅ THIS IS YOUR MOBILE 2-CARDS FIX
    ========================= */
-@media (max-width: 800px){
-  #ordersContainer{
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
+#list.grid{
+  display:grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap:12px !important;
+  align-items:start;
 }
 
-@media (max-width: 600px){
-  .container{ padding:16px; }
-  #productsContainer{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap:12px;
-  }
-  .card img{ height:140px; }
-  .qty-select{ width:120px; font-size:14px; }
+#list.grid .card{ min-width:0 !important; }
 
-  .container th,
-  .container td{
-    padding:6px;
-    font-size:12px;
-  }
-
-  .container table{
-    display:block;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-}
-
-#ordersContainer .card .customer-name{
-  background:#f6fbf8;
-  padding:6px 10px;
-  border-radius:8px;
-}
-/* =========================
-   ADMIN ORDERS: grid + name fix
-   ========================= */
-
-/* ✅ خلي الطلبات شبّاك (2 جنب بعض) */
-#list.grid, .grid{
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-/* على الشاشات الأكبر خليهم 3 إذا بتحب */
+/* على الكمبيوتر (شاشات كبيرة) خليهم 3 */
 @media (min-width: 900px){
-  #list.grid, .grid{
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  #list.grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
 
-/* لو بدك بالكمبيوتر يرجع عمود واحد بدل 3، استعمل هيك:
-@media (min-width: 900px){
-  #list.grid, .grid{ grid-template-columns: 1fr; }
+/* لو الشاشة صغيرة جدًا (موبايل قديم) رجّع عمود واحد */
+@media (max-width: 360px){
+  #list.grid{
+    grid-template-columns: 1fr !important;
+  }
 }
-*/
 
-/* ترتيب صفوف label/value */
+/* ترتيب صفوف label/value داخل كرت الطلب */
 .rows{
-  display: grid !important;
-  gap: 8px !important;
+  display:grid !important;
+  gap:8px !important;
 }
 
 .row{
@@ -400,65 +372,51 @@ h2{
   flex-wrap:wrap !important;
 }
 
-/* بروز الاسم */
 .v-name{
-  font-size: 16px !important;
-  font-weight: 1000 !important;
-  color: #0f2b1f !important;
-  direction: rtl !important;
-  text-align: right !important;
+  font-size:16px !important;
+  font-weight:1000 !important;
+  color:#0f2b1f !important;
+  direction:rtl !important;
+  text-align:right !important;
 }
 
-/* رقم التلفون LTR */
 .v-phone{
-  direction: ltr !important;
-  text-align: left !important;
-  font-weight: 900 !important;
-  color: #000 !important;
+  direction:ltr !important;
+  text-align:left !important;
+  font-weight:900 !important;
+  color:#000 !important;
 }
 
-/* على الشاشات الصغيرة خليها عمود واحد */
-@media (max-width: 900px){
-  #list.grid, #ordersContainer.grid{
-    grid-template-columns: 1fr !important;
-  }
-}
-/* ====== تواصل معنا ====== */
-.contact-box{
-  text-align: center;
-}
-
-.contact-title{
-  text-align: center;
-}
+/* =========================
+   Contact (center) + Premium card
+   ========================= */
+.contact-box{ text-align:center; }
+.contact-title{ text-align:center; }
 
 .contact-links{
-  display: flex;
-  justify-content: center;   /* ✅ توسيط أفقي */
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 10px 0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:10px 0;
 }
 
 .contact-btn{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
 }
 
 .contact-phone{
-  text-align: center;
-  margin-top: 10px;
+  text-align:center;
+  margin-top:10px;
 }
 
-.phone-link{
-  display: inline-block;
-}
-/* =========================
-   Contact card (Premium)
-   ========================= */
+.phone-link{ display:inline-block; }
+
+/* Premium Contact card */
 .contact-card{
   margin: 18px auto 10px;
   max-width: 520px;
@@ -504,16 +462,13 @@ h2{
   background:#fff;
   transition: transform .12s ease, box-shadow .12s ease;
 }
-
 .cicon img{
   width:26px;
   height:26px;
   display:block;
 }
-
 .cicon:active{ transform: scale(.96); }
 
-/* ألوان خفيفة لكل منصة */
 .cicon.wa{ background: rgba(37,211,102,.12); border-color: rgba(37,211,102,.25); }
 .cicon.ig{ background: rgba(225,48,108,.10); border-color: rgba(225,48,108,.22); }
 .cicon.fb{ background: rgba(24,119,242,.10); border-color: rgba(24,119,242,.22); }
@@ -538,38 +493,69 @@ h2{
 }
 
 .phone-emoji{ font-size:18px; }
-/* خانة كتابة الكمية اليدوية */
-.quantity-input {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1.5px solid #cfe3d6;
-  background: #f9fdfb;
-  font-size: 15px;
-  font-weight: 700;
-  color: #1f3b2d;
 
-  text-align: center;
-  direction: ltr;
-  box-sizing: border-box;
+/* =========================
+   Quantity input (manual)
+   ========================= */
+.quantity-input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1.5px solid #cfe3d6;
+  background:#f9fdfb;
+  font-size:15px;
+  font-weight:800;
+  color:#1f3b2d;
 
-  transition: all 0.25s ease;
+  text-align:center;
+  direction:ltr;
+  box-sizing:border-box;
+
+  transition: all .25s ease;
 }
 
-/* لما يكبس عليها */
-.quantity-input:focus {
-  outline: none;
-  border-color: #2e8b57;
-  background: #ffffff;
+.quantity-input:focus{
+  outline:none;
+  border-color:#2e8b57;
+  background:#ffffff;
   box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
 }
 
-/* placeholder */
-.quantity-input::placeholder {
-  color: #9fb6aa;
-  font-weight: 600;
+.quantity-input::placeholder{
+  color:#9fb6aa;
+  font-weight:700;
 }
-.card{ height: 100%; }
 
+/* =========================
+   Mobile
+   ========================= */
+@media (max-width: 800px){
+  #ordersContainer{
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
 
+@media (max-width: 600px){
+  .container{ padding:16px; }
 
+  #productsContainer{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:12px;
+  }
+
+  .card img{ height:140px; }
+
+  .qty-select{ width:120px; font-size:14px; }
+
+  .container th,
+  .container td{
+    padding:6px;
+    font-size:12px;
+  }
+
+  .container table{
+    display:block;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+}
