@@ -19,21 +19,25 @@
       padding: 12px 16px;
       border: 1px solid rgba(255,255,255,.22);
       border-radius: 999px;
-      background: #3c8955;
+      background: linear-gradient(180deg, #ff9f1c, #ff7a00) !important;
       color: #fff;
       font-weight: 1000;
       font-size: 14px;
       cursor: pointer;
-      box-shadow: 0 14px 28px rgba(0,0,0,.18);
-      transition: transform .15s ease, box-shadow .15s ease;
+      box-shadow: 0 14px 28px rgba(255,122,0,.28) !important;
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      position: fixed;
     }
-    .fab-cart:hover{ transform: translateY(-1px); }
+    .fab-cart:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
     .fab-cart:active{ transform: scale(.97); }
     .fab-cart.bump{ animation: cartBump .32s ease; }
 
     @keyframes cartBump{
       0%{ transform: scale(1); }
-      40%{ transform: scale(1.12); }
+      40%{ transform: scale(1.10); }
       100%{ transform: scale(1); }
     }
 
@@ -43,17 +47,42 @@
       white-space:nowrap;
     }
 
-    .fab-cart #cartCount{
-      min-width: 24px;
-      height: 24px;
-      padding: 0 8px;
-      border-radius: 999px;
+    /* السعر */
+    #cartTotal{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:58px;
+      height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.18);
+      font-size:13px;
+      font-weight:1000;
+      line-height:1;
+      direction:ltr;
+    }
+
+    /* العداد الأحمر */
+    .cart-badge{
+      position:absolute;
+      top:-8px;
+      right:-10px;
+      min-width:22px;
+      height:22px;
+      padding:0 6px;
+      border-radius:999px;
+      background:#ff3b30;
+      color:#fff;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: rgba(255,255,255,.22);
-      font-weight: 1000;
-      font-size: 12px;
+      font-size:11px;
+      font-weight:1000;
+      line-height:1;
+      box-shadow:0 4px 10px rgba(0,0,0,.25);
+      border:2px solid #fff4e8;
+      z-index:2;
     }
 
     .card h3{ margin: 8px 0 6px; }
@@ -329,9 +358,23 @@
         right:12px;
         bottom:12px;
         padding:11px 14px;
+        gap:8px;
       }
       .fab-cart .cart-label{
         font-size:13px;
+      }
+      #cartTotal{
+        min-width:52px;
+        height:26px;
+        padding:0 8px;
+        font-size:12px;
+      }
+      .cart-badge{
+        top:-7px;
+        right:-8px;
+        min-width:20px;
+        height:20px;
+        font-size:10px;
       }
     }
   </style>
@@ -345,11 +388,7 @@
 <button class="fab-cart" onclick="goToCart()">
   🛒
   <span class="cart-label">سلة المشتريات</span>
-
-  <!-- السعر -->
   <span id="cartTotal">₪0</span>
-
-  <!-- 🔴 البابل -->
   <span id="cartCount" class="cart-badge">0</span>
 </button>
 
@@ -675,11 +714,7 @@ function loadCartFromStorage() {
 }
 
 function updateCartCount() {
-
-  // ✅ عدد المنتجات (مش الكمية)
   const itemCount = Object.keys(cart).length;
-
-  // ✅ السعر الإجمالي
   const totalPrice = Object.values(cart).reduce((sum, item) => {
     return sum + (item.price * item.qty);
   }, 0);
@@ -690,6 +725,7 @@ function updateCartCount() {
   if (countEl) countEl.textContent = itemCount;
   if (totalEl) totalEl.textContent = `₪${totalPrice}`;
 }
+
 function goToCart() {
   window.location.href = '/review.html';
 }
