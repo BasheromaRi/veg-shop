@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/styles.css">
 
   <style>
-    /* زر سلة عائم مرتب */
+    /* زر سلة عائم أوضح */
     .fab-cart{
       position: fixed;
       right: 16px;
@@ -16,20 +16,36 @@
       display:flex;
       align-items:center;
       gap:10px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,.25);
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,.22);
       border-radius: 999px;
-      background: #2e8b57;
+      background: #3c8955;
       color: #fff;
       font-weight: 1000;
       font-size: 14px;
       cursor: pointer;
-      box-shadow: 0 10px 20px rgba(0,0,0,.18);
+      box-shadow: 0 14px 28px rgba(0,0,0,.18);
+      transition: transform .15s ease, box-shadow .15s ease;
     }
-    .fab-cart:active{ transform: scale(.98); }
+    .fab-cart:hover{ transform: translateY(-1px); }
+    .fab-cart:active{ transform: scale(.97); }
+    .fab-cart.bump{ animation: cartBump .32s ease; }
+
+    @keyframes cartBump{
+      0%{ transform: scale(1); }
+      40%{ transform: scale(1.12); }
+      100%{ transform: scale(1); }
+    }
+
+    .fab-cart .cart-label{
+      font-size:14px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
     .fab-cart #cartCount{
-      min-width: 22px;
-      height: 22px;
+      min-width: 24px;
+      height: 24px;
       padding: 0 8px;
       border-radius: 999px;
       display:flex;
@@ -40,58 +56,52 @@
       font-size: 12px;
     }
 
-    .card h3{ margin: 6px 0 4px; }
-    .card .desc{ font-size:13px; color:#555; margin-bottom:6px; line-height:1.4; }
-    .card .price{ font-weight:1000; margin-bottom:10px; }
+    .card h3{ margin: 8px 0 6px; }
+    .card .desc{ font-size:13px; color:#666; margin-bottom:8px; line-height:1.5; min-height:20px; }
+    .card .price{ font-weight:1000; margin-bottom:12px; }
 
     /* ===== العروض ===== */
     .campaign-banner{
-      background:#fdf3e7;
-      border:1px solid #f5c78b;
-      border-radius:14px;
-      padding:12px 14px;
-      margin: 14px 0 18px;
+      background:#f8f1df;
+      border:1px solid #e8d2a1;
+      border-radius:18px;
+      padding:14px 16px;
+      margin: 16px 0 20px;
     }
     .campaign-banner h3{
       margin:0 0 8px;
-      font-size:16px;
-      color:#c26b12;
+      font-size:17px;
+      color:#b2781d;
       font-weight:1000;
     }
     .campaign-item{
-      background:#fffaf2;
-      border:1px dashed #f0b168;
-      border-radius:12px;
-      padding:10px 10px;
+      background:#fcf8ee;
+      border:1px dashed #e3c182;
+      border-radius:14px;
+      padding:10px 12px;
       margin-bottom:10px;
     }
-    .campaign-title{ font-weight:1000; margin-bottom:4px; }
-    .campaign-desc{ font-size:13px; color:#444; line-height:1.5; }
-    .campaign-extra{ font-size:12px; color:#6a4b20; margin-top:4px; font-weight:900; }
+    .campaign-title{ font-weight:1000; margin-bottom:4px; color:#5f4310; }
+    .campaign-desc{ font-size:13px; color:#555; line-height:1.5; }
+    .campaign-extra{ font-size:12px; color:#7d6535; margin-top:4px; font-weight:900; }
 
     .bottom-space{ height: 110px; }
 
     /* ===== تواصل معنا ===== */
     .contact-card{
       margin: 18px 0 10px;
-      background:#fff;
-      border:1px solid #dfe7e2;
-      border-radius:16px;
-      padding:14px;
-      box-shadow:0 1px 10px rgba(0,0,0,.06);
+      background:#fffdf8;
+      border:1px solid #e7e2d6;
+      border-radius:20px;
+      padding:16px;
+      box-shadow:0 8px 20px rgba(0,0,0,.05);
       text-align:center;
     }
     .contact-head h3{
       margin:0;
-      font-size:16px;
+      font-size:17px;
       font-weight:1000;
-      color:#0f2b1f;
-    }
-    .contact-head p{
-      margin:6px 0 0;
-      font-size:12px;
-      color:#6a7b72;
-      font-weight:900;
+      color:#163c25;
     }
 
     .contact-icons{
@@ -102,17 +112,18 @@
       flex-wrap:wrap;
     }
     .cicon{
-      width:52px;
-      height:52px;
+      width:54px;
+      height:54px;
       border-radius:16px;
       display:flex;
       align-items:center;
       justify-content:center;
-      border:1px solid #dfe7e2;
+      border:1px solid #e3e3e3;
       background:#fff;
-      box-shadow:0 6px 16px rgba(0,0,0,.08);
-      transition: transform .1s, box-shadow .1s;
+      box-shadow:0 6px 16px rgba(0,0,0,.06);
+      transition: transform .12s ease, box-shadow .12s ease;
     }
+    .cicon:hover{ transform: translateY(-1px); }
     .cicon:active{ transform: scale(.97); }
     .cicon img{ width:26px; height:26px; display:block; }
 
@@ -121,34 +132,35 @@
     .cicon.fb{ background:#eef6ff; border-color:#b9d7ff; }
 
     .contact-phone-pill{
-      margin-top:12px;
+      margin-top:14px;
       display:inline-flex;
       align-items:center;
       gap:8px;
       border-radius:999px;
-      padding:10px 12px;
-      background:#f6fbf8;
-      border:1px solid #cfe3d6;
+      padding:10px 14px;
+      background:#f4f8f3;
+      border:1px solid #d7dfd4;
       font-weight:1000;
-      color:#0f2b1f;
+      color:#163c25;
     }
     .contact-phone-pill a{
-      color:#2e8b57;
+      color:#3c8955;
       text-decoration:none;
       font-weight:1000;
       direction:ltr;
     }
 
-    /* ===== Modal ===== */
+    /* ===== نافذة اختيار الكمية ===== */
     .modal-backdrop{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.38);
+      background:rgba(0,0,0,.40);
       z-index:10000;
       display:none;
       align-items:center;
       justify-content:center;
       padding:18px;
+      backdrop-filter: blur(2px);
     }
     .modal-backdrop.show{
       display:flex;
@@ -157,11 +169,12 @@
     .qty-modal{
       width:100%;
       max-width:430px;
-      background:#fff;
+      background:#fffdf8;
       border-radius:24px;
-      box-shadow:0 20px 50px rgba(0,0,0,.22);
+      box-shadow:0 22px 60px rgba(0,0,0,.24);
       overflow:hidden;
       animation: popIn .18s ease;
+      border:1px solid #ebe4d6;
     }
 
     @keyframes popIn{
@@ -171,7 +184,7 @@
 
     .qty-modal-head{
       padding:16px 18px 12px;
-      border-bottom:1px solid #eef2ef;
+      border-bottom:1px solid #efe7da;
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
@@ -181,7 +194,7 @@
     .qty-modal-title{
       font-size:20px;
       font-weight:1000;
-      color:#0f2b1f;
+      color:#163c25;
       margin:0 0 4px;
     }
 
@@ -190,6 +203,7 @@
       color:#6a7b72;
       font-weight:900;
       margin:0;
+      line-height:1.5;
     }
 
     .modal-close{
@@ -197,7 +211,7 @@
       height:40px;
       border:none;
       border-radius:999px;
-      background:#f2f6f3;
+      background:#f3f6f3;
       cursor:pointer;
       font-size:22px;
       font-weight:1000;
@@ -211,7 +225,7 @@
     }
 
     .modal-price-box{
-      background:#f6fbf8;
+      background:#f4f8f3;
       border:1px solid #dbe9e0;
       border-radius:16px;
       padding:12px;
@@ -282,23 +296,42 @@
       font-weight:1000;
       font-size:15px;
       cursor:pointer;
+      transition: transform .12s ease, filter .12s ease;
     }
+    .btn-soft:active{ transform:scale(.98); }
 
     .btn-yellow{
-      background:#f7c948;
+      background:linear-gradient(180deg, #f5df52, #efd540);
       color:#3c2b00;
       box-shadow:0 8px 18px rgba(247,201,72,.28);
     }
-    .btn-yellow:active{ transform:scale(.98); }
 
     .btn-light{
       background:#eef4f0;
       color:#274435;
     }
 
+    /* حركة زر الإضافة */
+    .store-add-btn.added{
+      animation: addPop .25s ease;
+    }
+    @keyframes addPop{
+      0%{ transform:scale(1); }
+      50%{ transform:scale(1.08); }
+      100%{ transform:scale(1); }
+    }
+
     @media (max-width:520px){
       .modal-actions{
         grid-template-columns:1fr;
+      }
+      .fab-cart{
+        right:12px;
+        bottom:12px;
+        padding:11px 14px;
+      }
+      .fab-cart .cart-label{
+        font-size:13px;
       }
     }
   </style>
@@ -310,7 +343,8 @@
 </header>
 
 <button class="fab-cart" onclick="goToCart()" aria-label="سلة المشتريات">
-  🛒 <span id="cartCount">0</span>
+  <span class="cart-label">سلة المشتريات</span>
+  <span id="cartCount">0</span>
 </button>
 
 <div class="container">
@@ -325,7 +359,7 @@
 
   <section class="contact-card" aria-label="تواصل معنا">
     <div class="contact-head">
-      <h3>تواصل معنا💚</h3>
+      <h3>تواصل معنا 💚</h3>
     </div>
 
     <div class="contact-icons">
@@ -400,6 +434,7 @@
 let products = [];
 let cart = {};
 let activeProduct = null;
+let activeButton = null;
 
 function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
@@ -489,11 +524,11 @@ function renderProducts() {
     const card = document.createElement('div');
     card.className = 'card';
     card.style.cursor = 'pointer';
-    card.onclick = () => openQtyModal(p.id);
+    card.onclick = () => openQtyModal(p.id, null);
 
     card.innerHTML = `
       <img src="${imageUrl}" alt="${escHtml(p.name)}"
-        style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
+        style="width:100%;height:160px;object-fit:cover;border-radius:14px;margin-bottom:10px;">
 
       <h3>${escHtml(p.name)}</h3>
       <div class="desc">${escHtml(p.description || '')}</div>
@@ -502,7 +537,7 @@ function renderProducts() {
       <button
         type="button"
         class="store-add-btn"
-        onclick="event.stopPropagation(); openQtyModal(${p.id})"
+        onclick="event.stopPropagation(); openQtyModal(${p.id}, this)"
       >
         أضف للسلة
       </button>
@@ -518,11 +553,12 @@ function renderProducts() {
   }
 }
 
-function openQtyModal(productId){
+function openQtyModal(productId, btn){
   const p = products.find(x => x.id === productId);
   if (!p) return;
 
   activeProduct = p;
+  activeButton = btn || null;
 
   const currentQty = Number(cart[p.id]?.qty || 0);
   const u = unitLabel(p.unitType);
@@ -546,18 +582,36 @@ function openQtyModal(productId){
   document.getElementById('qtyModalBackdrop').classList.add('show');
 
   setTimeout(() => {
-    if (input.value) input.focus();
+    input.focus();
   }, 50);
 }
 
 function closeQtyModal(){
   document.getElementById('qtyModalBackdrop').classList.remove('show');
   activeProduct = null;
+  activeButton = null;
 }
 
 function backdropClose(e){
   if (e.target.id === 'qtyModalBackdrop') {
     closeQtyModal();
+  }
+}
+
+function animateAdd(){
+  if (activeButton){
+    activeButton.classList.remove('added');
+    void activeButton.offsetWidth;
+    activeButton.classList.add('added');
+    setTimeout(() => activeButton && activeButton.classList.remove('added'), 260);
+  }
+
+  const cartBtn = document.querySelector('.fab-cart');
+  if (cartBtn){
+    cartBtn.classList.remove('bump');
+    void cartBtn.offsetWidth;
+    cartBtn.classList.add('bump');
+    setTimeout(() => cartBtn.classList.remove('bump'), 340);
   }
 }
 
@@ -596,6 +650,7 @@ function confirmAddToCart(){
   }
 
   saveCart();
+  animateAdd();
   closeQtyModal();
   renderProducts();
 }
