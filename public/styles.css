@@ -12,25 +12,22 @@ body{
 }
 
 header{
-  background:linear-gradient(180deg, #3f8f58 0%, #357b4c 100%);
+  background:#3c8955;
   padding:18px 16px;
   color:#fff;
   font-size:22px;
   font-weight:900;
-  box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
 
 .container{
   max-width:1150px;
   margin:auto;
-  padding:22px 20px 28px;
+  padding:20px;
 }
 
 h2{
   color:#1f5a36;
-  margin:18px 0 14px;
-  font-size:20px;
-  font-weight:1000;
+  margin:14px 0;
 }
 
 /* =========================
@@ -39,216 +36,154 @@ h2{
 .campaign-banner{
   background:#f8f1df;
   border:1px solid #e8d2a1;
-  border-radius:20px;
-  padding:16px;
-  margin:18px 0 24px;
-  box-shadow:0 8px 20px rgba(120,93,36,.05);
+  border-radius:18px;
+  padding:14px;
+  margin:15px 0 20px;
 }
 
 .campaign-banner h3{
-  margin:0 0 10px 0;
-  font-size:18px;
+  margin:0 0 8px 0;
+  font-size:16px;
   color:#b2781d;
-  font-weight:1000;
 }
 
 .campaign-item{
-  margin-bottom:10px;
-  padding:12px 14px;
-  border-radius:16px;
+  margin-bottom:8px;
+  padding:10px 12px;
+  border-radius:14px;
   background:#fcf8ee;
   border:1px dashed #e3c182;
 }
 
-.campaign-title{
-  font-weight:1000;
-  margin-bottom:4px;
-  color:#5f4310;
-}
-
-.campaign-desc{
-  font-size:13px;
-  color:#5b5b52;
-  line-height:1.6;
-}
-
-.campaign-extra{
-  font-size:12px;
-  color:#8a6d3a;
-  margin-top:4px;
-  font-weight:900;
-}
+.campaign-title{ font-weight:900; margin-bottom:4px; }
+.campaign-desc{ font-size:13px; color:#555; }
+.campaign-extra{ font-size:12px; color:#777; margin-top:3px; }
 
 /* =========================
-   Products grid (store)
+   Products grid (المهم)
    ========================= */
-##productsContainer{
+#productsContainer{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  column-gap:20px;
-  row-gap:26px;
-  align-items:stretch;
+  grid-template-columns: repeat(2, 1fr);
+  gap:20px; /* 👈 فراغ واضح */
 }
 
 /* product card */
 .card{
   background:#fffdf8;
-  padding:16px;
-  border-radius:22px;
+  padding:14px;
+  border-radius:18px;
   text-align:center;
-  box-shadow:0 8px 22px rgba(27,52,36,.07);
+  box-shadow:0 6px 16px rgba(0,0,0,.06);
   border:1px solid #ece6d8;
-  font-weight:600;
-  height:100%;
-  transition:transform .12s ease, box-shadow .12s ease;
 }
 
-.card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 12px 28px rgba(27,52,36,.10);
+/* 👈 يعطي فراغ زيادة تحت كل كرت */
+.card{
+  margin-bottom:4px;
 }
 
 .card img{
   width:100%;
-  height:180px;
+  height:160px;
   object-fit:cover;
-  border-radius:18px;
-  margin-bottom:14px;
+  border-radius:14px;
+  margin-bottom:10px;
 }
 
 .card h3{
-  margin:8px 0 8px;
-  font-size:19px;
+  margin:6px 0;
+  font-size:17px;
   font-weight:1000;
   color:#163c25;
-  line-height:1.4;
-  min-height:54px;
 }
 
 .card .desc{
   font-size:13px;
   color:#6c756d;
-  line-height:1.5;
-  margin:0 0 10px;
-  min-height:20px;
+  margin-bottom:6px;
 }
 
 .card .price{
-  display:flex;
-  justify-content:center;
-  align-items:baseline;
-  gap:6px;
   font-weight:1000;
-  margin:0 0 16px;
+  margin-bottom:12px;
   color:#183925;
-  font-size:17px;
 }
 
-/* ✅ زر أصفر متناسق مثل الصورة الثانية */
+/* زر */
 .store-add-btn{
   width:100%;
   border:none;
-  border-radius:18px;
-  padding:14px 16px;
-  background:linear-gradient(180deg, #f5df52 0%, #efd540 100%);
-  color:#314118;
-  font-size:17px;
+  border-radius:16px;
+  padding:12px;
+  background:#efd540;
+  color:#2f2a08;
+  font-size:15px;
   font-weight:1000;
   cursor:pointer;
-  box-shadow:0 8px 18px rgba(220,194,45,.26);
-  transition:transform .12s ease, filter .12s ease;
-}
-
-.store-add-btn:hover{
-  filter:brightness(.98);
 }
 
 .store-add-btn:active{
   transform:scale(.98);
 }
 
-.in-cart-note{
-  margin-top:12px;
-  font-size:13px;
-  font-weight:1000;
-  color:#2f7a49;
-  background:#edf7ef;
-  border:1px solid #cfe0d4;
-  border-radius:14px;
-  padding:9px 10px;
-}
-
 /* =========================
    Floating Cart Button
    ========================= */
 .fab-cart{
-  position:fixed;
-  right:16px;
-  bottom:16px;
-  z-index:9999;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
 
-  display:inline-flex;
+  display:flex;
   align-items:center;
-  gap:10px;
+  gap:8px;
 
   padding:12px 16px;
   border:none;
   border-radius:999px;
 
-  background:linear-gradient(180deg, #4a9a63 0%, #3c8955 100%);
+  background:#3c8955;
   color:#fff;
 
   font-weight:1000;
-  font-size:15px;
-  line-height:1;
-  box-shadow:0 14px 28px rgba(31,60,42,.22);
+  font-size:14px;
   cursor:pointer;
 }
 
-.fab-cart:active{
-  transform:scale(.98);
-}
-
+/* النص */
 .fab-cart::before{
   content:"سلة المشتريات";
-  font-weight:1000;
-  font-size:14px;
 }
 
+/* العداد */
 .fab-cart #cartCount{
-  min-width:28px;
-  height:28px;
-  padding:0 8px;
+  min-width:26px;
+  height:26px;
+  padding:0 6px;
   border-radius:999px;
-
-  display:inline-flex;
+  display:flex;
   align-items:center;
   justify-content:center;
-
-  background:rgba(255,255,255,.20);
-  color:#fff;
-
-  font-weight:1000;
-  font-size:13px;
+  background:rgba(255,255,255,.25);
+  font-size:12px;
 }
 
 /* =========================
-   Cart / Checkout blocks
+   Cart / Checkout
    ========================= */
 .cart-section{
   background:#fffdf8;
-  padding:16px;
-  border-radius:16px;
-  box-shadow:0 8px 22px rgba(27,52,36,.07);
-  border:1px solid #ece6d8;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
 }
 
 .cart-item{
   display:flex;
   justify-content:space-between;
-  gap:10px;
-  margin-bottom:8px;
-  font-size:14px;
+  margin-bottom:6px;
 }
 
 .cart-total{
@@ -257,502 +192,18 @@ h2{
   color:#2f7a49;
 }
 
-.checkout-message{
-  margin-top:10px;
-  color:#2f7a49;
-  font-weight:900;
-}
-
-.cart-button-container{
-  display:flex;
-  justify-content:center;
-  margin-top:20px;
-}
-
-.cart-button{
-  background:linear-gradient(180deg, #4a9a63 0%, #3c8955 100%);
-  color:#fff;
-  border:none;
-  border-radius:999px;
-  padding:13px 20px;
-  font-size:17px;
-  font-weight:1000;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  transition:.2s;
-  box-shadow:0 10px 22px rgba(31,60,42,.16);
-}
-
-.cart-button:disabled{
-  background:#9ba69d;
-  cursor:not-allowed;
-  box-shadow:none;
-}
-
-.cart-button:not(:disabled):hover{
-  filter:brightness(.98);
-  transform:scale(1.03);
-}
-
-/* =========================
-   Admin Orders container
-   ========================= */
-#ordersContainer{
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap:16px;
-  align-items:start;
-}
-
-#ordersContainer .card{
-  text-align:right;
-  cursor:default;
-  border:1px solid #e7e2d6;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 8px 22px rgba(27,52,36,.07);
-}
-
-#ordersContainer .card div{
-  margin-bottom:4px;
-  line-height:1.45;
-}
-
-#ordersContainer .card .customer-name{
-  background:#f3f8f1;
-  padding:6px 10px;
-  border-radius:10px;
-}
-
-.orders-filters{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.filter-btn{
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid #d9dfd5;
-  background:#fffdf8;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:900;
-  color:#274435;
-}
-
-.filter-btn.active{
-  background:#3c8955;
-  color:#fff;
-  border-color:#3c8955;
-}
-
-.wa-btn{
-  margin-right:4px;
-  background:#25D366;
-  color:#fff;
-  padding:8px 12px;
-  border:none;
-  border-radius:10px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-/* =========================
-   Tables (mobile safe)
-   ========================= */
-.container table{
-  width:100%;
-  border-collapse:collapse;
-  table-layout:fixed;
-  max-width:100%;
-  background:#fffdf8;
-}
-
-.container th,
-.container td{
-  padding:8px;
-  border:1px solid #e3e0d7;
-  vertical-align:top;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-}
-
-/* =========================
-   Orders page NEW (#list.grid)
-   ========================= */
-#list.grid{
-  display:grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap:12px !important;
-  align-items:start;
-}
-
-#list.grid .card{
-  min-width:0 !important;
-  border:1px solid #e7e2d6;
-  box-shadow:0 8px 22px rgba(27,52,36,.07);
-  background:#fffdf8;
-}
-
-@media (min-width: 900px){
-  #list.grid{
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 360px){
-  #list.grid{
-    grid-template-columns: 1fr !important;
-  }
-}
-
-.rows{
-  display:grid !important;
-  gap:8px !important;
-}
-
-.row{
-  display:flex !important;
-  justify-content:space-between !important;
-  gap:12px !important;
-  flex-wrap:wrap !important;
-}
-
-.v-name{
-  font-size:16px !important;
-  font-weight:1000 !important;
-  color:#163c25 !important;
-  direction:rtl !important;
-  text-align:right !important;
-}
-
-.v-phone{
-  direction:ltr !important;
-  text-align:left !important;
-  font-weight:900 !important;
-  color:#1d1d1d !important;
-}
-
-/* =========================
-   Contact + Premium card
-   ========================= */
-.contact-box{ text-align:center; }
-.contact-title{ text-align:center; }
-
-.contact-links{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin:10px 0;
-}
-
-.contact-btn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-}
-
-.contact-phone{
-  text-align:center;
-  margin-top:10px;
-}
-
-.phone-link{ display:inline-block; }
-
-.contact-card{
-  margin:20px auto 10px;
-  max-width:520px;
-  background:#fffdf8;
-  border:1px solid #e7e2d6;
-  border-radius:22px;
-  padding:16px 14px 14px;
-  box-shadow:0 10px 26px rgba(27,52,36,.06);
-  text-align:center;
-}
-
-.contact-head h3{
-  margin:0 0 4px;
-  color:#163c25;
-  font-size:18px;
-  font-weight:1000;
-}
-
-.contact-head p{
-  margin:0 0 12px;
-  color:#788278;
-  font-size:13px;
-  font-weight:700;
-}
-
-.contact-icons{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:12px;
-  margin-bottom:12px;
-}
-
-.cicon{
-  width:54px;
-  height:54px;
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(0,0,0,.06);
-  box-shadow:0 8px 16px rgba(0,0,0,.05);
-  background:#fff;
-  transition:transform .12s ease, box-shadow .12s ease;
-}
-
-.cicon img{
-  width:26px;
-  height:26px;
-  display:block;
-}
-
-.cicon:active{
-  transform:scale(.96);
-}
-
-.cicon.wa{ background:rgba(37,211,102,.10); border-color:rgba(37,211,102,.18); }
-.cicon.ig{ background:rgba(225,48,108,.08); border-color:rgba(225,48,108,.16); }
-.cicon.fb{ background:rgba(24,119,242,.08); border-color:rgba(24,119,242,.16); }
-
-.contact-phone-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 12px;
-  border-radius:999px;
-  background:#f4f8f3;
-  border:1px solid #d7dfd4;
-  font-weight:900;
-  color:#163c25;
-}
-
-.contact-phone-pill a{
-  color:#3c8955;
-  text-decoration:none;
-  font-weight:1000;
-  direction:ltr;
-}
-
 /* =========================
    Mobile
    ========================= */
-@media (max-width: 800px){
-  #ordersContainer{
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-}
-
 @media (max-width: 600px){
-  .container{
-    padding:16px;
-  }
 
   #productsContainer{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap:16px;
   }
 
-  .card{
-    padding:14px;
-    border-radius:20px;
-  }
-
   .card img{
-    height:150px;
-    margin-bottom:12px;
+    height:140px;
   }
 
-  .card h3{
-    font-size:17px;
-    min-height:48px;
-  }
-
-  .store-add-btn{
-    padding:13px 12px;
-    font-size:16px;
-    border-radius:16px;
-  }
-
-  .fab-cart{
-    right:12px;
-    bottom:12px;
-    padding:12px 14px;
-    gap:8px;
-  }
-
-  .fab-cart::before{
-    font-size:13px;
-  }
-
-  .container th,
-  .container td{
-    padding:6px;
-    font-size:12px;
-  }
-
-  .container table{
-    display:block;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-}
-
-/* =========================
-   Orders Compact Mode
-   ========================= */
-@media (max-width: 600px){
-  #list.grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap:10px !important;
-  }
-
-  #list.grid .card{
-    padding:10px !important;
-    border-radius:14px !important;
-  }
-
-  #list.grid .order-title{
-    font-size:14px !important;
-  }
-
-  #list.grid .meta{
-    font-size:11px !important;
-  }
-
-  #list.grid .badge{
-    font-size:11px !important;
-    padding:5px 8px !important;
-  }
-
-  #list.grid .rows{
-    gap:6px !important;
-    margin:6px 0 8px !important;
-  }
-
-  #list.grid .label{
-    font-size:11px !important;
-  }
-
-  #list.grid .value{
-    font-size:12px !important;
-  }
-
-  #list.grid .items{
-    padding-top:8px !important;
-    margin-top:8px !important;
-  }
-
-  #list.grid .item{
-    padding:6px 0 !important;
-    font-size:12px !important;
-  }
-
-  #list.grid .summary{
-    padding:8px !important;
-    border-radius:12px !important;
-    gap:6px !important;
-  }
-
-  #list.grid .sum-row small{
-    font-size:11px !important;
-  }
-
-  #list.grid .actions{
-    margin-top:10px !important;
-    gap:6px !important;
-  }
-
-  #list.grid .btn{
-    padding:9px 10px !important;
-    font-size:12px !important;
-    border-radius:12px !important;
-  }
-
-  #list.grid .actions .btn,
-  #list.grid .actions a.btn{
-    width:auto !important;
-    flex:1 1 auto !important;
-    text-align:center !important;
-  }
-
-  #list.grid select{
-    min-width:140px !important;
-    padding:9px 10px !important;
-    font-size:12px !important;
-  }
-}
-
-@media (max-width: 360px){
-  #list.grid{
-    grid-template-columns:1fr !important;
-  }
-}
-
-/* =========================
-   Store cards equal height fix
-   ========================= */
-#productsContainer{
-  align-items: stretch;
-}
-
-#productsContainer .card{
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
-}
-
-#productsContainer .card img{
-  flex-shrink: 0;
-}
-
-#productsContainer .card h3{
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  line-height: 1.4;
-}
-
-#productsContainer .card .desc{
-  min-height: 20px;
-}
-
-#productsContainer .card .price{
-  min-height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#productsContainer .card .store-add-btn{
-  margin-top: auto;
-}
-
-#productsContainer .card .in-cart-note{
-  margin-top: 10px;
-}
-
-/* موبايل */
-@media (max-width: 600px){
-  #productsContainer .card h3{
-    min-height: 52px;
-    font-size: 17px;
-  }
-
-  #productsContainer .card .price{
-    min-height: 28px;
-  }
 }
