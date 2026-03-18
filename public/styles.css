@@ -177,9 +177,7 @@ h2{
 }
 
 /* النص */
-.fab-cart::before{
-  content:"سلة المشتريات";
-}
+
 
 /* العداد */
 .fab-cart #cartCount{
