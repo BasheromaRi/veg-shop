@@ -17,6 +17,7 @@ header{
   color:#fff;
   font-size:22px;
   font-weight:900;
+  box-shadow:0 3px 10px rgba(0,0,0,.1);
 }
 
 .container{
@@ -55,20 +56,18 @@ h2{
   border:1px dashed #e3c182;
 }
 
-.campaign-title{ font-weight:900; margin-bottom:4px; }
-.campaign-desc{ font-size:13px; color:#555; }
-.campaign-extra{ font-size:12px; color:#777; margin-top:3px; }
-
 /* =========================
-   Products grid (المهم)
+   Products grid
    ========================= */
 #productsContainer{
   display:grid;
   grid-template-columns: repeat(2, 1fr);
-  gap:20px; /* 👈 فراغ واضح */
+  gap:20px;
 }
 
-/* product card */
+/* =========================
+   Product card
+   ========================= */
 .card{
   background:#fffdf8;
   padding:14px;
@@ -76,11 +75,11 @@ h2{
   text-align:center;
   box-shadow:0 6px 16px rgba(0,0,0,.06);
   border:1px solid #ece6d8;
+  transition: all .2s ease;
 }
 
-/* 👈 يعطي فراغ زيادة تحت كل كرت */
-.card{
-  margin-bottom:4px;
+.card:active{
+  transform:scale(.98);
 }
 
 .card img{
@@ -98,33 +97,47 @@ h2{
   color:#163c25;
 }
 
-.card .desc{
-  font-size:13px;
-  color:#6c756d;
-  margin-bottom:6px;
-}
-
 .card .price{
   font-weight:1000;
   margin-bottom:12px;
-  color:#183925;
 }
 
-/* زر */
+/* =========================
+   زر أضف للسلة (احترافي)
+   ========================= */
 .store-add-btn{
   width:100%;
   border:none;
   border-radius:16px;
   padding:12px;
-  background:#efd540;
+  background:linear-gradient(180deg,#f5df52,#efd540);
   color:#2f2a08;
   font-size:15px;
   font-weight:1000;
   cursor:pointer;
+  box-shadow:0 6px 14px rgba(220,194,45,.3);
+  transition: all .15s ease;
 }
 
+/* hover */
+.store-add-btn:hover{
+  filter:brightness(1.05);
+}
+
+/* click */
 .store-add-btn:active{
-  transform:scale(.98);
+  transform:scale(.96);
+}
+
+/* animation عند الإضافة */
+.store-add-btn.added{
+  animation: pop .25s ease;
+}
+
+@keyframes pop{
+  0%{ transform:scale(1); }
+  50%{ transform:scale(1.1); }
+  100%{ transform:scale(1); }
 }
 
 /* =========================
@@ -150,6 +163,17 @@ h2{
   font-weight:1000;
   font-size:14px;
   cursor:pointer;
+
+  box-shadow:0 12px 24px rgba(0,0,0,.2);
+  transition: all .2s ease;
+}
+
+.fab-cart:hover{
+  transform:translateY(-2px);
+}
+
+.fab-cart:active{
+  transform:scale(.95);
 }
 
 /* النص */
@@ -170,8 +194,19 @@ h2{
   font-size:12px;
 }
 
+/* حركة عند إضافة */
+.fab-cart.bump{
+  animation: bump .3s ease;
+}
+
+@keyframes bump{
+  0%{ transform:scale(1); }
+  50%{ transform:scale(1.15); }
+  100%{ transform:scale(1); }
+}
+
 /* =========================
-   Cart / Checkout
+   Cart section
    ========================= */
 .cart-section{
   background:#fffdf8;
