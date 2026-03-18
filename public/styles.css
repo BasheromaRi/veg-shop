@@ -144,7 +144,7 @@ h2{
    Floating Cart Button
    ========================= */
 .fab-cart{
-  position: fixed;
+  position: relative;
   right: 16px;
   bottom: 16px;
   z-index: 9999;
