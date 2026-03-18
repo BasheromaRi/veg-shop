@@ -7,51 +7,357 @@
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
-    .wrap{ margin-top:12px; }
-    .topbar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin:10px 0 14px; }
-    .filters{ display:flex; gap:8px; flex-wrap:wrap; }
-    .pill{ border:1px solid #d7e2db; background:#fff; padding:8px 10px; border-radius:999px; cursor:pointer; font-weight:900; font-size:13px; }
-    .pill.active{ background:#eaf5ef; border-color:#9dd3b1; }
-    .grid{ display:grid; gap:12px; margin: 12px 0 18px; }
-    .card{ background:#fff; border:1px solid #dfe7e2; border-radius:16px; padding:12px; box-shadow:0 1px 10px rgba(0,0,0,.06); }
-    .head{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
-    .title{ font-weight:1000; color:#0f2b1f; font-size:16px; }
-    .meta{ color:#6a7b72; font-size:12px; margin-top:4px; }
-    .badge{ padding:6px 10px; border-radius:999px; font-weight:900; font-size:12px; border:1px solid transparent; white-space:nowrap; }
-    .b-new{ background:#fff7e6; border-color:#ffd38a; color:#7a4b00; }
-    .b-progress{ background:#e9f3ff; border-color:#b7d8ff; color:#084b8a; }
-    .b-done{ background:#eaf7ef; border-color:#a8e0be; color:#0f5a2a; }
-    .b-cancel{ background:#ffecec; border-color:#ffc0c0; color:#8a1414; }
+    *{ box-sizing:border-box; }
 
-    .rows{ display:grid; gap:8px; margin:8px 0 12px; }
-    .row{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:14px; }
-    .label{ color:#6a7b72; font-size:12px; }
-    .value{ font-weight:900; text-align:left; direction:ltr; }
-    .addr{ direction:rtl; text-align:right; font-weight:900; }
-
-    .items{ margin-top:10px; border-top:1px dashed #d7e2db; padding-top:10px; }
-    .item{ display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid #f0f3f1; font-size:14px; }
-    .item:last-child{ border-bottom:none; }
-    .muted{ color:#6a7b72; font-size:12px; }
-
-    .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:12px; }
-    .btn{ border:none; border-radius:12px; padding:10px 12px; cursor:pointer; font-weight:1000; font-size:13px; }
-    .btn-green{ background:#2e8b57; color:#fff; }
-    .btn-blue{ background:#2b74c7; color:#fff; }
-    .btn-red{ background:#d83a3a; color:#fff; }
-    .btn-light{ background:#eaf5ef; color:#0f2b1f; }
-
-    .cancelBox{ margin-top:10px; padding:10px; border:1px solid #ffe0e0; background:#fff6f6; border-radius:14px; display:none; }
-    .cancelBox select, .cancelBox input{
-      width:100%; padding:10px 12px; border-radius:12px; border:1px solid #f2bcbc; margin-top:8px;
-      font-weight:800;
+    .wrap{
+      margin-top:12px;
     }
 
-    .empty{ padding:14px; background:#fff; border:1px solid #dfe7e2; border-radius:14px; color:#6a7b72; }
+    .topbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin:10px 0 14px;
+    }
+
+    .filters{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      border:1px solid #d7e2db;
+      background:#fff;
+      padding:10px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:1000;
+      font-size:13px;
+      color:#244233;
+    }
+
+    .pill.active{
+      background:#eaf5ef;
+      border-color:#9dd3b1;
+      color:#0f5a2a;
+    }
+
+    .grid{
+      display:grid;
+      gap:14px;
+      margin:12px 0 18px;
+    }
+
+    .card{
+      background:#fffdf8;
+      border:1px solid #e7e2d6;
+      border-radius:20px;
+      padding:14px;
+      box-shadow:0 8px 20px rgba(0,0,0,.05);
+    }
+
+    .head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .title{
+      font-weight:1000;
+      color:#0f2b1f;
+      font-size:18px;
+    }
+
+    .meta{
+      color:#6a7b72;
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    .badge{
+      padding:7px 11px;
+      border-radius:999px;
+      font-weight:1000;
+      font-size:12px;
+      border:1px solid transparent;
+      white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .b-new{
+      background:#fff7e6;
+      border-color:#ffd38a;
+      color:#7a4b00;
+    }
+
+    .b-progress{
+      background:#e9f3ff;
+      border-color:#b7d8ff;
+      color:#084b8a;
+    }
+
+    .b-done{
+      background:#eaf7ef;
+      border-color:#a8e0be;
+      color:#0f5a2a;
+    }
+
+    .b-cancel{
+      background:#ffecec;
+      border-color:#ffc0c0;
+      color:#8a1414;
+    }
+
+    .rows{
+      display:grid;
+      gap:10px;
+      margin:8px 0 12px;
+      background:#f8fbf9;
+      border:1px solid #e3ece6;
+      border-radius:16px;
+      padding:12px;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      font-size:14px;
+    }
+
+    .label{
+      color:#6a7b72;
+      font-size:12px;
+      font-weight:900;
+      min-width:80px;
+    }
+
+    .value{
+      font-weight:1000;
+      text-align:left;
+      direction:ltr;
+      color:#1d2f24;
+    }
+
+    .value-rtl{
+      direction:rtl;
+      text-align:right;
+    }
+
+    .addr{
+      direction:rtl;
+      text-align:right;
+      font-weight:1000;
+      color:#1d2f24;
+      flex:1;
+    }
+
+    .items{
+      margin-top:10px;
+      border-top:1px dashed #d7e2db;
+      padding-top:10px;
+    }
+
+    .items-title{
+      font-weight:1000;
+      margin-bottom:8px;
+      color:#173527;
+      font-size:15px;
+    }
+
+    .item{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 0;
+      border-bottom:1px solid #f0f3f1;
+      font-size:14px;
+      align-items:flex-start;
+    }
+
+    .item:last-child{
+      border-bottom:none;
+    }
+
+    .muted{
+      color:#6a7b72;
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .summary-box{
+      margin-top:10px;
+      background:#f8fbf9;
+      border:1px solid #e3ece6;
+      border-radius:16px;
+      padding:12px;
+      display:grid;
+      gap:10px;
+    }
+
+    .summary-box .row{
+      margin:0;
+    }
+
+    .actions{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:12px 12px;
+      cursor:pointer;
+      font-weight:1000;
+      font-size:14px;
+      text-align:center;
+      transition:transform .12s ease, filter .12s ease;
+    }
+
+    .btn:hover{
+      filter:brightness(1.03);
+    }
+
+    .btn:active{
+      transform:scale(.98);
+    }
+
+    .btn-green{
+      background:#2e8b57;
+      color:#fff;
+    }
+
+    .btn-call{
+      background:#f5df52;
+      color:#3c2b00;
+    }
+
+    .btn-blue{
+      background:#2b74c7;
+      color:#fff;
+    }
+
+    .btn-red{
+      background:#d83a3a;
+      color:#fff;
+    }
+
+    .btn-light{
+      background:#eef4f0;
+      color:#173527;
+      border:1px solid #d7e2db;
+    }
+
+    .cancelBox{
+      margin-top:12px;
+      padding:12px;
+      border:1px solid #ffd7d7;
+      background:#fff6f6;
+      border-radius:16px;
+      display:none;
+    }
+
+    .cancelTitle{
+      font-weight:1000;
+      color:#8a1414;
+      margin-bottom:8px;
+    }
+
+    .cancelBox select,
+    .cancelBox input{
+      width:100%;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid #f2bcbc;
+      margin-top:8px;
+      font-weight:900;
+      background:#fff;
+      font-size:14px;
+      outline:none;
+    }
+
+    .cancelBox select:focus,
+    .cancelBox input:focus{
+      box-shadow:0 0 0 4px rgba(216,58,58,.08);
+      border-color:#e38d8d;
+    }
+
+    .empty{
+      padding:16px;
+      background:#fff;
+      border:1px solid #dfe7e2;
+      border-radius:16px;
+      color:#6a7b72;
+      text-align:center;
+      font-weight:900;
+    }
+
+    .page-note{
+      margin-bottom:10px;
+      color:#6a7b72;
+      font-size:13px;
+      line-height:1.6;
+      background:#f7fbf8;
+      border:1px solid #e4eee8;
+      padding:12px;
+      border-radius:14px;
+    }
+
+    @media (max-width:1000px){
+      .actions{
+        grid-template-columns:1fr 1fr;
+      }
+    }
 
     @media (max-width:700px){
-      .actions{ justify-content:stretch; }
-      .btn{ width:100%; }
+      .topbar{
+        align-items:stretch;
+      }
+
+      .filters{
+        width:100%;
+      }
+
+      .pill{
+        flex:1 1 auto;
+        text-align:center;
+      }
+
+      .actions{
+        grid-template-columns:1fr;
+      }
+
+      .btn{
+        width:100%;
+        font-size:15px;
+        padding:13px 12px;
+      }
+
+      .title{
+        font-size:17px;
+      }
+
+      .card{
+        padding:12px;
+      }
+
+      .rows,
+      .summary-box{
+        padding:10px;
+      }
     }
   </style>
 </head>
@@ -76,7 +382,9 @@
       <button class="btn btn-light" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
 
-    <div class="muted" style="margin-bottom:8px;">هنا تظهر فقط الطلبات التي اختارها المسؤول للتوصيل.</div>
+    <div class="page-note">
+      هنا تظهر فقط الطلبات التي اختارها المسؤول للتوصيل.
+    </div>
 
     <div id="list" class="grid">تحميل...</div>
   </div>
@@ -100,7 +408,13 @@
     function formatDate(iso){
       try{
         const d = new Date(iso);
-        return d.toLocaleString('ar-EG', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return d.toLocaleString('ar-EG', {
+          year:'numeric',
+          month:'2-digit',
+          day:'2-digit',
+          hour:'2-digit',
+          minute:'2-digit'
+        });
       }catch(e){ return iso || ''; }
     }
 
@@ -117,10 +431,12 @@
       return (items || []).reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
     }
 
-    // ✅ تحويل رقم للهاتف لواتساب (لو رقم إسرائيل وبدأ بـ 0 -> 972)
+    function normalizePhone(phone){
+      return String(phone || '').replace(/\D/g,'');
+    }
+
     function normalizePhoneForWA(phone){
-      let p = String(phone||'').trim();
-      p = p.replace(/\D/g,'');
+      let p = normalizePhone(phone);
       if (!p) return '';
       if (p.startsWith('0') && p.length === 10) {
         p = '972' + p.slice(1);
@@ -159,7 +475,10 @@ ${items}
       try{
         const res = await fetch(`/api/courier/orders?status=${encodeURIComponent(currentFilter)}`, { credentials:'include' });
         if(!res.ok){
-          if(res.status === 401){ window.location.href = '/courier-login'; return; }
+          if(res.status === 401){
+            window.location.href = '/courier-login';
+            return;
+          }
           list.innerHTML = `<div class="empty">خطأ في تحميل الطلبات.</div>`;
           return;
         }
@@ -186,8 +505,10 @@ ${items}
         const grand = total + delivery;
 
         const phoneClean = normalizePhoneForWA(o.phone);
+        const phoneCall = normalizePhone(o.phone);
         const msg = encodeURIComponent(buildWhatsappText(o));
         const wa = phoneClean ? `https://wa.me/${phoneClean}?text=${msg}` : '';
+        const callLink = phoneCall ? `tel:${phoneCall}` : '';
 
         const itemsHtml = (o.items || []).map(it => {
           const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
@@ -218,7 +539,7 @@ ${items}
             <div class="rows">
               <div class="row">
                 <div class="label">الاسم</div>
-                <div class="value" style="direction:rtl; text-align:right;">${esc(o.name)}</div>
+                <div class="value value-rtl">${esc(o.name)}</div>
               </div>
               <div class="row">
                 <div class="label">الهاتف</div>
@@ -226,7 +547,7 @@ ${items}
               </div>
               <div class="row">
                 <div class="label">البلد</div>
-                <div class="value" style="direction:rtl; text-align:right;">${esc(o.country)}</div>
+                <div class="value value-rtl">${esc(o.country)}</div>
               </div>
               <div class="row">
                 <div class="label">العنوان</div>
@@ -235,18 +556,18 @@ ${items}
             </div>
 
             <div class="items">
-              <div style="font-weight:1000; margin-bottom:8px;">المنتجات</div>
+              <div class="items-title">المنتجات</div>
               ${itemsHtml || '<div class="muted">لا يوجد منتجات</div>'}
             </div>
 
-            <div class="items" style="margin-top:8px;">
+            <div class="summary-box">
               <div class="row">
                 <div class="label">المجموع قبل التوصيل</div>
                 <div class="value">₪${esc(total)}</div>
               </div>
               <div class="row">
                 <div class="label">التوصيل</div>
-                <div class="value" style="direction:rtl; text-align:right;">${delivery === 0 ? 'توصيل مجاني ✅' : '₪30'}</div>
+                <div class="value value-rtl">${delivery === 0 ? 'توصيل مجاني ✅' : '₪30'}</div>
               </div>
               <div class="row">
                 <div class="label">المجموع الكلي</div>
@@ -254,7 +575,7 @@ ${items}
               </div>
 
               ${o.status === 'cancelled' ? `
-                <div class="row" style="margin-top:6px;">
+                <div class="row" style="margin-top:2px;">
                   <div class="label">سبب الإلغاء</div>
                   <div class="addr">${cancelText || '—'}</div>
                 </div>
@@ -262,15 +583,24 @@ ${items}
             </div>
 
             <div class="actions">
-              ${wa ? `<a class="btn btn-green" style="text-decoration:none; display:inline-block;" target="_blank" href="${wa}">واتساب</a>`
-                   : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم</button>`}
+              ${
+                wa
+                ? `<a class="btn btn-green" style="text-decoration:none; display:inline-block;" target="_blank" href="${wa}">واتساب</a>`
+                : `<button class="btn btn-light" type="button" disabled>لا يوجد واتساب</button>`
+              }
+
+              ${
+                callLink
+                ? `<a class="btn btn-call" style="text-decoration:none; display:inline-block;" href="${callLink}">📞 اتصال</a>`
+                : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم</button>`
+              }
 
               <button class="btn btn-blue" type="button" onclick="markDelivered(${esc(o.id)})">✅ تم التسليم</button>
               <button class="btn btn-red" type="button" onclick="toggleCancelBox(${esc(o.id)})">❌ ملغي</button>
             </div>
 
             <div class="cancelBox" id="cancelBox-${esc(o.id)}">
-              <div style="font-weight:1000;">سبب الإلغاء</div>
+              <div class="cancelTitle">سبب الإلغاء</div>
               <select id="cancelSel-${esc(o.id)}">
                 <option value="الزبون لا يرد">الزبون لا يرد</option>
                 <option value="العنوان غير واضح">العنوان غير واضح</option>
@@ -281,17 +611,16 @@ ${items}
               <input id="cancelTxt-${esc(o.id)}" placeholder="إذا سبب آخر... اكتب هون" />
               <button class="btn btn-red" style="width:100%; margin-top:10px;" type="button" onclick="confirmCancel(${esc(o.id)})">تأكيد الإلغاء</button>
             </div>
-
           </div>
         `;
       }).join('');
     }
 
     window.toggleCancelBox = function(id){
-      const box = document.getElementById('cancelBox-'+id);
+      const box = document.getElementById('cancelBox-' + id);
       if (!box) return;
       box.style.display = box.style.display === 'block' ? 'none' : 'block';
-    }
+    };
 
     window.markDelivered = async function(id){
       try{
@@ -300,7 +629,10 @@ ${items}
           credentials:'include'
         });
         if(!res.ok){
-          if(res.status === 401){ window.location.href = '/courier-login'; return; }
+          if(res.status === 401){
+            window.location.href = '/courier-login';
+            return;
+          }
           alert('فشل تحديث الحالة');
           return;
         }
@@ -309,15 +641,19 @@ ${items}
         console.error(err);
         alert('مشكلة اتصال');
       }
-    }
+    };
 
     window.confirmCancel = async function(id){
-      const sel = document.getElementById('cancelSel-'+id);
-      const txt = document.getElementById('cancelTxt-'+id);
+      const sel = document.getElementById('cancelSel-' + id);
+      const txt = document.getElementById('cancelTxt-' + id);
       let reason = (sel?.value || '').trim();
       const extra = (txt?.value || '').trim();
+
       if (reason === 'سبب آخر' && extra) reason = extra;
-      if (!reason) { alert('اكتب سبب الإلغاء'); return; }
+      if (!reason) {
+        alert('اكتب سبب الإلغاء');
+        return;
+      }
 
       try{
         const res = await fetch(`/api/courier/orders/${id}/cancel`, {
@@ -327,7 +663,10 @@ ${items}
           body: JSON.stringify({ reason })
         });
         if(!res.ok){
-          if(res.status === 401){ window.location.href = '/courier-login'; return; }
+          if(res.status === 401){
+            window.location.href = '/courier-login';
+            return;
+          }
           alert('فشل الإلغاء');
           return;
         }
@@ -336,7 +675,7 @@ ${items}
         console.error(err);
         alert('مشكلة اتصال');
       }
-    }
+    };
 
     document.querySelectorAll('.pill').forEach(btn => {
       btn.addEventListener('click', () => {
