@@ -75,7 +75,7 @@ h2{
   text-align:center;
   box-shadow:0 6px 16px rgba(0,0,0,.06);
   border:1px solid #ece6d8;
-  transition: all .2s ease;
+  transition:all .2s ease;
 }
 
 .card:active{
@@ -103,7 +103,7 @@ h2{
 }
 
 /* =========================
-   زر أضف للسلة (احترافي)
+   زر أضف للسلة
    ========================= */
 .store-add-btn{
   width:100%;
@@ -116,22 +116,19 @@ h2{
   font-weight:1000;
   cursor:pointer;
   box-shadow:0 6px 14px rgba(220,194,45,.3);
-  transition: all .15s ease;
+  transition:all .15s ease;
 }
 
-/* hover */
 .store-add-btn:hover{
   filter:brightness(1.05);
 }
 
-/* click */
 .store-add-btn:active{
   transform:scale(.96);
 }
 
-/* animation عند الإضافة */
 .store-add-btn.added{
-  animation: pop .25s ease;
+  animation:pop .25s ease;
 }
 
 @keyframes pop{
@@ -144,40 +141,66 @@ h2{
    Floating Cart Button
    ========================= */
 .fab-cart{
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 9999;
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:9999;
 
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:10px;
 
-  padding:12px 16px;
+  padding:12px 16px 12px 18px;
   border:none;
   border-radius:999px;
 
-  
-  background: linear-gradient(180deg, #ff9f1c, #ff7a00);
+  background:linear-gradient(180deg, #ff9f1c, #ff7a00);
   color:#fff;
-  box-shadow: 0 14px 28px rgba(255,122,0,.25);
-
 
   font-weight:1000;
   font-size:16px;
   cursor:pointer;
 
-  box-shadow:0 12px 24px rgba(0,0,0,.2);
-  transition: all .2s ease;
+  box-shadow:0 14px 28px rgba(255,122,0,.30);
+  transition:all .2s ease;
 }
-/* Bubble فوق الزر */
+
+.fab-cart:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.03);
+}
+
+.fab-cart:active{
+  transform:scale(.95);
+}
+
+/* نص الزر */
+.fab-cart .cart-label{
+  font-size:14px;
+  font-weight:1000;
+  white-space:nowrap;
+}
+
+/* السعر الإجمالي */
+#cartTotal{
+  font-size:13px;
+  font-weight:1000;
+  opacity:1;
+  background:rgba(255,255,255,.18);
+  padding:5px 9px;
+  border-radius:999px;
+  line-height:1;
+  direction:ltr;
+}
+
+/* Bubble فوق الزر - مزاحة شوي */
 .cart-badge{
   position:absolute;
-  top:-6px;
-  right:-6px;
+  top:-8px;
+  right:-10px;
 
-  min-width:20px;
-  height:20px;
+  min-width:22px;
+  height:22px;
   padding:0 6px;
 
   border-radius:999px;
@@ -190,48 +213,27 @@ h2{
 
   font-size:11px;
   font-weight:1000;
+  line-height:1;
 
   box-shadow:0 4px 10px rgba(0,0,0,.25);
-}
-#cartTotal{
-  font-size:12px;
-  font-weight:1000;
-  opacity:.9;
-}
-
-.fab-cart:hover{
-  transform:translateY(-2px);
-}
-
-.fab-cart:active{
-  transform:scale(.95);
-}
-
-/* النص */
-
-
-/* العداد */
-.fab-cart #cartCount{
-  min-width:26px;
-  height:26px;
-  padding:0 6px;
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(255,255,255,.25);
-  font-size:12px;
+  border:2px solid #fff4e8;
 }
 
 /* حركة عند إضافة */
 .fab-cart.bump{
-  animation: bump .3s ease;
+  animation:bump .3s ease;
 }
 
 @keyframes bump{
   0%{ transform:scale(1); }
-  50%{ transform:scale(1.15); }
+  50%{ transform:scale(1.12); }
   100%{ transform:scale(1); }
+}
+
+/* أي SVG داخل زر السلة */
+.fab-cart svg{
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));
+  flex-shrink:0;
 }
 
 /* =========================
@@ -259,8 +261,7 @@ h2{
 /* =========================
    Mobile
    ========================= */
-@media (max-width: 600px){
-
+@media (max-width:600px){
   #productsContainer{
     grid-template-columns: repeat(2, 1fr);
     gap:16px;
@@ -270,11 +271,34 @@ h2{
     height:140px;
   }
 
+  .fab-cart{
+    right:12px;
+    bottom:12px;
+    padding:11px 14px 11px 16px;
+    gap:8px;
+    font-size:15px;
+  }
+
+  .fab-cart .cart-label{
+    font-size:13px;
+  }
+
+  #cartTotal{
+    font-size:12px;
+    padding:4px 8px;
+  }
+
+  .cart-badge{
+    top:-7px;
+    right:-8px;
+    min-width:20px;
+    height:20px;
+    font-size:10px;
+  }
 }
-.fab-cart svg{
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,.3));
-}
+
+/* تنظيف أي before/after مزعج */
 body::before,
 body::after{
-  content: none !important;
+  content:none !important;
 }
