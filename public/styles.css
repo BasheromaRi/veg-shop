@@ -157,8 +157,11 @@ h2{
   border:none;
   border-radius:999px;
 
-  background: linear-gradient(180deg, #3c8955, #2f7a49);
+  
+  background: linear-gradient(180deg, #ff9f1c, #ff7a00);
   color:#fff;
+  box-shadow: 0 14px 28px rgba(255,122,0,.25);
+
 
   font-weight:1000;
   font-size:16px;
