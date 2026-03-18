@@ -167,6 +167,11 @@ h2{
   box-shadow:0 12px 24px rgba(0,0,0,.2);
   transition: all .2s ease;
 }
+#cartTotal{
+  font-size:12px;
+  font-weight:1000;
+  opacity:.9;
+}
 
 .fab-cart:hover{
   transform:translateY(-2px);
