@@ -97,47 +97,42 @@ h2{
   margin:0 0 8px;
 }
 
-/* ✅ Fix "₪ / كغم" layout */
 .card .price{
   display:flex;
   justify-content:center;
   align-items:baseline;
   gap:6px;
   font-weight:1000;
-  margin:0 0 10px;
+  margin:0 0 12px;
   color:#0f2b1f;
 }
-.card .price .num{ direction:ltr; }
-.card .price .unit{ white-space:nowrap; }
 
-/* ✅ Quantity picker (classic) */
-.qty-wrap{
-  margin-top:8px;
-  padding:10px;
-  border:1px solid #dfe7e2;
-  border-radius:12px;
-  background:#f6fbf8;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  justify-content:space-between;
-}
-
-.qty-wrap label{
-  font-weight:900;
-  font-size:14px;
-  color:#1f3b2c;
-}
-
-.qty-select{
-  width:140px;
-  padding:10px 12px;
-  border:1px solid #d7e2db;
-  border-radius:12px;
-  background:#fff;
-  font-weight:900;
+/* ✅ زر أصفر تحت المنتج */
+.store-add-btn{
+  width:100%;
+  border:none;
+  border-radius:14px;
+  padding:12px 14px;
+  background:#f7c948;
+  color:#3c2b00;
   font-size:15px;
+  font-weight:1000;
   cursor:pointer;
+  box-shadow:0 8px 18px rgba(247,201,72,.28);
+}
+.store-add-btn:active{
+  transform:scale(.98);
+}
+
+.in-cart-note{
+  margin-top:10px;
+  font-size:13px;
+  font-weight:1000;
+  color:#2e8b57;
+  background:#eef8f2;
+  border:1px solid #cfe3d6;
+  border-radius:12px;
+  padding:8px 10px;
 }
 
 /* =========================
@@ -216,7 +211,6 @@ h2{
   font-weight:900;
 }
 
-/* زر اتمام/سلة */
 .cart-button-container{
   display:flex;
   justify-content:center;
@@ -249,7 +243,7 @@ h2{
 }
 
 /* =========================
-   Admin Orders container (old admin page using #ordersContainer)
+   Admin Orders container
    ========================= */
 #ordersContainer{
   display:grid;
@@ -278,7 +272,6 @@ h2{
   border-radius:8px;
 }
 
-/* فلتر الطلبات */
 .orders-filters{
   display:flex;
   gap:8px;
@@ -301,7 +294,6 @@ h2{
   border-color:#2e8b57;
 }
 
-/* زر واتساب */
 .wa-btn{
   margin-right:4px;
   background:#25D366;
@@ -334,7 +326,6 @@ h2{
 
 /* =========================
    Orders page NEW (#list.grid)
-   ✅ THIS IS YOUR MOBILE 2-CARDS FIX
    ========================= */
 #list.grid{
   display:grid !important;
@@ -345,21 +336,18 @@ h2{
 
 #list.grid .card{ min-width:0 !important; }
 
-/* على الكمبيوتر (شاشات كبيرة) خليهم 3 */
 @media (min-width: 900px){
   #list.grid{
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
 
-/* لو الشاشة صغيرة جدًا (موبايل قديم) رجّع عمود واحد */
 @media (max-width: 360px){
   #list.grid{
     grid-template-columns: 1fr !important;
   }
 }
 
-/* ترتيب صفوف label/value داخل كرت الطلب */
 .rows{
   display:grid !important;
   gap:8px !important;
@@ -388,7 +376,7 @@ h2{
 }
 
 /* =========================
-   Contact (center) + Premium card
+   Contact + Premium card
    ========================= */
 .contact-box{ text-align:center; }
 .contact-title{ text-align:center; }
@@ -416,7 +404,6 @@ h2{
 
 .phone-link{ display:inline-block; }
 
-/* Premium Contact card */
 .contact-card{
   margin: 18px auto 10px;
   max-width: 520px;
@@ -492,40 +479,6 @@ h2{
   direction:ltr;
 }
 
-.phone-emoji{ font-size:18px; }
-
-/* =========================
-   Quantity input (manual)
-   ========================= */
-.quantity-input{
-  width:100%;
-  padding:12px 14px;
-  border-radius:14px;
-  border:1.5px solid #cfe3d6;
-  background:#f9fdfb;
-  font-size:15px;
-  font-weight:800;
-  color:#1f3b2d;
-
-  text-align:center;
-  direction:ltr;
-  box-sizing:border-box;
-
-  transition: all .25s ease;
-}
-
-.quantity-input:focus{
-  outline:none;
-  border-color:#2e8b57;
-  background:#ffffff;
-  box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
-}
-
-.quantity-input::placeholder{
-  color:#9fb6aa;
-  font-weight:700;
-}
-
 /* =========================
    Mobile
    ========================= */
@@ -545,8 +498,6 @@ h2{
 
   .card img{ height:140px; }
 
-  .qty-select{ width:120px; font-size:14px; }
-
   .container th,
   .container td{
     padding:6px;
@@ -559,11 +510,10 @@ h2{
     -webkit-overflow-scrolling:touch;
   }
 }
-/* =========================
-   Orders Compact Mode (Mobile)
-   ========================= */
 
-/* موبايل: خلي الطلبات 2 جنب بعض + تصغير لطيف للكرت */
+/* =========================
+   Orders Compact Mode
+   ========================= */
 @media (max-width: 600px){
   #list.grid{
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -632,7 +582,6 @@ h2{
     border-radius:12px !important;
   }
 
-  /* خلي الأزرار جنب بعض بدل ما يصير كل زر سطر لحاله */
   #list.grid .actions .btn,
   #list.grid .actions a.btn{
     width:auto !important;
@@ -640,7 +589,6 @@ h2{
     text-align:center !important;
   }
 
-  /* select أصغر */
   #list.grid select{
     min-width: 140px !important;
     padding:9px 10px !important;
@@ -648,7 +596,6 @@ h2{
   }
 }
 
-/* موبايل صغير جدًا: رجّع عمود واحد */
 @media (max-width: 360px){
   #list.grid{
     grid-template-columns: 1fr !important;
