@@ -69,105 +69,9 @@
     .campaign-desc{ font-size:13px; color:#444; line-height:1.5; }
     .campaign-extra{ font-size:12px; color:#6a4b20; margin-top:4px; font-weight:900; }
 
-    /* ✅ صندوق اختيار الكمية (ناعم) */
-    .qty-panel{
-      margin-top: 10px;
-      background: #f6fbf8;
-      border: 1px solid #cfe3d6;
-      border-radius: 14px;
-      padding: 10px;
-      display: grid;
-      gap: 10px;
-    }
-    .qty-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:space-between;
-    }
-    .qty-label{
-      font-weight: 1000;
-      color:#163628;
-      font-size: 13px;
-    }
-    .qty-unit{
-      font-size: 12px;
-      color:#6a7b72;
-      font-weight: 900;
-      margin-top:2px;
-    }
-
-    .qty-select{
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid #d7e2db;
-      background: #fff;
-      font-size: 15px;
-      font-weight: 900;
-      outline: none;
-      box-shadow: 0 1px 6px rgba(0,0,0,.05);
-    }
-
-    /* ✅ خانة كتابة الكمية اليدوية (حلوة وناعمة) */
-    .quantity-input{
-      width:100%;
-      box-sizing:border-box;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid #d7e2db;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfffd 100%);
-      box-shadow: 0 1px 6px rgba(0,0,0,.05);
-      outline: none;
-      font-size: 16px;
-      font-weight: 1000;
-      text-align: center;
-      direction: ltr;
-      transition: border-color .15s, box-shadow .15s, transform .05s;
-    }
-    .quantity-input:focus{
-      border-color:#9dd3b1;
-      box-shadow: 0 0 0 4px rgba(46,139,87,.12), 0 1px 10px rgba(0,0,0,.06);
-    }
-    .quantity-input::placeholder{
-      color:#9aa8a0;
-      font-weight:900;
-    }
-
-    .qty-hint{
-      font-size: 12px;
-      color:#557264;
-      font-weight: 800;
-      text-align: center;
-      line-height: 1.5;
-    }
-
-    .btn-clear{
-      border: 1px solid #ffd0d0;
-      background: #ffecec;
-      color:#8a1414;
-      font-weight: 1000;
-      padding: 10px 12px;
-      border-radius: 12px;
-      cursor:pointer;
-      width: 100%;
-    }
-    .btn-clear:active{ transform: scale(.99); }
-
-    .grid-2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      align-items:stretch;
-    }
-    @media (max-width: 520px){
-      .grid-2{ grid-template-columns: 1fr; }
-    }
-
     .bottom-space{ height: 110px; }
 
-    /* ===== تواصل معنا (مرتب بالوسط) ===== */
+    /* ===== تواصل معنا ===== */
     .contact-card{
       margin: 18px 0 10px;
       background:#fff;
@@ -234,6 +138,169 @@
       font-weight:1000;
       direction:ltr;
     }
+
+    /* ===== Modal ===== */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.38);
+      z-index:10000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .modal-backdrop.show{
+      display:flex;
+    }
+
+    .qty-modal{
+      width:100%;
+      max-width:430px;
+      background:#fff;
+      border-radius:24px;
+      box-shadow:0 20px 50px rgba(0,0,0,.22);
+      overflow:hidden;
+      animation: popIn .18s ease;
+    }
+
+    @keyframes popIn{
+      from{ opacity:0; transform: translateY(10px) scale(.98); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    .qty-modal-head{
+      padding:16px 18px 12px;
+      border-bottom:1px solid #eef2ef;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .qty-modal-title{
+      font-size:20px;
+      font-weight:1000;
+      color:#0f2b1f;
+      margin:0 0 4px;
+    }
+
+    .qty-modal-sub{
+      font-size:13px;
+      color:#6a7b72;
+      font-weight:900;
+      margin:0;
+    }
+
+    .modal-close{
+      width:40px;
+      height:40px;
+      border:none;
+      border-radius:999px;
+      background:#f2f6f3;
+      cursor:pointer;
+      font-size:22px;
+      font-weight:1000;
+      color:#375546;
+    }
+
+    .qty-modal-body{
+      padding:16px 18px 18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .modal-price-box{
+      background:#f6fbf8;
+      border:1px solid #dbe9e0;
+      border-radius:16px;
+      padding:12px;
+      text-align:center;
+    }
+    .modal-price{
+      font-size:22px;
+      font-weight:1000;
+      color:#123224;
+    }
+    .modal-unit{
+      margin-top:4px;
+      font-size:13px;
+      color:#6a7b72;
+      font-weight:900;
+    }
+
+    .modal-label{
+      font-weight:1000;
+      color:#173527;
+      font-size:14px;
+      margin-bottom:6px;
+    }
+
+    .modal-select,
+    .modal-input{
+      width:100%;
+      box-sizing:border-box;
+      padding:13px 14px;
+      border-radius:14px;
+      border:1px solid #d7e2db;
+      background:#fff;
+      font-size:16px;
+      font-weight:1000;
+      outline:none;
+    }
+
+    .modal-input{
+      text-align:center;
+      direction:ltr;
+    }
+
+    .modal-select:focus,
+    .modal-input:focus{
+      border-color:#9dd3b1;
+      box-shadow:0 0 0 4px rgba(46,139,87,.10);
+    }
+
+    .modal-hint{
+      margin-top:-4px;
+      font-size:12px;
+      color:#6a7b72;
+      line-height:1.5;
+      font-weight:900;
+      text-align:center;
+    }
+
+    .modal-actions{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+
+    .btn-soft{
+      border:none;
+      border-radius:14px;
+      padding:13px 14px;
+      font-weight:1000;
+      font-size:15px;
+      cursor:pointer;
+    }
+
+    .btn-yellow{
+      background:#f7c948;
+      color:#3c2b00;
+      box-shadow:0 8px 18px rgba(247,201,72,.28);
+    }
+    .btn-yellow:active{ transform:scale(.98); }
+
+    .btn-light{
+      background:#eef4f0;
+      color:#274435;
+    }
+
+    @media (max-width:520px){
+      .modal-actions{
+        grid-template-columns:1fr;
+      }
+    }
   </style>
 </head>
 
@@ -248,7 +315,6 @@
 
 <div class="container">
 
-  <!-- ✅ العروض (لازم يكون موجود بالصفحة) -->
   <div id="campaignBanner" class="campaign-banner" style="display:none;">
     <h3>العروض الحالية</h3>
     <div id="campaignContent"></div>
@@ -257,7 +323,6 @@
   <h2>منتجاتنا</h2>
   <div id="productsContainer">جاري تحميل المنتجات...</div>
 
-  <!-- ✅ تواصل معنا -->
   <section class="contact-card" aria-label="تواصل معنا">
     <div class="contact-head">
       <h3>تواصل معنا</h3>
@@ -288,38 +353,84 @@
   <div class="bottom-space"></div>
 </div>
 
+<!-- نافذة اختيار الكمية -->
+<div id="qtyModalBackdrop" class="modal-backdrop" onclick="backdropClose(event)">
+  <div class="qty-modal" role="dialog" aria-modal="true" aria-labelledby="modalProductName">
+    <div class="qty-modal-head">
+      <div>
+        <h3 id="modalProductName" class="qty-modal-title">اسم المنتج</h3>
+        <p id="modalProductDesc" class="qty-modal-sub"></p>
+      </div>
+      <button class="modal-close" type="button" onclick="closeQtyModal()">×</button>
+    </div>
+
+    <div class="qty-modal-body">
+      <div class="modal-price-box">
+        <div id="modalPrice" class="modal-price">₪0</div>
+        <div id="modalUnit" class="modal-unit">كغم</div>
+      </div>
+
+      <div>
+        <div class="modal-label">اختار الكمية</div>
+        <select id="modalQtySelect" class="modal-select"></select>
+      </div>
+
+      <div>
+        <div class="modal-label">أو اكتب الكمية</div>
+        <input
+          id="modalQtyInput"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          class="modal-input"
+          placeholder="مثال: 25"
+        />
+      </div>
+
+      <div id="modalHint" class="modal-hint"></div>
+
+      <div class="modal-actions">
+        <button class="btn-soft btn-light" type="button" onclick="closeQtyModal()">إلغاء</button>
+        <button class="btn-soft btn-yellow" type="button" onclick="confirmAddToCart()">أضف للسلة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 let products = [];
 let cart = {};
+let activeProduct = null;
 
 function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
-/* ✅ ملوخية العيدان/عروق = مضاعفات 5 (إذا بالكيلو) */
 function isStepFiveProduct(p){
   const n = String(p?.name || '');
   return n.includes('عروق') || n.includes('عيدان') || n.includes('عِيدان');
 }
 
-/* ✅ بناء خيارات القائمة */
-function buildSelectOptionsHTML(p, current){
+function escHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, (m) => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
+
+function buildModalSelectOptions(p, currentQty){
   let opts = [];
   const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
 
-  if (step5){
-    // 0,5,10,15,20
+  if (step5) {
     opts = [0,5,10,15,20];
   } else {
-    // 0..20
     opts = Array.from({length:21}, (_,i)=>i);
   }
 
   return opts.map(v => {
-    const sel = Number(current) === v ? 'selected' : '';
-    return `<option value="${v}" ${sel}>${v}</option>`;
+    const selected = Number(currentQty) === v ? 'selected' : '';
+    return `<option value="${v}" ${selected}>${v}</option>`;
   }).join('');
 }
 
-/* ✅ تحميل العروض النشطة */
 async function loadCampaigns(){
   const banner = document.getElementById('campaignBanner');
   const content = document.getElementById('campaignContent');
@@ -342,8 +453,8 @@ async function loadCampaigns(){
       const mt = (c.minTotal ?? '');
       return `
         <div class="campaign-item">
-          <div class="campaign-title">${c.title || ''}</div>
-          ${desc ? `<div class="campaign-desc">${desc}</div>` : ''}
+          <div class="campaign-title">${escHtml(c.title || '')}</div>
+          ${desc ? `<div class="campaign-desc">${escHtml(desc)}</div>` : ''}
           ${(dp !== '' && dp != null) ? `<div class="campaign-extra">خصم: ${dp}%</div>` : ''}
           ${(mt !== '' && mt != null) ? `<div class="campaign-extra">الحد الأدنى للطلب: ₪${mt}</div>` : ''}
         </div>
@@ -357,7 +468,7 @@ async function loadCampaigns(){
 }
 
 async function loadProducts() {
-  await loadCampaigns();  // ✅ العروض أولاً
+  await loadCampaigns();
 
   const res = await fetch('/api/products', { cache:'no-store' });
   products = await res.json();
@@ -374,57 +485,30 @@ function renderProducts() {
 
     const u = unitLabel(p.unitType);
     const qty = Number(cart[p.id]?.qty || 0);
-
-    const imageUrl = (p.images && p.images.length)
-      ? p.images[0]
-      : '/images/no-image.png';
-
-    const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
-    const hint = step5
-      ? `ملوخية العيدان: الكمية مضاعفات 5 (5، 10، 15...)`
-      : `تقدر تختار من القائمة أو تكتب رقم أكبر من 20`;
+    const imageUrl = (p.images && p.images.length) ? p.images[0] : '/images/no-image.png';
 
     const card = document.createElement('div');
     card.className = 'card';
+    card.style.cursor = 'pointer';
+    card.onclick = () => openQtyModal(p.id);
 
     card.innerHTML = `
-      <img src="${imageUrl}"
+      <img src="${imageUrl}" alt="${escHtml(p.name)}"
         style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
 
-      <h3>${p.name}</h3>
-      <div class="desc">${p.description || ''}</div>
+      <h3>${escHtml(p.name)}</h3>
+      <div class="desc">${escHtml(p.description || '')}</div>
       <div class="price">₪${p.price} / ${u}</div>
 
-      <div class="qty-panel">
-        <div class="qty-row">
-          <div>
-            <div class="qty-label">اختار الكمية</div>
-            <div class="qty-unit">${u}</div>
-          </div>
-          <div style="font-weight:1000;color:#2e8b57;">${qty}</div>
-        </div>
+      <button
+        type="button"
+        class="store-add-btn"
+        onclick="event.stopPropagation(); openQtyModal(${p.id})"
+      >
+        أضف للسلة
+      </button>
 
-        <select class="qty-select" onchange="setQtyFromSelect(${p.id}, this.value)">
-          ${buildSelectOptionsHTML(p, qty)}
-        </select>
-
-        <div class="qty-label" style="text-align:center;">أو اكتب الكمية</div>
-
-        <div class="grid-2">
-          <input
-            type="number"
-            inputmode="numeric"
-            class="quantity-input"
-            placeholder="مثال: 25"
-            value="${qty > 20 ? qty : ''}"
-            oninput="setQtyFromInput(${p.id}, this.value)"
-            onchange="setQtyFromInput(${p.id}, this.value)"
-          >
-          <button class="btn-clear" type="button" onclick="setQty(${p.id}, 0)">مسح الكمية</button>
-        </div>
-
-        <div class="qty-hint">${hint}</div>
-      </div>
+      ${qty > 0 ? `<div class="in-cart-note">بالسلة: ${qty} ${u}</div>` : ''}
     `;
 
     container.appendChild(card);
@@ -435,40 +519,87 @@ function renderProducts() {
   }
 }
 
-function setQty(id, q){
-  const p = products.find(x => x.id === id);
+function openQtyModal(productId){
+  const p = products.find(x => x.id === productId);
   if (!p) return;
 
-  q = Number(q || 0);
-  if (!Number.isFinite(q) || q < 0) q = 0;
+  activeProduct = p;
 
-  if (q > 9999){ alert('الكمية كبيرة جداً'); return; }
+  const currentQty = Number(cart[p.id]?.qty || 0);
+  const u = unitLabel(p.unitType);
+  const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
+
+  document.getElementById('modalProductName').textContent = p.name;
+  document.getElementById('modalProductDesc').textContent = p.description || '';
+  document.getElementById('modalPrice').textContent = `₪${p.price}`;
+  document.getElementById('modalUnit').textContent = u;
+
+  const sel = document.getElementById('modalQtySelect');
+  sel.innerHTML = buildModalSelectOptions(p, currentQty <= 20 ? currentQty : 0);
+
+  const input = document.getElementById('modalQtyInput');
+  input.value = currentQty > 20 ? currentQty : '';
+
+  document.getElementById('modalHint').textContent = step5
+    ? 'ملوخية العيدان: لازم الكمية تكون مضاعفات 5 مثل 5، 10، 15...'
+    : 'تقدر تختار من القائمة أو تكتب أي كمية أكبر من 20.';
+
+  document.getElementById('qtyModalBackdrop').classList.add('show');
+
+  setTimeout(() => {
+    if (input.value) input.focus();
+  }, 50);
+}
+
+function closeQtyModal(){
+  document.getElementById('qtyModalBackdrop').classList.remove('show');
+  activeProduct = null;
+}
+
+function backdropClose(e){
+  if (e.target.id === 'qtyModalBackdrop') {
+    closeQtyModal();
+  }
+}
+
+function confirmAddToCart(){
+  if (!activeProduct) return;
+
+  const p = activeProduct;
+  const selVal = Number(document.getElementById('modalQtySelect').value || 0);
+  const rawInput = document.getElementById('modalQtyInput').value || '';
+  const digits = String(rawInput).replace(/[^\d]/g, '');
+  let qty = digits ? Number(digits) : selVal;
+
+  if (!qty || qty < 0) qty = 0;
+
+  if (qty > 9999){
+    alert('الكمية كبيرة جداً');
+    return;
+  }
 
   const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
-  if (step5 && q !== 0 && (q % 5 !== 0)){
+  if (step5 && qty !== 0 && (qty % 5 !== 0)){
     alert('ملوخية العيدان: لازم الكمية تكون مضاعفات 5 (5، 10، 15...)');
     return;
   }
 
-  if (q === 0){
-    delete cart[id];
+  if (qty === 0){
+    delete cart[p.id];
   } else {
-    cart[id] = { id:p.id, name:p.name, price:p.price, unitType:p.unitType, qty:q };
+    cart[p.id] = {
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      unitType: p.unitType,
+      qty
+    };
   }
 
   saveCart();
+  closeQtyModal();
   renderProducts();
 }
-
-window.setQtyFromSelect = function(id, val){
-  setQty(id, Number(val || 0));
-};
-
-window.setQtyFromInput = function(id, val){
-  const digits = String(val || '').replace(/[^\d]/g,'');
-  const n = digits ? Number(digits) : 0;
-  setQty(id, n);
-};
 
 function saveCart() {
   localStorage.setItem('cart', JSON.stringify(cart));
@@ -492,6 +623,10 @@ function updateCartCount() {
 function goToCart() {
   window.location.href = '/review.html';
 }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeQtyModal();
+});
 
 document.addEventListener('DOMContentLoaded', loadProducts);
 </script>
