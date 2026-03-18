@@ -343,8 +343,10 @@
 </header>
 
 <button class="fab-cart" onclick="goToCart()" aria-label="سلة المشتريات">
+  🛒
   <span class="cart-label">سلة المشتريات</span>
   <span id="cartCount">0</span>
+  <span id="cartTotal">₪0</span>
 </button>
 
 <div class="container">
@@ -669,11 +671,21 @@ function loadCartFromStorage() {
 }
 
 function updateCartCount() {
-  const total = Object.values(cart).reduce((s,i)=>s + (Number(i.qty)||0), 0);
-  const el = document.getElementById('cartCount');
-  if (el) el.textContent = total;
-}
 
+  // ✅ عدد المنتجات (مش الكمية)
+  const itemCount = Object.keys(cart).length;
+
+  // ✅ السعر الإجمالي
+  const totalPrice = Object.values(cart).reduce((sum, item) => {
+    return sum + (item.price * item.qty);
+  }, 0);
+
+  const countEl = document.getElementById('cartCount');
+  const totalEl = document.getElementById('cartTotal');
+
+  if (countEl) countEl.textContent = itemCount;
+  if (totalEl) totalEl.textContent = `₪${totalPrice}`;
+}
 function goToCart() {
   window.location.href = '/review.html';
 }
