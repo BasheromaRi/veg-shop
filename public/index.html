@@ -4,8 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>خَيْرَات صَنْدَلَه 💚</title>
+  <button onclick="toggleMenu()" class="menu-btn">☰</button>
   <link rel="stylesheet" href="/styles.css">
+<div id="sideMenu" class="side-menu">
+  <div class="menu-header">
+    خيرات صندله 💚
+  </div>
 
+  <a href="/index.html">🏠 الرئيسية</a>
+  <a href="#campaignBanner">🔥 العروض</a>
+  <a href="/review.html">🛒 سلة المشتريات</a>
+  <a href="#">📦 سياسة التوصيل</a>
+  <a href="#">📞 تواصل معنا</a>
+  <a href="#">ℹ️ من نحن</a>
+</div>
+
+<div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
   <style>
     /* زر سلة عائم أوضح */
     .fab-cart{
