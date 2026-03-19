@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
+    *{ box-sizing:border-box; }
+
     body{ background:#f6f8f7; }
 
     .wrap{ margin-top:12px; }
@@ -109,10 +111,13 @@
       line-height:1.4;
     }
 
+    /* ✅ قائمة المنتجات */
     .list{
       display:grid;
       gap:12px;
       margin-top:12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items:start;
     }
 
     .card{
@@ -121,6 +126,7 @@
       border-radius:18px;
       padding:12px;
       box-shadow: 0 1px 12px rgba(0,0,0,.05);
+      min-width:0;
     }
 
     .card-head{
@@ -136,6 +142,7 @@
       font-weight:1000;
       color:#0f2b1f;
       font-size:15px;
+      word-break:break-word;
     }
 
     .sub{
@@ -215,13 +222,94 @@
       font-size:12px;
       font-weight:800;
       color:#d83a3a;
+      word-break:break-word;
     }
 
-    @media (max-width: 720px){
+    /* تابلت */
+    @media (max-width: 900px){
       .grid-form{ grid-template-columns:1fr; }
       .edit-grid{ grid-template-columns:1fr; }
-      .btn{ width:100%; }
-      .actions{ justify-content:stretch; }
+    }
+
+    /* ✅ الهاتف: كل ثنتين جنب بعض */
+    @media (max-width: 700px){
+      .list{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap:10px;
+      }
+
+      .card{
+        padding:10px;
+        border-radius:16px;
+      }
+
+      .title{
+        font-size:13px;
+      }
+
+      .sub{
+        font-size:11px;
+      }
+
+      .badge{
+        font-size:10px;
+        padding:5px 8px;
+      }
+
+      .field label{
+        font-size:11px;
+      }
+
+      .field input,
+      .field select,
+      .field textarea{
+        padding:8px 10px;
+        font-size:12px;
+        border-radius:10px;
+      }
+
+      .field textarea{
+        min-height:72px;
+      }
+
+      .btn{
+        width:100%;
+        font-size:12px;
+        padding:9px 10px;
+        border-radius:10px;
+      }
+
+      .actions{
+        justify-content:stretch;
+      }
+
+      .thumb{
+        width:56px;
+        height:56px;
+        border-radius:10px;
+      }
+
+      .check{
+        font-size:12px;
+        padding:8px 10px;
+      }
+
+      .file{
+        padding:8px;
+        font-size:12px;
+      }
+
+      .hint,
+      .msg{
+        font-size:11px;
+      }
+    }
+
+    /* شاشة صغيرة جداً */
+    @media (max-width: 360px){
+      .list{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -442,14 +530,12 @@
       m.style.color = '#2e8b57';
       m.textContent = 'تم الحفظ ✅';
 
-      // سكّر التعديل بعد الحفظ
       document.getElementById(`name_${id}`).disabled = true;
       document.getElementById(`price_${id}`).disabled = true;
       document.getElementById(`unit_${id}`).disabled = true;
       document.getElementById(`avail_${id}`).disabled = true;
       document.getElementById(`desc_${id}`).disabled = true;
 
-      // إعادة تحميل عشان البادج/العرض يتحدّثوا
       loadProducts();
     }
 
