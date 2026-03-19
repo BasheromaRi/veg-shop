@@ -302,3 +302,57 @@ body::before,
 body::after{
   content:none !important;
 }
+@media (max-width:700px){
+  #productsList,
+  #adminProducts,
+  .productsGrid,
+  .manage-products-grid,
+  .grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap:10px !important;
+  }
+
+  #productsList .card,
+  #adminProducts .card,
+  .productsGrid .card,
+  .manage-products-grid .card,
+  .grid .card{
+    padding:10px !important;
+    border-radius:16px !important;
+  }
+
+  #productsList .card h3,
+  #adminProducts .card h3,
+  .productsGrid .card h3,
+  .manage-products-grid .card h3,
+  .grid .card h3{
+    font-size:14px !important;
+  }
+
+  #productsList .card img,
+  #adminProducts .card img,
+  .productsGrid .card img,
+  .manage-products-grid .card img,
+  .grid .card img{
+    height:120px !important;
+    object-fit:cover !important;
+  }
+
+  #productsList .btn,
+  #adminProducts .btn,
+  .productsGrid .btn,
+  .manage-products-grid .btn,
+  .grid .btn{
+    font-size:12px !important;
+    padding:9px 10px !important;
+  }
+}
+
+@media (max-width:360px){
+  #productsList,
+  #adminProducts,
+  .productsGrid,
+  .manage-products-grid{
+    grid-template-columns:1fr !important;
+  }
+}
