@@ -175,13 +175,103 @@
       border-radius:14px; color:#6a7b72;
     }
 
-    @media (max-width:700px){
-      #ordersList{ grid-template-columns: 1fr; }
-      .actions{ justify-content:stretch; }
-      .btn{ width:100%; text-align:center; }
-      select{ width:100%; }
-      .val{ max-width: 100%; }
-    }
+   @media (max-width:700px){
+  #ordersList{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
+
+  .orderCard{
+    padding:10px;
+    border-radius:14px;
+  }
+
+  .orderTitle{
+    font-size:13px;
+  }
+
+  .meta{
+    font-size:11px;
+  }
+
+  .badge{
+    font-size:10px;
+    padding:5px 8px;
+  }
+
+  .rows{
+    gap:6px;
+    margin:6px 0 8px;
+  }
+
+  .row{
+    gap:6px;
+    font-size:12px;
+  }
+
+  .label{
+    font-size:10px;
+  }
+
+  .val,
+  .valNum{
+    max-width:100%;
+    font-size:12px;
+  }
+
+  .items{
+    margin-top:8px;
+    padding-top:8px;
+  }
+
+  .itemLine{
+    font-size:12px;
+    padding:6px 0;
+  }
+
+  .muted{
+    font-size:10px;
+  }
+
+  .summary{
+    padding:8px;
+    gap:6px;
+  }
+
+  .sumRow small{
+    font-size:10px;
+  }
+
+  .actions{
+    justify-content:stretch;
+    gap:6px;
+  }
+
+  .btn{
+    width:100%;
+    text-align:center;
+    font-size:11px;
+    padding:8px 8px;
+  }
+
+  select{
+    width:100%;
+    min-width:unset;
+    font-size:12px;
+    padding:8px 10px;
+  }
+
+  .countBox{
+    font-size:12px;
+    padding:9px;
+  }
+}
+
+@media (max-width:360px){
+  #ordersList{
+    grid-template-columns: 1fr;
+  }
+}
   </style>
 </head>
 
