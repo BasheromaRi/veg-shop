@@ -26,7 +26,6 @@
       cursor: pointer;
       box-shadow: 0 14px 28px rgba(255,122,0,.28) !important;
       transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-      position: fixed;
     }
     .fab-cart:hover{
       transform: translateY(-1px);
@@ -88,6 +87,40 @@
     .card h3{ margin: 8px 0 6px; }
     .card .desc{ font-size:13px; color:#666; margin-bottom:8px; line-height:1.5; min-height:20px; }
     .card .price{ font-weight:1000; margin-bottom:12px; }
+
+    /* ===== شارة عليه حملة ===== */
+    .product-image-wrap{
+      position:relative;
+      width:100%;
+      margin-bottom:10px;
+    }
+
+    .campaign-corner-badge{
+      position:absolute;
+      top:10px;
+      left:-6px;
+      z-index:2;
+      background:linear-gradient(180deg, #ff4d4d, #d91f1f);
+      color:#fff;
+      font-size:12px;
+      font-weight:1000;
+      padding:7px 12px 7px 14px;
+      border-radius:0 10px 10px 0;
+      box-shadow:0 8px 18px rgba(217,31,31,.28);
+      line-height:1;
+      white-space:nowrap;
+    }
+
+    .campaign-corner-badge::after{
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:-6px;
+      width:0;
+      height:0;
+      border-top:6px solid #8f1111;
+      border-left:6px solid transparent;
+    }
 
     /* ===== العروض ===== */
     .campaign-banner{
@@ -376,6 +409,12 @@
         height:20px;
         font-size:10px;
       }
+      .campaign-corner-badge{
+        font-size:11px;
+        padding:6px 10px 6px 12px;
+        top:8px;
+        left:-5px;
+      }
     }
   </style>
 </head>
@@ -488,6 +527,10 @@ function isStepFiveProduct(p){
   return n.includes('عروق') || n.includes('عيدان') || n.includes('عِيدان');
 }
 
+function hasProductCampaign(p){
+  return !!(p?.onCampaign || p?.hasCampaign || p?.campaignActive);
+}
+
 function escHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, (m) => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -565,6 +608,7 @@ function renderProducts() {
     const u = unitLabel(p.unitType);
     const qty = Number(cart[p.id]?.qty || 0);
     const imageUrl = (p.images && p.images.length) ? p.images[0] : '/images/no-image.png';
+    const showCampaignBadge = hasProductCampaign(p);
 
     const card = document.createElement('div');
     card.className = 'card';
@@ -572,8 +616,11 @@ function renderProducts() {
     card.onclick = () => openQtyModal(p.id, null);
 
     card.innerHTML = `
-      <img src="${imageUrl}" alt="${escHtml(p.name)}"
-        style="width:100%;height:160px;object-fit:cover;border-radius:14px;margin-bottom:10px;">
+      <div class="product-image-wrap">
+        ${showCampaignBadge ? `<span class="campaign-corner-badge">عليه حملة</span>` : ''}
+        <img src="${imageUrl}" alt="${escHtml(p.name)}"
+          style="width:100%;height:160px;object-fit:cover;border-radius:14px;margin-bottom:10px;">
+      </div>
 
       <h3>${escHtml(p.name)}</h3>
       <div class="desc">${escHtml(p.description || '')}</div>
