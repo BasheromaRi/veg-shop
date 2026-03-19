@@ -345,46 +345,99 @@
     }
 
     @media (max-width:700px){
-      .grid{
-        grid-template-columns:1fr;
-      }
+  .grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
 
-      .topbar{
-        align-items:stretch;
-      }
+  .topbar{
+    align-items:stretch;
+  }
 
-      .filters{
-        width:100%;
-      }
+  .filters{
+    width:100%;
+  }
 
-      .pill{
-        flex:1 1 auto;
-        text-align:center;
-      }
+  .pill{
+    flex:1 1 auto;
+    text-align:center;
+  }
 
-      .actions{
-        grid-template-columns:1fr;
-      }
+  .actions{
+    grid-template-columns:1fr;
+  }
 
-      .btn{
-        width:100%;
-        font-size:15px;
-        padding:13px 12px;
-      }
+  .btn{
+    width:100%;
+    font-size:13px;
+    padding:10px 10px;
+  }
 
-      .title{
-        font-size:17px;
-      }
+  .title{
+    font-size:14px;
+  }
 
-      .card{
-        padding:12px;
-      }
+  .meta{
+    font-size:11px;
+  }
 
-      .rows,
-      .summary-box{
-        padding:10px;
-      }
-    }
+  .card{
+    padding:10px;
+    border-radius:16px;
+  }
+
+  .rows,
+  .summary-box{
+    padding:8px;
+    gap:8px;
+  }
+
+  .row{
+    font-size:12px;
+    gap:8px;
+  }
+
+  .label{
+    font-size:11px;
+    min-width:60px;
+  }
+
+  .value,
+  .value-rtl,
+  .addr{
+    font-size:12px;
+  }
+
+  .items-title{
+    font-size:13px;
+  }
+
+  .item{
+    font-size:12px;
+    padding:8px 0;
+  }
+
+  .muted{
+    font-size:11px;
+  }
+
+  .badge{
+    font-size:10px;
+    padding:5px 8px;
+  }
+
+  .countBox,
+  .page-note{
+    font-size:12px;
+    padding:10px;
+  }
+}
+
+@media (max-width:360px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
   </style>
 </head>
 
