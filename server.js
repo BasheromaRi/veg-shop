@@ -45,6 +45,7 @@ function ensureOrderColumns() {
       console.error('PRAGMA error', err);
       return;
     }
+
     const names = new Set((cols || []).map((c) => c.name));
 
     const addCol = (sql) =>
@@ -54,11 +55,19 @@ function ensureOrderColumns() {
         }
       });
 
-    if (!names.has('notes')) addCol(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`);
-    if (!names.has('assignedToCourier')) addCol(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`);
-    if (!names.has('cancelReason')) addCol(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`);
-    
-   function ensureProductColumns() {
+    if (!names.has('notes')) {
+      addCol(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`);
+    }
+    if (!names.has('assignedToCourier')) {
+      addCol(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`);
+    }
+    if (!names.has('cancelReason')) {
+      addCol(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`);
+    }
+  });
+}
+
+function ensureProductColumns() {
   db.all(`PRAGMA table_info(products)`, [], (err, cols) => {
     if (err) {
       console.error('PRAGMA products error', err);
@@ -79,16 +88,17 @@ function ensureOrderColumns() {
     }
   });
 }
+
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS products (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  price REAL NOT NULL,
-  description TEXT DEFAULT '',
-  available INTEGER DEFAULT 1,
-  unitType TEXT DEFAULT 'kg',
-  onCampaign INTEGER DEFAULT 0
-)`);
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    price REAL NOT NULL,
+    description TEXT DEFAULT '',
+    available INTEGER DEFAULT 1,
+    unitType TEXT DEFAULT 'kg',
+    onCampaign INTEGER DEFAULT 0
+  )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS product_images (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
