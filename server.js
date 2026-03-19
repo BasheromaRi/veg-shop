@@ -12,16 +12,11 @@ const sqlite3 = require('sqlite3').verbose();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/* ================== PATHS ==================
-   Render: اربط Disk على /var/data
-*/
+/* ================== PATHS ================== */
 const DATA_DIR = process.env.DATA_DIR || '/var/data';
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads');
 
-// صفحات الإدارة داخل public/admin
 const ADMIN_DIR = path.join(__dirname, 'public', 'admin');
-
-// صفحات الشليح داخل public/courier
 const COURIER_DIR = path.join(__dirname, 'public', 'courier');
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -35,7 +30,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
   else console.log('Connected to SQLite DB:', dbPath);
 });
 
-// Helpers
 function safeJson(s) {
   try {
     if (!s) return [];
@@ -96,7 +90,6 @@ db.serialize(() => {
     createdAt TEXT
   )`);
 
-  // ✅ جدول الحملات (العروض)
   db.run(`CREATE TABLE IF NOT EXISTS campaigns (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
@@ -115,8 +108,6 @@ db.serialize(() => {
 /* ================== USERS ================== */
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS || 'Q1azP0lm';
-
-// ✅ كود الشليح (غيره من Render ENV)
 const COURIER_PIN = process.env.COURIER_PIN || '7788';
 
 /* ================== MIDDLEWARE ================== */
@@ -203,7 +194,7 @@ function requireCourier(req, res, next) {
   return res.redirect('/courier-login');
 }
 
-/* ================== ADMIN PAGES (محمية) ================== */
+/* ================== ADMIN PAGES ================== */
 app.use('/admin', noCache, requireAdmin);
 
 app.get('/admin/secret-admin-9347', (req, res) => {
@@ -235,26 +226,18 @@ app.get('/courier', noCache, requireCourier, (req, res) => {
 function apiGuard(req, res, next) {
   if (req.path.startsWith('/uploads')) return next();
 
-  // زبون:
   if (req.method === 'GET' && req.path === '/products') return next();
   if (req.method === 'POST' && req.path === '/orders') return next();
-
-  // ✅ زبون: العروض الفعالة
   if (req.method === 'GET' && req.path === '/campaigns/active') return next();
 
-  // admin auth:
   if (req.method === 'POST' && req.path === '/login') return next();
   if (req.method === 'POST' && req.path === '/logout') return next();
   if (req.method === 'GET' && req.path === '/me') return next();
 
-  // courier auth:
   if (req.method === 'POST' && req.path === '/courier/login') return next();
   if (req.method === 'POST' && req.path === '/courier/logout') return next();
 
-  // إدارة:
   if (req.session?.isAdmin) return next();
-
-  // شليح:
   if (req.session?.isCourier && req.path.startsWith('/courier/')) return next();
 
   return res.status(401).json({ error: 'غير مصرح' });
@@ -412,14 +395,30 @@ app.delete('/api/orders/:id', (req, res) => {
 /* ================== ADMIN -> Assign to courier ================== */
 app.put('/api/orders/:id/assign', (req, res) => {
   const assigned = req.body.assigned ? 1 : 0;
-  db.run('UPDATE orders SET assignedToCourier = ? WHERE id = ?', [assigned, req.params.id], function (err) {
-    if (err) return res.status(500).json({ error: 'DB error' });
-    res.json({ success: true, changes: this.changes });
-  });
+  const id = req.params.id;
+
+  if (assigned) {
+    db.run(
+      'UPDATE orders SET assignedToCourier = 1, status = ? WHERE id = ?',
+      ['out_for_delivery', id],
+      function (err) {
+        if (err) return res.status(500).json({ error: 'DB error' });
+        res.json({ success: true, changes: this.changes });
+      }
+    );
+  } else {
+    db.run(
+      'UPDATE orders SET assignedToCourier = 0 WHERE id = ?',
+      [id],
+      function (err) {
+        if (err) return res.status(500).json({ error: 'DB error' });
+        res.json({ success: true, changes: this.changes });
+      }
+    );
+  }
 });
 
-/* ================== REPORTS (Admin) ================== */
-/* ✅ مجموع الكميات لكل منتج حسب الحالة (بدون SQL JSON) */
+/* ================== REPORTS ================== */
 app.get('/api/reports/totals', (req, res) => {
   const status = String(req.query.status || 'all').trim();
 
@@ -463,9 +462,7 @@ app.get('/api/reports/totals', (req, res) => {
   });
 });
 
-/* ================== CAMPAIGNS (Admin + Customer) ================== */
-
-// ✅ للزبون: بس العروض النشطة (بتطلع بالاندكس)
+/* ================== CAMPAIGNS ================== */
 app.get('/api/campaigns/active', (req, res) => {
   db.all(
     `SELECT id, title, description, discountPercent, minTotal
@@ -480,7 +477,6 @@ app.get('/api/campaigns/active', (req, res) => {
   );
 });
 
-// ✅ للإدارة: كل الحملات
 app.get('/api/campaigns', (req, res) => {
   db.all('SELECT * FROM campaigns ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ success:false, error:'DB error' });
@@ -557,7 +553,7 @@ app.delete('/api/campaigns/:id', (req, res) => {
 
 /* ================== COURIER APIs ================== */
 app.get('/api/courier/orders', (req, res) => {
-  const status = req.query.status; // all/new/contacted/in_progress/done/cancelled
+  const status = req.query.status;
   let where = 'WHERE assignedToCourier = 1';
   const params = [];
 
