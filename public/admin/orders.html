@@ -28,7 +28,17 @@
     }
     .hint{ color:#6a7b72; font-size:12px; margin-top:6px; line-height:1.4; }
 
-    /* ✅ Grid خاص بالطلبات (بدون تعارض مع styles.css) */
+    .countBox{
+      background:#eef6ff;
+      border:1px solid #b9d7ff;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:1000;
+      margin-bottom:10px;
+      text-align:center;
+      color:#0b3c75;
+    }
+
     #ordersList{
       display:grid;
       gap:12px;
@@ -37,15 +47,14 @@
       align-items:start;
     }
 
-    /* ✅ Card خاص بالطلبات */
     .orderCard{
       background:#fff;
       border:1px solid #dfe7e2;
       border-radius:16px;
       padding:12px;
       box-shadow: 0 1px 10px rgba(0,0,0,.06);
-      text-align:right; /* مهم عشان styles.css ما يعمل center */
-      cursor: default;  /* مهم عشان styles.css ما يعمل pointer */
+      text-align:right;
+      cursor: default;
     }
 
     .cardHead{
@@ -61,7 +70,7 @@
       display:inline-flex; align-items:center; gap:6px;
     }
     .b-new{ background:#fff7e6; border-color:#ffd38a; color:#7a4b00; }
-    .b-progress{ background:#e9f3ff; border-color:#b7d8ff; color:#084b8a; }
+    .b-delivery{ background:#fff3e6; border-color:#ffb366; color:#b35a00; }
     .b-done{ background:#eaf7ef; border-color:#a8e0be; color:#0f5a2a; }
     .b-cancel{ background:#ffecec; border-color:#ffc0c0; color:#8a1414; }
     .b-contact{ background:#f1ecff; border-color:#d2c0ff; color:#4b2b8a; }
@@ -74,7 +83,6 @@
     }
     .label{ color:#6a7b72; font-size:12px; }
 
-    /* ✅ هذا اللي بصلّح الاسم العربي */
     .val{
       font-weight:900;
       text-align:right;
@@ -192,7 +200,7 @@
         <button class="pill" data-filter="courier">للشليح</button>
         <button class="pill" data-filter="new">جديد</button>
         <button class="pill" data-filter="contacted">تم التواصل</button>
-        <button class="pill" data-filter="in_progress">قيد التحضير</button>
+        <button class="pill" data-filter="out_for_delivery">🚚 قيد التوصيل</button>
         <button class="pill" data-filter="done">تم التوصيل</button>
         <button class="pill" data-filter="cancelled">ملغي</button>
       </div>
@@ -207,12 +215,15 @@
       ✅ “للشليح” يعني الطلب تم اختياره للشليح فقط.
     </div>
 
+    <div id="ordersCountAdmin" class="countBox">عدد الطلبات: 0</div>
+
     <div id="ordersList">تحميل...</div>
   </div>
 
   <script>
     const list = document.getElementById('ordersList');
     const q = document.getElementById('q');
+    const ordersCountAdmin = document.getElementById('ordersCountAdmin');
 
     let orders = [];
     let currentFilter = 'all';
@@ -240,7 +251,7 @@
     function statusBadge(status){
       const s = status || 'new';
       if (s === 'done') return `<span class="badge b-done">تم التوصيل</span>`;
-      if (s === 'in_progress') return `<span class="badge b-progress">قيد التحضير</span>`;
+      if (s === 'out_for_delivery') return `<span class="badge b-delivery">🚚 قيد التوصيل</span>`;
       if (s === 'contacted') return `<span class="badge b-contact">تم التواصل</span>`;
       if (s === 'cancelled') return `<span class="badge b-cancel">ملغي</span>`;
       return `<span class="badge b-new">جديد</span>`;
@@ -350,6 +361,8 @@ ${items || '- (لا يوجد منتجات)'}
         .filter(o => matchesSearch(o, text))
         .sort((a,b) => (b.id||0) - (a.id||0));
 
+      ordersCountAdmin.textContent = `عدد الطلبات: ${filtered.length}`;
+
       if (!filtered.length){
         list.innerHTML = `<div class="empty">لا توجد طلبات بهذه الفلترة.</div>`;
         return;
@@ -421,7 +434,7 @@ ${items || '- (لا يوجد منتجات)'}
               <select onchange="updateStatus(${esc(o.id)}, this.value)">
                 <option value="new" ${(o.status||'new')==='new' ? 'selected':''}>جديد</option>
                 <option value="contacted" ${(o.status||'new')==='contacted' ? 'selected':''}>تم التواصل</option>
-                <option value="in_progress" ${(o.status||'new')==='in_progress' ? 'selected':''}>قيد التحضير</option>
+                <option value="out_for_delivery" ${(o.status||'new')==='out_for_delivery' ? 'selected':''}>🚚 قيد التوصيل</option>
                 <option value="done" ${(o.status||'new')==='done' ? 'selected':''}>تم التوصيل</option>
                 <option value="cancelled" ${(o.status||'new')==='cancelled' ? 'selected':''}>ملغي</option>
               </select>
@@ -527,7 +540,11 @@ ${items || '- (لا يوجد منتجات)'}
         }
 
         const idx = orders.findIndex(o => o.id == id);
-        if (idx >= 0) orders[idx].assignedToCourier = newVal ? 1 : 0;
+        if (idx >= 0){
+          orders[idx].assignedToCourier = newVal ? 1 : 0;
+          if (newVal) orders[idx].status = 'out_for_delivery';
+        }
+
         render();
       }catch(err){
         console.error(err);
