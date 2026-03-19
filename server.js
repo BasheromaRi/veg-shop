@@ -58,9 +58,9 @@ function ensureOrderColumns() {
     if (!names.has('assignedToCourier')) addCol(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`);
     if (!names.has('cancelReason')) addCol(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`);
     
-    function ensureProductColumns() {
-      db.all(`PRAGMA table_info(products)`, [], (err, cols) => {
-      if (err) {
+   function ensureProductColumns() {
+  db.all(`PRAGMA table_info(products)`, [], (err, cols) => {
+    if (err) {
       console.error('PRAGMA products error', err);
       return;
     }
@@ -79,8 +79,6 @@ function ensureOrderColumns() {
     }
   });
 }
-
-
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS products (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
