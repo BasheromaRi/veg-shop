@@ -79,7 +79,7 @@ function ensureOrderColumns() {
     }
   });
 }
-}
+
 
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS products (
