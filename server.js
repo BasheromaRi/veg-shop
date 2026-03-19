@@ -57,18 +57,40 @@ function ensureOrderColumns() {
     if (!names.has('notes')) addCol(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`);
     if (!names.has('assignedToCourier')) addCol(`ALTER TABLE orders ADD COLUMN assignedToCourier INTEGER DEFAULT 0`);
     if (!names.has('cancelReason')) addCol(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`);
+    
+    function ensureProductColumns() {
+      db.all(`PRAGMA table_info(products)`, [], (err, cols) => {
+      if (err) {
+      console.error('PRAGMA products error', err);
+      return;
+    }
+
+    const names = new Set((cols || []).map((c) => c.name));
+
+    const addCol = (sql) =>
+      db.run(sql, (e) => {
+        if (e && !String(e.message || '').includes('duplicate column name')) {
+          console.error('ALTER products error:', e.message);
+        }
+      });
+
+    if (!names.has('onCampaign')) {
+      addCol(`ALTER TABLE products ADD COLUMN onCampaign INTEGER DEFAULT 0`);
+    }
   });
+}
 }
 
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    price REAL NOT NULL,
-    description TEXT DEFAULT '',
-    available INTEGER DEFAULT 1,
-    unitType TEXT DEFAULT 'kg'
-  )`);
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  price REAL NOT NULL,
+  description TEXT DEFAULT '',
+  available INTEGER DEFAULT 1,
+  unitType TEXT DEFAULT 'kg',
+  onCampaign INTEGER DEFAULT 0
+)`);
 
   db.run(`CREATE TABLE IF NOT EXISTS product_images (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,6 +124,7 @@ db.serialize(() => {
   )`);
 
   ensureOrderColumns();
+  ensureProductColumns();
   console.log('✅ DB tables ensured + migrations checked');
 });
 
@@ -277,12 +300,12 @@ app.get('/api/products', (req, res) => {
 });
 
 app.post('/api/products', (req, res) => {
-  const { name, price, description, available, unitType } = req.body;
+  const { name, price, description, available, unitType, onCampaign } = req.body;
 
   db.run(
-    `INSERT INTO products (name, price, description, available, unitType)
-     VALUES (?, ?, ?, ?, ?)`,
-    [name, price, description || '', available ? 1 : 0, unitType || 'kg'],
+    `INSERT INTO products (name, price, description, available, unitType, onCampaign)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [name, price, description || '', available ? 1 : 0, unitType || 'kg', onCampaign ? 1 : 0],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true, productId: this.lastID });
@@ -291,13 +314,13 @@ app.post('/api/products', (req, res) => {
 });
 
 app.put('/api/products/:id', (req, res) => {
-  const { name, price, description, available, unitType } = req.body;
+  const { name, price, description, available, unitType, onCampaign } = req.body;
 
   db.run(
     `UPDATE products
-     SET name = ?, price = ?, description = ?, available = ?, unitType = ?
+     SET name = ?, price = ?, description = ?, available = ?, unitType = ?, onCampaign = ?
      WHERE id = ?`,
-    [name, price, description || '', available ? 1 : 0, unitType || 'kg', req.params.id],
+    [name, price, description || '', available ? 1 : 0, unitType || 'kg', onCampaign ? 1 : 0, req.params.id],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true, changes: this.changes });
