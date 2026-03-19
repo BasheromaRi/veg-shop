@@ -354,7 +354,13 @@
               <input id="add_available" type="checkbox" checked />
             </div>
           </div>
-
+          <div class="field">
+            <label>الحملة</label>
+            <div class="check">
+              <span>حملة</span>
+              <input id="add_onCampaign" type="checkbox" />
+            </div>
+          </div>
           <div class="field" style="grid-column: 1 / -1;">
             <label>وصف (اختياري)</label>
             <textarea id="add_description" placeholder="وصف قصير للمنتج..."></textarea>
@@ -456,7 +462,13 @@
                   <input id="avail_${esc(p.id)}" type="checkbox" ${available?'checked':''} disabled />
                 </div>
               </div>
-
+              <div class="field">
+                <label>الحملة</label>
+                <div class="check">
+                  <span>${p.onCampaign ? 'عليه حملة' : 'بدون حملة'}</span>
+                  <input id="camp_${esc(p.id)}" type="checkbox" ${p.onCampaign ? 'checked' : ''} disabled />
+                </div>
+              </div>
               <div class="field" style="grid-column: 1 / -1;">
                 <label>الوصف</label>
                 <textarea id="desc_${esc(p.id)}" disabled>${esc(p.description||'')}</textarea>
@@ -496,6 +508,7 @@
       document.getElementById(`unit_${id}`).disabled = false;
       document.getElementById(`avail_${id}`).disabled = false;
       document.getElementById(`desc_${id}`).disabled = false;
+      document.getElementById(`camp_${id}`).disabled = false;
 
       const m = document.getElementById(`msg_${id}`);
       m.style.color = '#2b74c7';
@@ -507,13 +520,14 @@
       m.style.color = '#d83a3a';
       m.textContent = '';
 
-      const payload = {
-        name: document.getElementById(`name_${id}`).value.trim(),
-        price: Number(document.getElementById(`price_${id}`).value),
-        unitType: document.getElementById(`unit_${id}`).value,
-        available: !!document.getElementById(`avail_${id}`).checked,
-        description: document.getElementById(`desc_${id}`).value.trim()
-      };
+     const payload = {
+      name: document.getElementById(`name_${id}`).value.trim(),
+      price: Number(document.getElementById(`price_${id}`).value),
+      unitType: document.getElementById(`unit_${id}`).value,
+      available: !!document.getElementById(`avail_${id}`).checked,
+      onCampaign: !!document.getElementById(`camp_${id}`).checked,
+      description: document.getElementById(`desc_${id}`).value.trim()
+    };
 
       const { res, data } = await api(`/api/products/${id}`, {
         method:'PUT',
@@ -531,10 +545,11 @@
       m.textContent = 'تم الحفظ ✅';
 
       document.getElementById(`name_${id}`).disabled = true;
-      document.getElementById(`price_${id}`).disabled = true;
-      document.getElementById(`unit_${id}`).disabled = true;
-      document.getElementById(`avail_${id}`).disabled = true;
-      document.getElementById(`desc_${id}`).disabled = true;
+        document.getElementById(`price_${id}`).disabled = true;
+        document.getElementById(`unit_${id}`).disabled = true;
+        document.getElementById(`avail_${id}`).disabled = true;
+        document.getElementById(`camp_${id}`).disabled = true;
+        document.getElementById(`desc_${id}`).disabled = true;
 
       loadProducts();
     }
@@ -582,7 +597,8 @@
         price: Number(document.getElementById('add_price').value),
         description: document.getElementById('add_description').value.trim(),
         unitType: document.getElementById('add_unitType').value,
-        available: !!document.getElementById('add_available').checked
+        available: !!document.getElementById('add_available').checked,
+        onCampaign: !!document.getElementById('add_onCampaign').checked
       };
 
       const { res, data } = await api('/api/products', {
@@ -603,7 +619,8 @@
       e.target.reset();
       document.getElementById('add_available').checked = true;
       document.getElementById('add_unitType').value = 'kg';
-
+      document.getElementById('add_onCampaign').checked = false;
+      
       loadProducts();
       setTimeout(()=> addMsg.textContent='', 2500);
     });
