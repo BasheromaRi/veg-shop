@@ -4,23 +4,90 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>خَيْرَات صَنْدَلَه 💚</title>
-  <button onclick="toggleMenu()" class="menu-btn">☰</button>
   <link rel="stylesheet" href="/styles.css">
-<div id="sideMenu" class="side-menu">
-  <div class="menu-header">
-    خيرات صندله 💚
-  </div>
 
-  <a href="/index.html">🏠 الرئيسية</a>
-  <a href="#campaignBanner">🔥 العروض</a>
-  <a href="/review.html">🛒 سلة المشتريات</a>
-  <a href="#">📦 سياسة التوصيل</a>
-  <a href="#">📞 تواصل معنا</a>
-  <a href="#">ℹ️ من نحن</a>
-</div>
-
-<div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
   <style>
+    /* زر القائمة */
+    .menu-btn{
+      position:absolute;
+      top:50%;
+      right:16px;
+      transform:translateY(-50%);
+      font-size:26px;
+      background:none;
+      border:none;
+      color:#fff;
+      cursor:pointer;
+      z-index:10001;
+      line-height:1;
+      padding:4px 8px;
+    }
+
+    .menu-btn:active{
+      transform:translateY(-50%) scale(.96);
+    }
+
+    .side-menu{
+      position:fixed;
+      top:0;
+      right:-280px;
+      width:280px;
+      max-width:85vw;
+      height:100%;
+      background:#fffdf8;
+      box-shadow:-8px 0 30px rgba(0,0,0,.16);
+      z-index:10002;
+      display:flex;
+      flex-direction:column;
+      transition:right .28s ease;
+      padding-top:0;
+      overflow-y:auto;
+    }
+
+    .side-menu.open{
+      right:0;
+    }
+
+    .menu-header{
+      padding:20px 16px;
+      font-weight:1000;
+      font-size:18px;
+      text-align:center;
+      border-bottom:1px solid #eee7d9;
+      color:#163c25;
+      background:#f8f4ea;
+    }
+
+    .side-menu a{
+      padding:15px 18px;
+      text-decoration:none;
+      color:#163c25;
+      font-weight:1000;
+      border-bottom:1px solid #f1ede4;
+      font-size:15px;
+    }
+
+    .side-menu a:hover{
+      background:#f7fbf8;
+    }
+
+    .menu-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.30);
+      z-index:10001;
+      display:none;
+    }
+
+    .menu-overlay.show{
+      display:block;
+    }
+
+    header{
+      position:relative;
+      padding-right:56px;
+    }
+
     /* زر سلة عائم أوضح */
     .fab-cart{
       position: fixed;
@@ -60,7 +127,6 @@
       white-space:nowrap;
     }
 
-    /* السعر */
     #cartTotal{
       display:inline-flex;
       align-items:center;
@@ -76,7 +142,6 @@
       direction:ltr;
     }
 
-    /* العداد الأحمر */
     .cart-badge{
       position:absolute;
       top:-8px;
@@ -387,7 +452,6 @@
       color:#274435;
     }
 
-    /* حركة زر الإضافة */
     .store-add-btn.added{
       animation: addPop .25s ease;
     }
@@ -429,12 +493,33 @@
         top:8px;
         left:-5px;
       }
+      .menu-btn{
+        right:10px;
+        font-size:24px;
+      }
     }
   </style>
 </head>
 
 <body style="text-align:right;">
+
+<div id="sideMenu" class="side-menu">
+  <div class="menu-header">
+    خيرات صندله 💚
+  </div>
+
+  <a href="/index.html" onclick="closeMenu()">🏠 الرئيسية</a>
+  <a href="#campaignBanner" onclick="closeMenu()">🔥 العروض</a>
+  <a href="/review.html" onclick="closeMenu()">🛒 سلة المشتريات</a>
+  <a href="#deliveryPolicy" onclick="closeMenu()">📦 سياسة التوصيل</a>
+  <a href="#contactSection" onclick="closeMenu()">📞 تواصل معنا</a>
+  <a href="#aboutSection" onclick="closeMenu()">ℹ️ من نحن</a>
+</div>
+
+<div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
+
 <header>
+  <button onclick="toggleMenu()" class="menu-btn" aria-label="القائمة">☰</button>
   <span>خَيْرَات صَنْدَلَه 💚</span>
 </header>
 
@@ -455,7 +540,29 @@
   <h2>منتجاتنا</h2>
   <div id="productsContainer">جاري تحميل المنتجات...</div>
 
-  <section class="contact-card" aria-label="تواصل معنا">
+  <section id="deliveryPolicy" class="contact-card" aria-label="سياسة التوصيل">
+    <div class="contact-head">
+      <h3>سياسة التوصيل 📦</h3>
+    </div>
+    <div style="line-height:1.9; color:#35513f; font-weight:900; font-size:14px;">
+      التوصيل داخل المنطقة خلال نفس اليوم أو اليوم التالي حسب الضغط.<br>
+      رسوم التوصيل: 30₪.<br>
+      التوصيل مجاني للطلبات فوق 300₪ ✅<br>
+      يتم التواصل معك قبل الوصول.
+    </div>
+  </section>
+
+  <section id="aboutSection" class="contact-card" aria-label="من نحن">
+    <div class="contact-head">
+      <h3>من نحن ℹ️</h3>
+    </div>
+    <div style="line-height:1.9; color:#35513f; font-weight:900; font-size:14px;">
+      خيرات صندله متجر متخصص بالخضار الطازجة، وخاصة الملوخية بأنواعها المختلفة.<br>
+      نحرص على تقديم جودة عالية، خدمة مرتبة، وتوصيل مريح وسريع 💚
+    </div>
+  </section>
+
+  <section id="contactSection" class="contact-card" aria-label="تواصل معنا">
     <div class="contact-head">
       <h3>تواصل معنا 💚</h3>
     </div>
@@ -484,7 +591,6 @@
   <div class="bottom-space"></div>
 </div>
 
-<!-- نافذة اختيار الكمية -->
 <div id="qtyModalBackdrop" class="modal-backdrop" onclick="backdropClose(event)">
   <div class="qty-modal" role="dialog" aria-modal="true" aria-labelledby="modalProductName">
     <div class="qty-modal-head">
@@ -533,6 +639,16 @@ let products = [];
 let cart = {};
 let activeProduct = null;
 let activeButton = null;
+
+function toggleMenu(){
+  document.getElementById('sideMenu').classList.toggle('open');
+  document.getElementById('menuOverlay').classList.toggle('show');
+}
+
+function closeMenu(){
+  document.getElementById('sideMenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('show');
+}
 
 function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
@@ -792,7 +908,10 @@ function goToCart() {
 }
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeQtyModal();
+  if (e.key === 'Escape') {
+    closeQtyModal();
+    closeMenu();
+  }
 });
 
 document.addEventListener('DOMContentLoaded', loadProducts);
