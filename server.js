@@ -84,8 +84,12 @@ function ensureProductColumns() {
       });
 
     if (!names.has('onCampaign')) {
-      addCol(`ALTER TABLE products ADD COLUMN onCampaign INTEGER DEFAULT 0`);
-    }
+  addCol(`ALTER TABLE products ADD COLUMN onCampaign INTEGER DEFAULT 0`);
+}
+
+if (!names.has('qtyStep')) {
+  addCol(`ALTER TABLE products ADD COLUMN qtyStep INTEGER DEFAULT 1`);
+}
   });
 }
 
