@@ -807,10 +807,10 @@ function openQtyModal(productId, btn){
   const input = document.getElementById('modalQtyInput');
   input.value = currentQty > 20 ? currentQty : '';
 
-  document.getElementById('modalHint').textContent = step5
-    ? 'ملوخية العيدان: لازم الكمية تكون مضاعفات 5 مثل 5، 10، 15...'
-    : 'تقدر تختار من القائمة أو تكتب أي كمية أكبر من 20.';
-
+  document.getElementById('modalHint').textContent =
+  step > 1
+    ? `هذا المنتج لازم تكون الكمية مضاعفات ${step} مثل ${step}، ${step * 2}، ${step * 3}...`
+    : 'تقدر تختار من القائمة أو تكتب أي كمية.';
   document.getElementById('qtyModalBackdrop').classList.add('show');
 
   setTimeout(() => {
