@@ -863,11 +863,11 @@ function confirmAddToCart(){
     return;
   }
 
-  const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
-  if (step5 && qty !== 0 && (qty % 5 !== 0)){
-    alert('ملوخية العيدان: لازم الكمية تكون مضاعفات 5 (5، 10، 15...)');
-    return;
-  }
+  const step = getQtyStep(p);
+if (step > 1 && qty !== 0 && (qty % step !== 0)){
+  alert(`لازم الكمية تكون مضاعفات ${step} مثل ${step}، ${step * 2}، ${step * 3}...`);
+  return;
+}
 
   if (qty === 0){
     delete cart[p.id];
