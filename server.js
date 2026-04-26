@@ -313,7 +313,7 @@ app.get('/api/products', (req, res) => {
 });
 
 app.post('/api/products', (req, res) => {
-  const { name, price, description, available, unitType, onCampaign } = req.body;
+  const { name, price, description, available, unitType, onCampaign, qtyStep } = req.body;
 
   db.run(
     `INSERT INTO products (name, price, description, available, unitType, onCampaign)
