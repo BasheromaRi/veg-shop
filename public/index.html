@@ -680,13 +680,11 @@ function escHtml(s){
 }
 
 function buildModalSelectOptions(p, currentQty){
-  let opts = [];
-  const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
+  const step = getQtyStep(p);
+  const opts = [0];
 
-  if (step5) {
-    opts = [0,5,10,15,20];
-  } else {
-    opts = Array.from({length:21}, (_,i)=>i);
+  for (let v = step; v <= step * 20; v += step){
+    opts.push(v);
   }
 
   return opts.map(v => {
