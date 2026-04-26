@@ -316,9 +316,17 @@ app.post('/api/products', (req, res) => {
   const { name, price, description, available, unitType, onCampaign, qtyStep } = req.body;
 
   db.run(
-    `INSERT INTO products (name, price, description, available, unitType, onCampaign)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [name, price, description || '', available ? 1 : 0, unitType || 'kg', onCampaign ? 1 : 0],
+    `INSERT INTO products (name, price, description, available, unitType, onCampaign, qtyStep)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      name,
+      price,
+      description || '',
+      available ? 1 : 0,
+      unitType || 'kg',
+      onCampaign ? 1 : 0,
+      Number(qtyStep) || 1
+    ],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true, productId: this.lastID });
@@ -327,7 +335,7 @@ app.post('/api/products', (req, res) => {
 });
 
 app.put('/api/products/:id', (req, res) => {
-  const { name, price, description, available, unitType, onCampaign } = req.body;
+  const { name, price, description, available, unitType, onCampaign, qtyStep } = req.body;
 
   db.run(
    `UPDATE products
