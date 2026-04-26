@@ -330,10 +330,19 @@ app.put('/api/products/:id', (req, res) => {
   const { name, price, description, available, unitType, onCampaign } = req.body;
 
   db.run(
-    `UPDATE products
-     SET name = ?, price = ?, description = ?, available = ?, unitType = ?, onCampaign = ?
-     WHERE id = ?`,
-    [name, price, description || '', available ? 1 : 0, unitType || 'kg', onCampaign ? 1 : 0, req.params.id],
+   `UPDATE products
+ SET name = ?, price = ?, description = ?, available = ?, unitType = ?, onCampaign = ?, qtyStep = ?
+ WHERE id = ?`,
+[
+  name,
+  price,
+  description || '',
+  available ? 1 : 0,
+  unitType || 'kg',
+  onCampaign ? 1 : 0,
+  Number(qtyStep) || 1,
+  req.params.id
+],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
       res.json({ success: true, changes: this.changes });
