@@ -315,10 +315,16 @@
   });
 
   function calculateTotals(items){
-    const subtotal = (items || []).reduce((sum, item) => {
-      return sum + ((Number(item.price) || 0) * (Number(item.qty) || 0));
-    }, 0);
+  const subtotalRaw = (items || []).reduce((sum, item) => {
+    return sum + ((Number(item.price) || 0) * (Number(item.qty) || 0));
+  }, 0);
 
+  const subtotal = Math.floor(subtotalRaw);
+  const delivery = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
+  const grandTotal = Math.floor(subtotal + delivery);
+
+  return { subtotal, delivery, grandTotal };
+}
     const delivery = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
     const grandTotal = subtotal + delivery;
 
