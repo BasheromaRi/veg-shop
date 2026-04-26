@@ -101,7 +101,8 @@ db.serialize(() => {
     description TEXT DEFAULT '',
     available INTEGER DEFAULT 1,
     unitType TEXT DEFAULT 'kg',
-    onCampaign INTEGER DEFAULT 0
+    onCampaign INTEGER DEFAULT 0,
+    qtyStep INTEGER DEFAULT 1
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS product_images (
