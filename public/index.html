@@ -664,9 +664,9 @@ function closeMenu(){
 
 function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
-function isStepFiveProduct(p){
-  const n = String(p?.name || '');
-  return n.includes('عروق') || n.includes('عيدان') || n.includes('عِيدان');
+function getQtyStep(p){
+  const step = Number(p?.qtyStep) || 1;
+  return step > 0 ? step : 1;
 }
 
 function hasProductCampaign(p){
