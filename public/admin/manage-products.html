@@ -4,14 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>إدارة المنتجات</title>
-
   <link rel="stylesheet" href="/styles.css" />
 
   <style>
     *{ box-sizing:border-box; }
-
     body{ background:#f6f8f7; }
-
     .wrap{ margin-top:12px; }
 
     .panel{
@@ -30,9 +27,10 @@
       color:#0f2b1f;
     }
 
-    .grid-form{
+    .grid-form,
+    .edit-grid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns:1fr 1fr;
       gap:10px;
       align-items:end;
     }
@@ -55,17 +53,7 @@
       outline:none;
     }
 
-    .field textarea{
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    .row-inline{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
+    .field textarea{ min-height:90px; resize:vertical; }
 
     .check{
       display:flex;
@@ -96,12 +84,10 @@
       text-decoration:none;
       white-space:nowrap;
     }
-    .btn:active{ transform:scale(.99); }
 
     .btn-green{ background:#2e8b57; color:#fff; }
     .btn-blue{ background:#2b74c7; color:#fff; }
     .btn-red{ background:#d83a3a; color:#fff; }
-    .btn-light{ background:#eaf5ef; color:#0f2b1f; border:1px solid #cfe3d6; }
 
     .hint{
       margin-top:8px;
@@ -111,12 +97,11 @@
       line-height:1.4;
     }
 
-    /* ✅ قائمة المنتجات */
     .list{
       display:grid;
       gap:12px;
       margin-top:12px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns:repeat(2, minmax(0, 1fr));
       align-items:start;
     }
 
@@ -125,7 +110,7 @@
       border:1px solid #e3ece6;
       border-radius:18px;
       padding:12px;
-      box-shadow: 0 1px 12px rgba(0,0,0,.05);
+      box-shadow:0 1px 12px rgba(0,0,0,.05);
       min-width:0;
     }
 
@@ -160,6 +145,7 @@
       border:1px solid transparent;
       white-space:nowrap;
     }
+
     .b-on{ background:#eaf7ef; border-color:#a8e0be; color:#0f5a2a; }
     .b-off{ background:#ffecec; border-color:#ffc0c0; color:#8a1414; }
 
@@ -171,13 +157,6 @@
       margin-top:10px;
     }
 
-    .edit-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-
     .images{
       margin-top:10px;
       border-top:1px dashed #d7e2db;
@@ -186,11 +165,7 @@
       gap:10px;
     }
 
-    .thumbs{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
+    .thumbs{ display:flex; gap:8px; flex-wrap:wrap; }
 
     .thumb{
       width:74px;
@@ -199,14 +174,6 @@
       border:1px solid #d7e2db;
       object-fit:cover;
       background:#fff;
-    }
-
-    .upload-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:space-between;
     }
 
     .file{
@@ -225,91 +192,35 @@
       word-break:break-word;
     }
 
-    /* تابلت */
-    @media (max-width: 900px){
+    @media (max-width:900px){
       .grid-form{ grid-template-columns:1fr; }
       .edit-grid{ grid-template-columns:1fr; }
     }
 
-    /* ✅ الهاتف: كل ثنتين جنب بعض */
-    @media (max-width: 700px){
+    @media (max-width:700px){
       .list{
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:repeat(2, minmax(0, 1fr));
         gap:10px;
       }
-
-      .card{
-        padding:10px;
-        border-radius:16px;
-      }
-
-      .title{
-        font-size:13px;
-      }
-
-      .sub{
-        font-size:11px;
-      }
-
-      .badge{
-        font-size:10px;
-        padding:5px 8px;
-      }
-
-      .field label{
-        font-size:11px;
-      }
-
-      .field input,
-      .field select,
-      .field textarea{
+      .card{ padding:10px; border-radius:16px; }
+      .title{ font-size:13px; }
+      .sub{ font-size:11px; }
+      .badge{ font-size:10px; padding:5px 8px; }
+      .field label{ font-size:11px; }
+      .field input, .field select, .field textarea{
         padding:8px 10px;
         font-size:12px;
         border-radius:10px;
       }
-
-      .field textarea{
-        min-height:72px;
-      }
-
-      .btn{
-        width:100%;
-        font-size:12px;
-        padding:9px 10px;
-        border-radius:10px;
-      }
-
-      .actions{
-        justify-content:stretch;
-      }
-
-      .thumb{
-        width:56px;
-        height:56px;
-        border-radius:10px;
-      }
-
-      .check{
-        font-size:12px;
-        padding:8px 10px;
-      }
-
-      .file{
-        padding:8px;
-        font-size:12px;
-      }
-
-      .hint,
-      .msg{
-        font-size:11px;
-      }
+      .btn{ width:100%; font-size:12px; padding:9px 10px; }
+      .actions{ justify-content:stretch; }
+      .thumb{ width:56px; height:56px; }
+      .check{ font-size:12px; padding:8px 10px; }
+      .hint, .msg{ font-size:11px; }
     }
 
-    /* شاشة صغيرة جداً */
-    @media (max-width: 360px){
-      .list{
-        grid-template-columns:1fr;
-      }
+    @media (max-width:360px){
+      .list{ grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -317,13 +228,10 @@
 <body style="text-align:right;">
   <header>
     <span>إدارة المنتجات</span>
-    <a href="/admin/secret-admin-9347" style="color:#fff; float:left; text-decoration:none; font-size:14px;">
-      رجوع
-    </a>
+    <a href="/admin/secret-admin-9347" style="color:#fff; float:left; text-decoration:none; font-size:14px;">رجوع</a>
   </header>
 
   <div class="container wrap">
-    <!-- إضافة منتج -->
     <div class="panel">
       <h2>إضافة منتج جديد</h2>
 
@@ -331,7 +239,7 @@
         <div class="grid-form">
           <div class="field">
             <label>اسم المنتج</label>
-            <input id="add_name" required placeholder="مثال: ملوخية مقطّفة" />
+            <input id="add_name" required placeholder="مثال: ملوخية عروق" />
           </div>
 
           <div class="field">
@@ -348,12 +256,25 @@
           </div>
 
           <div class="field">
+            <label>خطوة الكمية</label>
+            <select id="add_qtyStep">
+              <option value="1">كل 1</option>
+              <option value="2">كل 2</option>
+              <option value="3">كل 3</option>
+              <option value="5">كل 5</option>
+              <option value="10">كل 10</option>
+              <option value="14">كل 14</option>
+            </select>
+          </div>
+
+          <div class="field">
             <label>التوفر</label>
             <div class="check">
               <span>متوفر</span>
               <input id="add_available" type="checkbox" checked />
             </div>
           </div>
+
           <div class="field">
             <label>الحملة</label>
             <div class="check">
@@ -361,21 +282,21 @@
               <input id="add_onCampaign" type="checkbox" />
             </div>
           </div>
-          <div class="field" style="grid-column: 1 / -1;">
+
+          <div class="field" style="grid-column:1 / -1;">
             <label>وصف (اختياري)</label>
             <textarea id="add_description" placeholder="وصف قصير للمنتج..."></textarea>
           </div>
 
-          <div style="grid-column: 1 / -1;">
+          <div style="grid-column:1 / -1;">
             <button class="btn btn-green" type="submit">➕ إضافة المنتج</button>
-            <div class="hint">بعد الإضافة بتقدر تعدّل/تحذف وترفع صور للمنتج.</div>
+            <div class="hint">خطوة الكمية: إذا اخترت 5 تظهر للزبون 5، 10، 15، 20...</div>
             <div id="addMsg" class="msg"></div>
           </div>
         </div>
       </form>
     </div>
 
-    <!-- قائمة المنتجات -->
     <div class="panel">
       <h2>المنتجات</h2>
       <div id="list" class="list">تحميل...</div>
@@ -398,15 +319,18 @@
       return { res, data };
     }
 
+    function stepOptions(selected){
+      const steps = [1,2,3,5,10,14];
+      const val = Number(selected) || 1;
+      return steps.map(s => `<option value="${s}" ${val === s ? 'selected' : ''}>كل ${s}</option>`).join('');
+    }
+
     async function loadProducts(){
       listEl.innerHTML = 'تحميل...';
 
       const { res, data } = await api('/api/products', { method:'GET' });
       if (!res.ok){
-        if (res.status === 401){
-          window.location.href = '/login.html';
-          return;
-        }
+        if (res.status === 401){ window.location.href = '/login.html'; return; }
         listEl.innerHTML = `<div class="hint">خطأ في تحميل المنتجات</div>`;
         return;
       }
@@ -425,13 +349,14 @@
 
         const unitLabel = p.unitType === 'bag' ? 'كيس' : 'كغم';
         const imgs = (p.images || []).map(src => `<img class="thumb" src="${esc(src)}" />`).join('');
+        const qtyStep = Number(p.qtyStep) || 1;
 
         return `
           <div class="card" id="p_${esc(p.id)}">
             <div class="card-head">
               <div>
                 <div class="title">#${esc(p.id)} — ${esc(p.name)}</div>
-                <div class="sub">₪${esc(p.price)} لكل ${unitLabel}</div>
+                <div class="sub">₪${esc(p.price)} لكل ${unitLabel} — خطوة: كل ${qtyStep}</div>
               </div>
               ${badge}
             </div>
@@ -456,12 +381,20 @@
               </div>
 
               <div class="field">
+                <label>خطوة الكمية</label>
+                <select id="step_${esc(p.id)}" disabled>
+                  ${stepOptions(qtyStep)}
+                </select>
+              </div>
+
+              <div class="field">
                 <label>التوفر</label>
                 <div class="check">
                   <span>${available ? 'متوفر' : 'غير متوفر'}</span>
                   <input id="avail_${esc(p.id)}" type="checkbox" ${available?'checked':''} disabled />
                 </div>
               </div>
+
               <div class="field">
                 <label>الحملة</label>
                 <div class="check">
@@ -469,7 +402,8 @@
                   <input id="camp_${esc(p.id)}" type="checkbox" ${p.onCampaign ? 'checked' : ''} disabled />
                 </div>
               </div>
-              <div class="field" style="grid-column: 1 / -1;">
+
+              <div class="field" style="grid-column:1 / -1;">
                 <label>الوصف</label>
                 <textarea id="desc_${esc(p.id)}" disabled>${esc(p.description||'')}</textarea>
               </div>
@@ -482,18 +416,11 @@
             </div>
 
             <div class="images">
-              <div class="upload-row">
-                <div style="font-weight:1000; color:#0f2b1f;">صور المنتج</div>
-              </div>
-
+              <div style="font-weight:1000; color:#0f2b1f;">صور المنتج</div>
               <div class="thumbs">
                 ${imgs || `<div class="hint">لا يوجد صور بعد.</div>`}
               </div>
-
-              <div class="upload-row">
-                <input class="file" type="file" accept="image/*" multiple
-                  onchange="uploadImages(${esc(p.id)}, this.files)" />
-              </div>
+              <input class="file" type="file" accept="image/*" multiple onchange="uploadImages(${esc(p.id)}, this.files)" />
             </div>
 
             <div id="msg_${esc(p.id)}" class="msg"></div>
@@ -503,12 +430,10 @@
     }
 
     window.enableEdit = function(id){
-      document.getElementById(`name_${id}`).disabled = false;
-      document.getElementById(`price_${id}`).disabled = false;
-      document.getElementById(`unit_${id}`).disabled = false;
-      document.getElementById(`avail_${id}`).disabled = false;
-      document.getElementById(`desc_${id}`).disabled = false;
-      document.getElementById(`camp_${id}`).disabled = false;
+      ['name','price','unit','step','avail','desc','camp'].forEach(k => {
+        const el = document.getElementById(`${k}_${id}`);
+        if (el) el.disabled = false;
+      });
 
       const m = document.getElementById(`msg_${id}`);
       m.style.color = '#2b74c7';
@@ -520,14 +445,15 @@
       m.style.color = '#d83a3a';
       m.textContent = '';
 
-     const payload = {
-      name: document.getElementById(`name_${id}`).value.trim(),
-      price: Number(document.getElementById(`price_${id}`).value),
-      unitType: document.getElementById(`unit_${id}`).value,
-      available: !!document.getElementById(`avail_${id}`).checked,
-      onCampaign: !!document.getElementById(`camp_${id}`).checked,
-      description: document.getElementById(`desc_${id}`).value.trim()
-    };
+      const payload = {
+        name: document.getElementById(`name_${id}`).value.trim(),
+        price: Number(document.getElementById(`price_${id}`).value),
+        unitType: document.getElementById(`unit_${id}`).value,
+        qtyStep: Number(document.getElementById(`step_${id}`).value) || 1,
+        available: !!document.getElementById(`avail_${id}`).checked,
+        onCampaign: !!document.getElementById(`camp_${id}`).checked,
+        description: document.getElementById(`desc_${id}`).value.trim()
+      };
 
       const { res, data } = await api(`/api/products/${id}`, {
         method:'PUT',
@@ -543,13 +469,6 @@
 
       m.style.color = '#2e8b57';
       m.textContent = 'تم الحفظ ✅';
-
-      document.getElementById(`name_${id}`).disabled = true;
-        document.getElementById(`price_${id}`).disabled = true;
-        document.getElementById(`unit_${id}`).disabled = true;
-        document.getElementById(`avail_${id}`).disabled = true;
-        document.getElementById(`camp_${id}`).disabled = true;
-        document.getElementById(`desc_${id}`).disabled = true;
 
       loadProducts();
     }
@@ -597,6 +516,7 @@
         price: Number(document.getElementById('add_price').value),
         description: document.getElementById('add_description').value.trim(),
         unitType: document.getElementById('add_unitType').value,
+        qtyStep: Number(document.getElementById('add_qtyStep').value) || 1,
         available: !!document.getElementById('add_available').checked,
         onCampaign: !!document.getElementById('add_onCampaign').checked
       };
@@ -619,8 +539,9 @@
       e.target.reset();
       document.getElementById('add_available').checked = true;
       document.getElementById('add_unitType').value = 'kg';
+      document.getElementById('add_qtyStep').value = '1';
       document.getElementById('add_onCampaign').checked = false;
-      
+
       loadProducts();
       setTimeout(()=> addMsg.textContent='', 2500);
     });
