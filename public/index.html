@@ -912,7 +912,7 @@ function updateCartCount() {
   const totalEl = document.getElementById('cartTotal');
 
   if (countEl) countEl.textContent = itemCount;
-  if (totalEl) totalEl.textContent = `₪${totalPrice}`;
+  if (totalEl) totalEl.textContent = `₪${Math.floor(totalPrice)}`;
 }
 
 function goToCart() {
