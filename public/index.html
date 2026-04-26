@@ -794,7 +794,7 @@ function openQtyModal(productId, btn){
 
   const currentQty = Number(cart[p.id]?.qty || 0);
   const u = unitLabel(p.unitType);
-  const step5 = (isStepFiveProduct(p) && p.unitType !== 'bag');
+  const step = getQtyStep(p);
 
   document.getElementById('modalProductName').textContent = p.name;
   document.getElementById('modalProductDesc').textContent = p.description || '';
