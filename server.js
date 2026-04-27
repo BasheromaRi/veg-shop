@@ -462,11 +462,11 @@ app.post('/api/orders', (req, res) => {
 const delivery = cleanSubtotal >= 300 ? 0 : 30;
 const total = Math.round(cleanSubtotal + delivery);
 
-      const itemsText = (items || []).map(i => {
-        const unit = i.unitType === 'bag' ? 'كيس' : 'كغم';
-        const line = Math.round((Number(i.price) || 0) * (Number(i.qty) || 0));
-        return `• ${i.name} — ${i.qty} ${unit} — ₪${line}`;
-      }).join('\n');
+const itemsText = (items || []).map(i => {
+  const unit = i.unitType === 'bag' ? 'كيس' : 'كغم';
+  const line = Math.round((Number(i.price) || 0) * (Number(i.qty) || 0));
+  return `• ${i.name} — ${i.qty} ${unit} — ₪${line}`;
+}).join('\n');
 
       const msg = `🆕 طلب جديد #${orderId}
 
