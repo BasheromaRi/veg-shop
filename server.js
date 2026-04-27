@@ -145,6 +145,8 @@ db.serialize(() => {
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS || 'Q1azP0lm';
 const COURIER_PIN = process.env.COURIER_PIN || '7788';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = '795056938';
 
 /* ================== MIDDLEWARE ================== */
 app.use(cors({ origin: true, credentials: true }));
@@ -393,7 +395,30 @@ app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
 
   res.json({ success: true, files: req.files.length });
 });
+async function sendTelegramMessage(text) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.log('Telegram not configured');
+    return;
+  }
 
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text
+      })
+    });
+
+    if (!res.ok) {
+      const data = await res.text();
+      console.error('Telegram send failed:', data);
+    }
+  } catch (err) {
+    console.error('Telegram error:', err);
+  }
+}
 /* ================== ORDERS ================== */
 app.get('/api/orders', (req, res) => {
   db.all('SELECT * FROM orders ORDER BY id DESC', [], (err, rows) => {
@@ -420,7 +445,41 @@ app.post('/api/orders', (req, res) => {
     ],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true, orderId: this.lastID });
+
+      const orderId = this.lastID;
+
+      const subtotal = (items || []).reduce((sum, i) => {
+        return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
+      }, 0);
+
+      const cleanSubtotal = Math.floor(subtotal);
+      const delivery = cleanSubtotal >= 300 ? 0 : 30;
+      const total = cleanSubtotal + delivery;
+
+      const itemsText = (items || []).map(i => {
+        const unit = i.unitType === 'bag' ? 'كيس' : 'كغم';
+        const line = Math.floor((Number(i.price) || 0) * (Number(i.qty) || 0));
+        return `• ${i.name} — ${i.qty} ${unit} — ₪${line}`;
+      }).join('\n');
+
+      const msg = `🆕 طلب جديد #${orderId}
+
+👤 الاسم: ${name || '-'}
+📞 الهاتف: ${phone || '-'}
+📍 البلد: ${country || '-'}
+🏠 العنوان: ${address || '-'}
+📝 ملاحظات: ${notes || '-'}
+
+🛒 المنتجات:
+${itemsText || '-'}
+
+💰 المجموع قبل التوصيل: ₪${cleanSubtotal}
+🚚 التوصيل: ${delivery === 0 ? 'مجاني ✅' : '₪30'}
+✅ المجموع الكلي: ₪${total}`;
+
+      sendTelegramMessage(msg);
+
+      res.json({ success: true, orderId });
     }
   );
 });
