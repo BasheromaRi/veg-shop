@@ -64,6 +64,9 @@ function ensureOrderColumns() {
     if (!names.has('cancelReason')) {
       addCol(`ALTER TABLE orders ADD COLUMN cancelReason TEXT DEFAULT ''`);
     }
+    if (!names.has('deliveryRegion')) {
+      addCol(`ALTER TABLE orders ADD COLUMN deliveryRegion TEXT DEFAULT ''`);
+    }
   });
 }
 
@@ -122,6 +125,7 @@ db.serialize(() => {
     status TEXT DEFAULT 'new',
     assignedToCourier INTEGER DEFAULT 0,
     cancelReason TEXT DEFAULT '',
+    deliveryRegion TEXT DEFAULT '',
     createdAt TEXT
   )`);
 
@@ -428,21 +432,22 @@ app.get('/api/orders', (req, res) => {
 });
 
 app.post('/api/orders', (req, res) => {
-  const { items, phone, country, address, name, notes } = req.body;
+  const { items, phone, country, address, name, notes, deliveryRegion } = req.body;
 
   db.run(
-    `INSERT INTO orders (name, phone, country, address, notes, items, status, createdAt)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO orders (name, phone, country, address, notes, deliveryRegion, items, status, createdAt)
+ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      name || '',
-      phone || '',
-      country || '',
-      address || '',
-      notes || '',
-      JSON.stringify(items || []),
-      'new',
-      new Date().toISOString(),
-    ],
+  name || '',
+  phone || '',
+  country || '',
+  address || '',
+  notes || '',
+  deliveryRegion || '',
+  JSON.stringify(items || []),
+  'new',
+  new Date().toISOString(),
+],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
 
@@ -467,6 +472,7 @@ app.post('/api/orders', (req, res) => {
 👤 الاسم: ${name || '-'}
 📞 الهاتف: ${phone || '-'}
 📍 البلد: ${country || '-'}
+🗺️ المنطقة: ${deliveryRegion || '-'}
 🏠 العنوان: ${address || '-'}
 📝 ملاحظات: ${notes || '-'}
 
@@ -496,7 +502,18 @@ app.put('/api/orders/:id/status', (req, res) => {
     }
   );
 });
+app.put('/api/orders/:id/region', (req, res) => {
+  const { deliveryRegion } = req.body;
 
+  db.run(
+    'UPDATE orders SET deliveryRegion = ? WHERE id = ?',
+    [deliveryRegion || '', req.params.id],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, changes: this.changes });
+    }
+  );
+});
 app.delete('/api/orders/:id', (req, res) => {
   db.run('DELETE FROM orders WHERE id = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: 'DB error' });
