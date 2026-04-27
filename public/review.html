@@ -92,6 +92,15 @@
     }
 
     .field input,
+    .field select{
+      width:100%;
+      padding:13px 14px;
+      border:1px solid #d7e2db;
+      border-radius:16px;
+      font-size:16px;
+      background:#fff;
+      color:#1f3b2d;
+    }
     .field textarea{
       width:100%;
       max-width:100%;
@@ -248,9 +257,22 @@
       <label>البلد</label>
       <input type="text" id="country" required>
     </div>
-
+    <div class="field">
+      
+  <label>المنطقة</label>
+  <select id="deliveryRegion" required>
+    <option value="">اختر المنطقة</option>
+    <option value="الشمال">الشمال</option>
+    <option value="الجنوب">الجنوب</option>
+    <option value="المثلث">المثلث</option>
+    <option value="المركز">المركز</option>
+    <option value="الجولان">الجولان</option>
+    <option value="الهضبة">الهضبة</option>
+  </select>
+</div>
     <div class="field">
       <label>العنوان</label>
+      
       <input type="text" id="address" required autocomplete="street-address">
     </div>
 
@@ -268,7 +290,7 @@
 
 <script>
   let cart = {};
-
+  const elRegion = document.getElementById('deliveryRegion');
   const cartBox = document.getElementById('cartBox');
   const form = document.getElementById('orderForm');
   const submitBtn = document.getElementById('submitBtn');
@@ -401,10 +423,11 @@
       country: (elCountry.value || '').trim(),
       address: (elAddress.value || '').trim(),
       notes: (elNotes.value || '').trim(),
+      deliveryRegion: elRegion.value,
       items
     };
 
-    if(!order.name || !order.phone || !order.country || !order.address){
+    if(!order.name || !order.phone || !order.country || !order.address || !order.deliveryRegion){
       alert('رجاءً عبّي كل الحقول المطلوبة');
       return;
     }
