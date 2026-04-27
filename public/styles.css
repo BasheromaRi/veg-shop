@@ -467,3 +467,20 @@ body::after{
 .menu-overlay.show{
   display:block;
 }
+.whatsapp-float {
+  position: fixed;
+  bottom: 100px; /* فوق السلة */
+  left: 15px;
+  width: 60px;
+  height: 60px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  z-index: 9999;
+  text-decoration: none;
+}
