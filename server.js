@@ -550,14 +550,25 @@ app.put('/api/orders/:id/assign', (req, res) => {
 /* ================== REPORTS ================== */
 app.get('/api/reports/totals', (req, res) => {
   const status = String(req.query.status || 'all').trim();
+  const region = String(req.query.region || 'all').trim();
 
-  let sql = 'SELECT status, items FROM orders';
-  const params = [];
+  let sql = 'SELECT status, deliveryRegion, items FROM orders';
+const params = [];
+const where = [];
 
-  if (status !== 'all') {
-    sql += ' WHERE status = ?';
-    params.push(status);
-  }
+if (status !== 'all') {
+  where.push('status = ?');
+  params.push(status);
+}
+
+if (region !== 'all') {
+  where.push('deliveryRegion = ?');
+  params.push(region);
+}
+
+if (where.length) {
+  sql += ' WHERE ' + where.join(' AND ');
+}
 
   db.all(sql, params, (err, rows) => {
     if (err) {
