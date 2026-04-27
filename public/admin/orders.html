@@ -373,10 +373,11 @@
       return subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
     }
     function calcGrandTotal(items){
-      const subtotal = calcSubtotal(items);
-      const delivery = calcDelivery(subtotal);
-      return { subtotal, delivery, total: subtotal + delivery };
-    }
+  const subtotal = Math.round(calcSubtotal(items));
+  const delivery = calcDelivery(subtotal);
+  const total = Math.round(subtotal + delivery);
+  return { subtotal, delivery, total };
+}
 
     function normalizeOrder(o){
       let items = o.items;
@@ -488,7 +489,7 @@ ${items || '- (لا يوجد منتجات)'}
 
         const itemsHtml = (o.items || []).map(it => {
           const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
-          const line = (Number(it.price)||0) * (Number(it.qty)||0);
+          const line = Math.round((Number(it.price)||0) * (Number(it.qty)||0));
           return `
             <div class="itemLine">
               <div>
