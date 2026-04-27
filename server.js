@@ -453,17 +453,14 @@ app.post('/api/orders', (req, res) => {
 
       const orderId = this.lastID;
 
-      const subtotal = Math.round(
+      const cleanSubtotal = Math.round(
   (items || []).reduce((sum, i) => {
     return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
   }, 0)
-);btotal = (items || []).reduce((sum, i) => {
-        return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
-      }, 0);
+);
 
-      const cleanSubtotal = Math.floor(subtotal);
-      const delivery = cleanSubtotal >= 300 ? 0 : 30;
-      const total = cleanSubtotal + delivery;
+const delivery = cleanSubtotal >= 300 ? 0 : 30;
+const total = Math.round(cleanSubtotal + delivery);
 
       const itemsText = (items || []).map(i => {
         const unit = i.unitType === 'bag' ? 'كيس' : 'كغم';
