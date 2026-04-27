@@ -453,7 +453,11 @@ app.post('/api/orders', (req, res) => {
 
       const orderId = this.lastID;
 
-      const subtotal = (items || []).reduce((sum, i) => {
+      const subtotal = Math.round(
+  (items || []).reduce((sum, i) => {
+    return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
+  }, 0)
+);btotal = (items || []).reduce((sum, i) => {
         return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
       }, 0);
 
@@ -463,7 +467,7 @@ app.post('/api/orders', (req, res) => {
 
       const itemsText = (items || []).map(i => {
         const unit = i.unitType === 'bag' ? 'كيس' : 'كغم';
-        const line = Math.floor((Number(i.price) || 0) * (Number(i.qty) || 0));
+        const line = Math.round((Number(i.price) || 0) * (Number(i.qty) || 0));
         return `• ${i.name} — ${i.qty} ${unit} — ₪${line}`;
       }).join('\n');
 
