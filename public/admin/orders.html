@@ -293,6 +293,20 @@
         <button class="pill" data-filter="out_for_delivery">🚚 قيد التوصيل</button>
         <button class="pill" data-filter="done">تم التوصيل</button>
         <button class="pill" data-filter="cancelled">ملغي</button>
+        <div class="filters" style="margin-top:8px;">
+        <button class="pill active" data-region="all">كل المناطق</button>
+        <button class="pill" data-region="الشمال">الشمال</button>
+        <button class="pill" data-region="الجنوب">الجنوب</button>
+        <button class="pill" data-region="المثلث">المثلث</button>
+        <button class="pill" data-region="المركز">المركز</button>
+        <button class="pill" data-region="الجولان / الهضبة">الجولان</button>        
+        <button class="pill" data-region="منطقة 1">منطقة 1</button>
+        <button class="pill" data-region="منطقة 2">منطقة 2</button>
+        <button class="pill" data-region="منطقة 3">منطقة 3</button>
+        <button class="pill" data-region="منطقة 4">منطقة 4</button>
+        <button class="pill" data-region="منطقة 5">منطقة 5</button>
+        <button class="pill" data-region="منطقة 6">منطقة 6</button>
+      </div>
       </div>
 
       <div class="search">
@@ -317,7 +331,8 @@
 
     let orders = [];
     let currentFilter = 'all';
-
+    let currentRegion = 'all';]
+    
     const FREE_DELIVERY_FROM = 300;
     const DELIVERY_FEE = 30;
     const DEFAULT_COUNTRY_CODE = '972';
@@ -373,7 +388,8 @@
         items: Array.isArray(items) ? items : [],
         assignedToCourier: Number(o.assignedToCourier || 0),
         cancelReason: o.cancelReason || '',
-        notes: o.notes || ''
+        notes: o.notes || '',
+        deliveryRegion: o.deliveryRegion || ''
       };
     }
 
@@ -439,10 +455,17 @@ ${items || '- (لا يوجد منتجات)'}
     }
 
     function matchesFilter(order){
-      if (currentFilter === 'all') return true;
-      if (currentFilter === 'courier') return Number(order.assignedToCourier || 0) === 1;
-      return (order.status || 'new') === currentFilter;
-    }
+  const statusOk =
+    currentFilter === 'all' ||
+    (currentFilter === 'courier' && Number(order.assignedToCourier || 0) === 1) ||
+    (order.status || 'new') === currentFilter;
+
+  const regionOk =
+    currentRegion === 'all' ||
+    (order.deliveryRegion || '') === currentRegion;
+
+  return statusOk && regionOk;
+}
 
     function render(){
       const text = q.value.trim();
@@ -501,6 +524,7 @@ ${items || '- (لا يوجد منتجات)'}
               <div class="row"><div class="label">الهاتف</div><div class="val valNum">${esc(o.phone || '-')}</div></div>
               <div class="row"><div class="label">البلد</div><div class="val">${esc(o.country || '-')}</div></div>
               <div class="row"><div class="label">العنوان</div><div class="val">${esc(o.address || '-')}</div></div>
+              <div class="row"><div class="label">المنطقة</div><div class="val">${esc(o.deliveryRegion || '-')}</div></div>
               <div class="row"><div class="label">ملاحظات</div><div class="val">${esc(o.notes || '-')}</div></div>
             </div>
 
@@ -530,6 +554,23 @@ ${items || '- (لا يوجد منتجات)'}
               </select>
             </div>
 
+            <div class="statusLine">
+                <div style="font-weight:1000;">تغيير المنطقة</div>
+                <select onchange="updateRegion(${esc(o.id)}, this.value)">
+                  <option value="" ${(o.deliveryRegion||'')==='' ? 'selected':''}>بدون منطقة</option>
+                  <option value="الشمال" ${(o.deliveryRegion||'')==='الشمال' ? 'selected':''}>الشمال</option>
+                  <option value="الجنوب" ${(o.deliveryRegion||'')==='الجنوب' ? 'selected':''}>الجنوب</option>
+                  <option value="المثلث" ${(o.deliveryRegion||'')==='المثلث' ? 'selected':''}>المثلث</option>
+                  <option value="المركز" ${(o.deliveryRegion||'')==='المركز' ? 'selected':''}>المركز</option>
+                  <option value="الجولان" ${(o.deliveryRegion||'')==='الجولان' ? 'selected':''}>الجولان</option>
+                  <option value="منطقة 1" ${(o.deliveryRegion||'')==='منطقة 1' ? 'selected':''}>منطقة 1</option>
+                  <option value="منطقة 2" ${(o.deliveryRegion||'')==='منطقة 2' ? 'selected':''}>منطقة 2</option>
+                  <option value="منطقة 3" ${(o.deliveryRegion||'')==='منطقة 3' ? 'selected':''}>منطقة 3</option>
+                  <option value="منطقة 4" ${(o.deliveryRegion||'')==='منطقة 4' ? 'selected':''}>منطقة 4</option>
+                  <option value="منطقة 5" ${(o.deliveryRegion||'')==='منطقة 5' ? 'selected':''}>منطقة 5</option>
+                  <option value="منطقة 6" ${(o.deliveryRegion||'')==='منطقة 6' ? 'selected':''}>منطقة 6</option>
+                </select>
+              </div>
             <div class="actions">
               ${
                 waLink
@@ -561,6 +602,14 @@ ${items || '- (لا يوجد منتجات)'}
       });
     });
 
+    document.querySelectorAll('[data-region]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-region]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRegion = btn.dataset.region;
+      render();
+    });
+  });
     q.addEventListener('input', () => render());
 
     window.updateStatus = async function(id, status){
@@ -661,7 +710,30 @@ ${items || '- (لا يوجد منتجات)'}
         alert('مشكلة اتصال بالسيرفر');
       }
     };
+    window.updateRegion = async function(id, deliveryRegion){
+  try{
+    const res = await fetch(`/api/orders/${id}/region`, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body: JSON.stringify({ deliveryRegion })
+    });
 
+    if (!res.ok){
+      if (res.status === 401){ window.location.href = '/login.html'; return; }
+      alert('فشل تغيير المنطقة');
+      return;
+    }
+
+    const idx = orders.findIndex(o => o.id == id);
+    if (idx >= 0) orders[idx].deliveryRegion = deliveryRegion;
+
+    render();
+  }catch(err){
+    console.error(err);
+    alert('مشكلة اتصال بالسيرفر');
+  }
+};
     fetchOrders();
   </script>
 </body>
