@@ -434,39 +434,43 @@ app.get('/api/orders', (req, res) => {
 app.post('/api/orders', (req, res) => {
   const { items, phone, country, address, name, notes, deliveryRegion } = req.body;
 
+  const safeItems = Array.isArray(items) ? items : [];
+
   db.run(
     `INSERT INTO orders (name, phone, country, address, notes, deliveryRegion, items, status, createdAt)
- VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-  name || '',
-  phone || '',
-  country || '',
-  address || '',
-  notes || '',
-  deliveryRegion || '',
-  JSON.stringify(items || []),
-  'new',
-  new Date().toISOString(),
-],
+      name || '',
+      phone || '',
+      country || '',
+      address || '',
+      notes || '',
+      deliveryRegion || '',
+      JSON.stringify(safeItems),
+      'new',
+      new Date().toISOString(),
+    ],
     function (err) {
       if (err) return res.status(500).json({ error: 'DB error' });
 
       const orderId = this.lastID;
 
       const cleanSubtotal = Math.round(
-  (items || []).reduce((sum, i) => {
-    return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
-  }, 0)
-);
+        safeItems.reduce((sum, i) => {
+          const price = Number(i.price) || 0;
+          const qty = Number(i.qty) || 0;
+          return sum + (price * qty);
+        }, 0)
+      );
 
-const delivery = cleanSubtotal >= 300 ? 0 : 30;
-const total = Math.round(cleanSubtotal + delivery);
+      const delivery = cleanSubtotal >= 300 ? 0 : 30;
+      const total = Math.round(cleanSubtotal + delivery);
 
-const itemsText = (items || []).map(i => {
-  const unit = i.unitType === 'bag' ? 'كيس' : 'كغم';
-  const line = Math.round((Number(i.price) || 0) * (Number(i.qty) || 0));
-  return `• ${i.name} — ${i.qty} ${unit} — ₪${line}`;
-}).join('\n');
+      const itemsText = safeItems.map(i => {
+        const unit = i.unitType === 'bag' ? 'كيس' : 'كغم';
+        const line = Math.round((Number(i.price) || 0) * (Number(i.qty) || 0));
+        return `• ${i.name} — ${i.qty} ${unit} — ₪${line}`;
+      }).join('\n');
 
       const msg = `🆕 طلب جديد #${orderId}
 
