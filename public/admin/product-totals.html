@@ -27,19 +27,34 @@
 
   <div class="container">
     <div class="box">
-      <div class="row">
-        <div style="font-weight:1000;">اختار حالة الطلب</div>
-        <div class="pills">
-          <button class="pill active" data-s="all">الكل</button>
-          <button class="pill" data-s="new">جديد</button>
-          <button class="pill" data-s="contacted">تم التواصل</button>
-          <button class="pill" data-s="in_progress">قيد التحضير</button>
-          <button class="pill" data-s="done">تم التوصيل</button>
-          <button class="pill" data-s="cancelled">ملغي</button>
-        </div>
+      <div style="font-weight:1000; margin-bottom:8px;">اختار حالة الطلب</div>
+      <div class="pills">
+        <button class="pill active" data-s="all">الكل</button>
+        <button class="pill" data-s="new">جديد</button>
+        <button class="pill" data-s="contacted">تم التواصل</button>
+        <button class="pill" data-s="out_for_delivery">قيد التوصيل</button>
+        <button class="pill" data-s="done">تم التوصيل</button>
+        <button class="pill" data-s="cancelled">ملغي</button>
       </div>
+
+      <div style="font-weight:1000; margin:14px 0 8px;">اختار المنطقة</div>
+      <div class="pills">
+        <button class="pill active" data-r="all">كل المناطق</button>
+        <button class="pill" data-r="الشمال">الشمال</button>
+        <button class="pill" data-r="الجنوب">الجنوب</button>
+        <button class="pill" data-r="المثلث">المثلث</button>
+        <button class="pill" data-r="المركز">المركز</button>
+        <button class="pill" data-r="الجولان / الهضبة">الجولان / الهضبة</button>
+        <button class="pill" data-r="منطقة 1">منطقة 1</button>
+        <button class="pill" data-r="منطقة 2">منطقة 2</button>
+        <button class="pill" data-r="منطقة 3">منطقة 3</button>
+        <button class="pill" data-r="منطقة 4">منطقة 4</button>
+        <button class="pill" data-r="منطقة 5">منطقة 5</button>
+        <button class="pill" data-r="منطقة 6">منطقة 6</button>
+      </div>
+
       <div class="muted" style="margin-top:8px;">
-        النتيجة بتعرض مجموع الكميات لكل منتج حسب الحالة اللي اخترتها.
+        النتيجة بتعرض مجموع الكميات حسب الحالة والمنطقة.
       </div>
     </div>
 
@@ -49,15 +64,17 @@
   <script>
     const list = document.getElementById('list');
     let currentStatus = 'all';
+    let currentRegion = 'all';
 
     function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
     async function loadTotals(){
       list.textContent = 'تحميل...';
+
       try{
-        const res = await fetch(`/api/reports/totals?status=${encodeURIComponent(currentStatus)}`, {
-          credentials:'include'
-        });
+        const url = `/api/reports/totals?status=${encodeURIComponent(currentStatus)}&region=${encodeURIComponent(currentRegion)}`;
+
+        const res = await fetch(url, { credentials:'include' });
 
         if(!res.ok){
           if(res.status===401){ window.location.href='/login.html'; return; }
@@ -69,7 +86,7 @@
         const totals = data.totals || [];
 
         if(!totals.length){
-          list.textContent = 'لا توجد بيانات لهذه الحالة.';
+          list.textContent = 'لا توجد بيانات لهذه الحالة والمنطقة.';
           return;
         }
 
@@ -79,7 +96,7 @@
               <div class="name">${t.name}</div>
               <div class="muted">${unitLabel(t.unitType)}</div>
             </div>
-            <div class="qty">${Number(t.totalQty || 0)} ${unitLabel(t.unitType)}</div>
+            <div class="qty">${Math.floor(Number(t.totalQty || 0))} ${unitLabel(t.unitType)}</div>
           </div>
         `).join('');
 
@@ -89,11 +106,20 @@
       }
     }
 
-    document.querySelectorAll('.pill').forEach(b=>{
+    document.querySelectorAll('[data-s]').forEach(b=>{
       b.addEventListener('click', ()=>{
-        document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+        document.querySelectorAll('[data-s]').forEach(x=>x.classList.remove('active'));
         b.classList.add('active');
         currentStatus = b.dataset.s;
+        loadTotals();
+      });
+    });
+
+    document.querySelectorAll('[data-r]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        document.querySelectorAll('[data-r]').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        currentRegion = b.dataset.r;
         loadTotals();
       });
     });
