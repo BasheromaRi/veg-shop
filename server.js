@@ -773,6 +773,6 @@ app.put('/api/courier/orders/:id/cancel', (req, res) => {
 });
 
 /* ================== START ================== */
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
