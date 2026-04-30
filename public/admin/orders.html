@@ -775,6 +775,16 @@ ${items || '- (لا يوجد منتجات)'}
       <input id="e_phone_${id}" value="${esc(o.phone)}" placeholder="الهاتف" style="width:100%;padding:10px;margin:5px 0;">
       <input id="e_country_${id}" value="${esc(o.country)}" placeholder="البلد" style="width:100%;padding:10px;margin:5px 0;">
       <input id="e_address_${id}" value="${esc(o.address)}" placeholder="العنوان" style="width:100%;padding:10px;margin:5px 0;">
+      <select id="e_region_${id}" style="width:100%;padding:10px;margin:5px 0;">
+      <option value="" ${(o.deliveryRegion||'')==='' ? 'selected' : ''}>بدون منطقة</option>
+      <option value="الشمال" ${(o.deliveryRegion||'')==='الشمال' ? 'selected' : ''}>الشمال</option>
+      <option value="حيفا" ${(o.deliveryRegion||'')==='حيفا' ? 'selected' : ''}>حيفا</option>
+      <option value="الناصرة وضواحيها" ${(o.deliveryRegion||'')==='الناصرة وضواحيها' ? 'selected' : ''}>الناصرة وضواحيها</option>
+      <option value="الجنوب" ${(o.deliveryRegion||'')==='الجنوب' ? 'selected' : ''}>الجنوب</option>
+      <option value="المثلث" ${(o.deliveryRegion||'')==='المثلث' ? 'selected' : ''}>المثلث</option>
+      <option value="المركز" ${(o.deliveryRegion||'')==='المركز' ? 'selected' : ''}>المركز</option>
+      <option value="الجولان / الهضبة" ${(o.deliveryRegion||'')==='الجولان / الهضبة' ? 'selected' : ''}>الجولان / الهضبة</option>
+    </select>
       <textarea id="e_notes_${id}" placeholder="ملاحظات" style="width:100%;padding:10px;margin:5px 0;min-height:70px;">${esc(o.notes)}</textarea>
 
       <div style="font-weight:1000;margin-top:10px;">المنتجات</div>
@@ -852,7 +862,7 @@ window.saveEditOrder = async function(id){
     country: document.getElementById(`e_country_${id}`).value.trim(),
     address: document.getElementById(`e_address_${id}`).value.trim(),
     notes: document.getElementById(`e_notes_${id}`).value.trim(),
-    deliveryRegion: old?.deliveryRegion || '',
+    deliveryRegion: document.getElementById(`e_region_${id}`).value,
     items
   };
 
