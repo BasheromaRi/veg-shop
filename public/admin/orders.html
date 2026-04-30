@@ -736,98 +736,101 @@ ${items || '- (لا يوجد منتجات)'}
     alert('مشكلة اتصال بالسيرفر');
   }
 };
-    window.editOrder = async function(id){
-  const order = orders.find(o => o.id == id);
-  if (!order) return alert('الطلب غير موجود');
+    window.editOrder = function(id){
+  const o = orders.find(x => x.id == id);
+  if (!o) return alert('الطلب غير موجود');
 
-  const name = prompt('اسم الزبون:', order.name || '');
-  if (name === null) return;
+  const card = document.querySelector(`button[onclick="editOrder(${id})"]`).closest('.orderCard');
 
-  const phone = prompt('الهاتف:', order.phone || '');
-  if (phone === null) return;
+  const itemsRows = (o.items || []).map((it, i) => `
+    <div class="editItem" style="border:1px solid #d7e2db;border-radius:12px;padding:8px;margin:8px 0;">
+      <input data-k="name" data-i="${i}" value="${esc(it.name)}" placeholder="اسم المنتج" style="width:100%;padding:8px;margin-bottom:6px;">
+      <div style="display:flex;gap:6px;">
+        <input data-k="qty" data-i="${i}" type="number" step="0.5" value="${esc(it.qty)}" placeholder="كمية" style="width:33%;padding:8px;">
+        <input data-k="price" data-i="${i}" type="number" step="0.5" value="${esc(it.price)}" placeholder="سعر" style="width:33%;padding:8px;">
+        <select data-k="unitType" data-i="${i}" style="width:34%;padding:8px;min-width:unset;">
+          <option value="kg" ${it.unitType !== 'bag' ? 'selected' : ''}>كغم</option>
+          <option value="bag" ${it.unitType === 'bag' ? 'selected' : ''}>كيس</option>
+        </select>
+      </div>
+      <button class="btn btn-red" type="button" onclick="this.closest('.editItem').remove()">حذف المنتج</button>
+    </div>
+  `).join('');
 
-  const country = prompt('البلد:', order.country || '');
-  if (country === null) return;
+  card.innerHTML += `
+    <div id="editBox_${id}" style="margin-top:12px;border:2px solid #2b74c7;border-radius:16px;padding:12px;background:#f7fbff;">
+      <h3 style="margin:0 0 10px;">تعديل الطلب #${id}</h3>
 
-  const address = prompt('العنوان:', order.address || '');
-  if (address === null) return;
+      <input id="e_name_${id}" value="${esc(o.name)}" placeholder="الاسم" style="width:100%;padding:10px;margin:5px 0;">
+      <input id="e_phone_${id}" value="${esc(o.phone)}" placeholder="الهاتف" style="width:100%;padding:10px;margin:5px 0;">
+      <input id="e_country_${id}" value="${esc(o.country)}" placeholder="البلد" style="width:100%;padding:10px;margin:5px 0;">
+      <input id="e_address_${id}" value="${esc(o.address)}" placeholder="العنوان" style="width:100%;padding:10px;margin:5px 0;">
+      <textarea id="e_notes_${id}" placeholder="ملاحظات" style="width:100%;padding:10px;margin:5px 0;min-height:70px;">${esc(o.notes)}</textarea>
 
-  const notes = prompt('ملاحظات:', order.notes || '');
-  if (notes === null) return;
+      <div style="font-weight:1000;margin-top:10px;">المنتجات</div>
+      <div id="editItems_${id}">${itemsRows}</div>
 
-  let items = JSON.parse(JSON.stringify(order.items || []));
+      <button class="btn btn-light" type="button" onclick="addEditItem(${id})">➕ إضافة منتج</button>
 
-  let msg = 'المنتجات الحالية:\n\n';
-  items.forEach((it, index) => {
-    msg += `${index + 1}) ${it.name} - كمية: ${it.qty} - سعر: ${it.price}\n`;
+      <div class="actions">
+        <button class="btn btn-green" type="button" onclick="saveEditOrder(${id})">💾 حفظ التعديل</button>
+        <button class="btn btn-red" type="button" onclick="document.getElementById('editBox_${id}').remove()">إلغاء</button>
+      </div>
+    </div>
+  `;
+};
+
+window.addEditItem = function(id){
+  document.getElementById(`editItems_${id}`).insertAdjacentHTML('beforeend', `
+    <div class="editItem" style="border:1px solid #d7e2db;border-radius:12px;padding:8px;margin:8px 0;">
+      <input data-k="name" value="" placeholder="اسم المنتج" style="width:100%;padding:8px;margin-bottom:6px;">
+      <div style="display:flex;gap:6px;">
+        <input data-k="qty" type="number" step="0.5" value="1" placeholder="كمية" style="width:33%;padding:8px;">
+        <input data-k="price" type="number" step="0.5" value="0" placeholder="سعر" style="width:33%;padding:8px;">
+        <select data-k="unitType" style="width:34%;padding:8px;min-width:unset;">
+          <option value="kg">كغم</option>
+          <option value="bag">كيس</option>
+        </select>
+      </div>
+      <button class="btn btn-red" type="button" onclick="this.closest('.editItem').remove()">حذف المنتج</button>
+    </div>
+  `);
+};
+
+window.saveEditOrder = async function(id){
+  const old = orders.find(o => o.id == id);
+
+  const items = Array.from(document.querySelectorAll(`#editItems_${id} .editItem`)).map(row => ({
+    name: row.querySelector('[data-k="name"]').value.trim(),
+    qty: Number(row.querySelector('[data-k="qty"]').value) || 0,
+    price: Number(row.querySelector('[data-k="price"]').value) || 0,
+    unitType: row.querySelector('[data-k="unitType"]').value === 'bag' ? 'bag' : 'kg'
+  })).filter(i => i.name && i.qty > 0);
+
+  const payload = {
+    name: document.getElementById(`e_name_${id}`).value.trim(),
+    phone: document.getElementById(`e_phone_${id}`).value.trim(),
+    country: document.getElementById(`e_country_${id}`).value.trim(),
+    address: document.getElementById(`e_address_${id}`).value.trim(),
+    notes: document.getElementById(`e_notes_${id}`).value.trim(),
+    deliveryRegion: old?.deliveryRegion || '',
+    items
+  };
+
+  const res = await fetch(`/api/orders/${id}/edit`, {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    credentials:'include',
+    body: JSON.stringify(payload)
   });
-  msg += '\nاكتب رقم المنتج لتعديله، أو اتركه فارغ لتخطي تعديل المنتجات:';
 
-  const itemNum = prompt(msg);
-  if (itemNum !== null && itemNum.trim() !== ''){
-    const index = Number(itemNum) - 1;
-
-    if (items[index]){
-      const newQty = prompt('الكمية الجديدة:', items[index].qty);
-      if (newQty !== null) items[index].qty = Number(newQty) || 0;
-
-      const newPrice = prompt('السعر الجديد:', items[index].price);
-      if (newPrice !== null) items[index].price = Number(newPrice) || 0;
-
-      const del = confirm('بدك تحذف هذا المنتج من الطلب؟ اضغط OK للحذف أو Cancel للإبقاء عليه');
-      if (del) items.splice(index, 1);
-    } else {
-      alert('رقم المنتج غير صحيح');
-    }
+  if (!res.ok){
+    alert('فشل حفظ التعديل');
+    return;
   }
 
-  const add = confirm('بدك تضيف منتج جديد للطلب؟');
-  if (add){
-    const productName = prompt('اسم المنتج:');
-    if (productName){
-      const qty = Number(prompt('الكمية:', '1')) || 1;
-      const price = Number(prompt('السعر:', '0')) || 0;
-      const unitType = prompt('الوحدة: اكتب kg أو bag', 'kg') || 'kg';
-
-      items.push({
-        name: productName,
-        qty,
-        price,
-        unitType: unitType === 'bag' ? 'bag' : 'kg'
-      });
-    }
-  }
-
-  try{
-    const res = await fetch(`/api/orders/${id}/edit`, {
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      credentials:'include',
-      body: JSON.stringify({
-        name,
-        phone,
-        country,
-        address,
-        notes,
-        deliveryRegion: order.deliveryRegion || '',
-        items
-      })
-    });
-
-    const data = await res.json().catch(()=>({}));
-
-    if (!res.ok){
-      if (res.status === 401){ window.location.href = '/login.html'; return; }
-      alert(data?.error || 'فشل تعديل الطلب');
-      return;
-    }
-
-    await fetchOrders();
-    alert('تم تعديل الطلب ✅');
-  }catch(err){
-    console.error(err);
-    alert('مشكلة اتصال بالسيرفر');
-  }
+  await fetchOrders();
+  alert('تم حفظ التعديل ✅');
 };
     fetchOrders();
   </script>
