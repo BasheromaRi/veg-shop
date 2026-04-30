@@ -38,9 +38,11 @@
       </div>
 
       <div style="font-weight:1000; margin:14px 0 8px;">اختار المنطقة</div>
-      <div class="pills">
+      <div class="pills" id="regionPills">
         <button class="pill active" data-r="all">كل المناطق</button>
         <button class="pill" data-r="الشمال">الشمال</button>
+        <button class="pill" data-r="حيفا">حيفا</button>
+        <button class="pill" data-r="الناصرة وضواحيها">الناصرة وضواحيها</button>
         <button class="pill" data-r="الجنوب">الجنوب</button>
         <button class="pill" data-r="المثلث">المثلث</button>
         <button class="pill" data-r="المركز">المركز</button>
@@ -64,7 +66,7 @@
   <script>
     const list = document.getElementById('list');
     let currentStatus = 'all';
-    let currentRegion = 'all';
+    let selectedRegions = ['all'];
 
     function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
@@ -72,7 +74,8 @@
       list.textContent = 'تحميل...';
 
       try{
-        const url = `/api/reports/totals?status=${encodeURIComponent(currentStatus)}&region=${encodeURIComponent(currentRegion)}`;
+        const regionParam = selectedRegions.join(',');
+        const url = `/api/reports/totals?status=${encodeURIComponent(currentStatus)}&region=${encodeURIComponent(regionParam)}`;
 
         const res = await fetch(url, { credentials:'include' });
 
@@ -116,13 +119,45 @@
     });
 
     document.querySelectorAll('[data-r]').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        document.querySelectorAll('[data-r]').forEach(x=>x.classList.remove('active'));
-        b.classList.add('active');
-        currentRegion = b.dataset.r;
-        loadTotals();
+  b.addEventListener('click', ()=>{
+    const region = b.dataset.r;
+
+    if(region === 'all'){
+      selectedRegions = ['all'];
+
+      document.querySelectorAll('[data-r]').forEach(x=>{
+        x.classList.remove('active');
       });
-    });
+
+      b.classList.add('active');
+
+    } else {
+
+      selectedRegions = selectedRegions.filter(r => r !== 'all');
+
+      const allBtn = document.querySelector('[data-r="all"]');
+      if(allBtn) allBtn.classList.remove('active');
+
+      if(selectedRegions.includes(region)){
+
+        selectedRegions = selectedRegions.filter(r => r !== region);
+        b.classList.remove('active');
+
+      } else {
+
+        selectedRegions.push(region);
+        b.classList.add('active');
+      }
+
+      if(!selectedRegions.length){
+        selectedRegions = ['all'];
+        if(allBtn) allBtn.classList.add('active');
+      }
+    }
+
+    loadTotals();
+  });
+});
 
     loadTotals();
   </script>
