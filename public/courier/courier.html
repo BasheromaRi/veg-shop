@@ -527,25 +527,29 @@
     }
 
     function buildWhatsappText(order){
-      const items = (order.items || []).map(i =>
-        `- ${i.name}: ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${(Number(i.price)||0) * (Number(i.qty)||0)}`
-      ).join('\n');
 
-      const total = calcTotal(order.items || []);
-      const delivery = total >= 300 ? 0 : 30;
-      const grand = total + delivery;
+  const items = (order.items || []).map(i =>
+    `• ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${(Number(i.price)||0) * (Number(i.qty)||0)}`
+  ).join('\n');
 
-      return `مرحبا ${order.name || ''} 👋
-تم تلقي طلبك بنجاح.
-تفاصيل الطلب:
+  const total = calcTotal(order.items || []);
+  const delivery = total >= 300 ? 0 : 30;
+  const grand = total + delivery;
+
+  return `مرحبا 👋
+أنا الشليح تبع خيرات صندله 🚚
+
+معي إلك طلبية جاهزة ✅
+
+🛒 المنتجات:
 ${items}
 
-المجموع قبل التوصيل: ₪${total}
-تكلفة التوصيل: ${delivery === 0 ? 'توصيل مجاني ✅' : '₪30'}
-المجموع الكلي للدفع: ₪${grand}
+💰 المجموع قبل التوصيل: ₪${total}
+🚚 التوصيل: ${delivery === 0 ? 'مجاني ✅' : '₪30'}
+✅ المجموع الكلي: ₪${grand}
 
-يرجى إرسال الموقع (Location / מיקום) على واتساب لتأكيد وتجهيز الطلب.`;
-    }
+📍 ابعت الموقع (Location) على الواتساب لتنسيق التوصيل.`;
+}
 
     function matchesFilter(order){
       if (currentFilter === 'all') return true;
