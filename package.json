@@ -11,11 +11,12 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "connect-sqlite3": "^0.9.16",
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "express-session": "^1.18.2",
-    "multer": "^2.0.2",
-    "sqlite3": "^5.1.7"
-  }
+  "connect-sqlite3": "^0.9.16",
+  "cors": "^2.8.5",
+  "express": "^5.1.0",
+  "express-session": "^1.18.2",
+  "multer": "^2.0.2",
+  "sqlite3": "^5.1.7",
+  "sharp": "^0.33.5"
+}
 }
