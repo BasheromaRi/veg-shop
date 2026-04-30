@@ -7,6 +7,7 @@ const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const fs = require('fs');
 const multer = require('multer');
+const sharp = require('sharp');
 const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
@@ -291,17 +292,20 @@ function apiGuard(req, res, next) {
 app.use('/api', apiGuard);
 
 /* ================== MULTER ================== */
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(UPLOADS_DIR, 'products', req.params.id);
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 8 * 1024 * 1024
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'));
-  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('الملف لازم يكون صورة'));
+    }
+    cb(null, true);
+  }
 });
-const upload = multer({ storage });
 
 /* ================== PRODUCTS ================== */
 app.get('/api/products', (req, res) => {
@@ -394,14 +398,42 @@ app.delete('/api/products/:id', (req, res) => {
   });
 });
 
-app.post('/api/products/:id/images', upload.array('images', 10), (req, res) => {
-  if (!req.files?.length) return res.status(400).json({ error: 'لا توجد صور' });
+app.post('/api/products/:id/images', upload.array('images', 10), async (req, res) => {
+  try {
+    if (!req.files?.length) return res.status(400).json({ error: 'لا توجد صور' });
 
-  const stmt = db.prepare('INSERT INTO product_images (product_id, image) VALUES (?, ?)');
-  req.files.forEach((f) => stmt.run(req.params.id, f.filename));
-  stmt.finalize();
+    const dir = path.join(UPLOADS_DIR, 'products', req.params.id);
+    fs.mkdirSync(dir, { recursive: true });
 
-  res.json({ success: true, files: req.files.length });
+    const stmt = db.prepare('INSERT INTO product_images (product_id, image) VALUES (?, ?)');
+
+    for (const file of req.files) {
+      const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.webp`;
+      const filePath = path.join(dir, filename);
+
+      await sharp(file.buffer)
+        .rotate()
+        .resize({
+          width: 900,
+          height: 700,
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .webp({
+          quality: 75
+        })
+        .toFile(filePath);
+
+      stmt.run(req.params.id, filename);
+    }
+
+    stmt.finalize();
+
+    res.json({ success: true, files: req.files.length });
+  } catch (err) {
+    console.error('Image upload error:', err);
+    res.status(500).json({ error: 'خطأ برفع الصور' });
+  }
 });
 async function sendTelegramMessage(text) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
