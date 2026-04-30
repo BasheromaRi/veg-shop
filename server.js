@@ -621,6 +621,32 @@ app.put('/api/orders/:id/region', (req, res) => {
     }
   );
 });
+app.put('/api/orders/:id/edit', (req, res) => {
+  const id = req.params.id;
+  const { name, phone, country, address, notes, deliveryRegion, items } = req.body;
+
+  const safeItems = Array.isArray(items) ? items : [];
+
+  db.run(
+    `UPDATE orders
+     SET name = ?, phone = ?, country = ?, address = ?, notes = ?, deliveryRegion = ?, items = ?
+     WHERE id = ?`,
+    [
+      name || '',
+      phone || '',
+      country || '',
+      address || '',
+      notes || '',
+      deliveryRegion || '',
+      JSON.stringify(safeItems),
+      id
+    ],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, changes: this.changes });
+    }
+  );
+});
 app.delete('/api/orders/:id', (req, res) => {
   db.run('DELETE FROM orders WHERE id = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: 'DB error' });
