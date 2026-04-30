@@ -186,7 +186,11 @@ function noCache(req, res, next) {
 
 /* ================== STATIC ================== */
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(UPLOADS_DIR));
+app.use('/uploads', express.static(UPLOADS_DIR, {
+  maxAge: '30d',
+  etag: true,
+  lastModified: true
+}));
 
 /* ================== AUTH (ADMIN) ================== */
 app.post('/api/login', (req, res) => {
