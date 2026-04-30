@@ -330,6 +330,7 @@
     const ordersCountAdmin = document.getElementById('ordersCountAdmin');
 
     let orders = [];
+    let products = [];
     let currentFilter = 'all';
     let currentRegion = 'all';
     
@@ -431,22 +432,31 @@ ${items || '- (لا يوجد منتجات)'}
     }
 
     async function fetchOrders(){
-      list.innerHTML = 'تحميل...';
-      try{
-        const res = await fetch('/api/orders', { credentials:'include' });
-        if (!res.ok){
-          if (res.status === 401){ window.location.href = '/login.html'; return; }
-          list.innerHTML = `<div class="empty">خطأ في تحميل الطلبات.</div>`;
-          return;
-        }
-        const data = await res.json();
-        orders = (data || []).map(normalizeOrder);
-        render();
-      }catch(err){
-        console.error(err);
-        list.innerHTML = `<div class="empty">مشكلة اتصال بالسيرفر.</div>`;
-      }
+  list.innerHTML = 'تحميل...';
+  try{
+    const [ordersRes, productsRes] = await Promise.all([
+      fetch('/api/orders', { credentials:'include' }),
+      fetch('/api/products', { credentials:'include' })
+    ]);
+
+    if (!ordersRes.ok){
+      if (ordersRes.status === 401){ window.location.href = '/login.html'; return; }
+      list.innerHTML = `<div class="empty">خطأ في تحميل الطلبات.</div>`;
+      return;
     }
+
+    const ordersData = await ordersRes.json();
+    const productsData = productsRes.ok ? await productsRes.json() : [];
+
+    orders = (ordersData || []).map(normalizeOrder);
+    products = Array.isArray(productsData) ? productsData : [];
+
+    render();
+  }catch(err){
+    console.error(err);
+    list.innerHTML = `<div class="empty">مشكلة اتصال بالسيرفر.</div>`;
+  }
+}
 
     function matchesSearch(order, text){
       if (!text) return true;
@@ -781,9 +791,26 @@ ${items || '- (لا يوجد منتجات)'}
 };
 
 window.addEditItem = function(id){
+  const productOptions = products.map(p => `
+    <option
+      value="${esc(p.id)}"
+      data-name="${esc(p.name)}"
+      data-price="${esc(p.price)}"
+      data-unit="${esc(p.unitType || 'kg')}"
+    >
+      ${esc(p.name)} — ₪${esc(p.price)} / ${p.unitType === 'bag' ? 'كيس' : 'كغم'}
+    </option>
+  `).join('');
+
   document.getElementById(`editItems_${id}`).insertAdjacentHTML('beforeend', `
     <div class="editItem" style="border:1px solid #d7e2db;border-radius:12px;padding:8px;margin:8px 0;">
+      <select onchange="fillEditProduct(this)" style="width:100%;padding:8px;margin-bottom:6px;">
+        <option value="">اختر منتج من القائمة</option>
+        ${productOptions}
+      </select>
+
       <input data-k="name" value="" placeholder="اسم المنتج" style="width:100%;padding:8px;margin-bottom:6px;">
+
       <div style="display:flex;gap:6px;">
         <input data-k="qty" type="number" step="0.5" value="1" placeholder="كمية" style="width:33%;padding:8px;">
         <input data-k="price" type="number" step="0.5" value="0" placeholder="سعر" style="width:33%;padding:8px;">
@@ -792,9 +819,21 @@ window.addEditItem = function(id){
           <option value="bag">كيس</option>
         </select>
       </div>
+
       <button class="btn btn-red" type="button" onclick="this.closest('.editItem').remove()">حذف المنتج</button>
     </div>
   `);
+};
+    window.fillEditProduct = function(sel){
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) return;
+
+  const row = sel.closest('.editItem');
+
+  row.querySelector('[data-k="name"]').value = opt.dataset.name || '';
+  row.querySelector('[data-k="price"]').value = opt.dataset.price || 0;
+  row.querySelector('[data-k="unitType"]').value = opt.dataset.unit || 'kg';
+  row.querySelector('[data-k="qty"]').value = 1;
 };
 
 window.saveEditOrder = async function(id){
