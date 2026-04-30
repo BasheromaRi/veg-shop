@@ -695,8 +695,15 @@ if (status !== 'all') {
 }
 
 if (region !== 'all') {
-  where.push('deliveryRegion = ?');
-  params.push(region);
+  const regions = region.split(',').map(r => r.trim()).filter(Boolean);
+
+  if (regions.length === 1) {
+    where.push('deliveryRegion = ?');
+    params.push(regions[0]);
+  } else if (regions.length > 1) {
+    where.push(`deliveryRegion IN (${regions.map(() => '?').join(',')})`);
+    params.push(...regions);
+  }
 }
 
 if (where.length) {
