@@ -587,6 +587,7 @@ ${items || '- (لا يوجد منتجات)'}
                 ${isAssigned ? 'إزالة من الشليح' : 'إرسال للشليح'}
               </button>
 
+              <button class="btn btn-blue" type="button" onclick="editOrder(${esc(o.id)})">✏️ تعديل الطلب</button>
               <button class="btn btn-red" type="button" onclick="deleteOrder(${esc(o.id)})">حذف الطلب</button>
             </div>
           </div>
@@ -730,6 +731,99 @@ ${items || '- (لا يوجد منتجات)'}
     if (idx >= 0) orders[idx].deliveryRegion = deliveryRegion;
 
     render();
+  }catch(err){
+    console.error(err);
+    alert('مشكلة اتصال بالسيرفر');
+  }
+};
+    window.editOrder = async function(id){
+  const order = orders.find(o => o.id == id);
+  if (!order) return alert('الطلب غير موجود');
+
+  const name = prompt('اسم الزبون:', order.name || '');
+  if (name === null) return;
+
+  const phone = prompt('الهاتف:', order.phone || '');
+  if (phone === null) return;
+
+  const country = prompt('البلد:', order.country || '');
+  if (country === null) return;
+
+  const address = prompt('العنوان:', order.address || '');
+  if (address === null) return;
+
+  const notes = prompt('ملاحظات:', order.notes || '');
+  if (notes === null) return;
+
+  let items = JSON.parse(JSON.stringify(order.items || []));
+
+  let msg = 'المنتجات الحالية:\n\n';
+  items.forEach((it, index) => {
+    msg += `${index + 1}) ${it.name} - كمية: ${it.qty} - سعر: ${it.price}\n`;
+  });
+  msg += '\nاكتب رقم المنتج لتعديله، أو اتركه فارغ لتخطي تعديل المنتجات:';
+
+  const itemNum = prompt(msg);
+  if (itemNum !== null && itemNum.trim() !== ''){
+    const index = Number(itemNum) - 1;
+
+    if (items[index]){
+      const newQty = prompt('الكمية الجديدة:', items[index].qty);
+      if (newQty !== null) items[index].qty = Number(newQty) || 0;
+
+      const newPrice = prompt('السعر الجديد:', items[index].price);
+      if (newPrice !== null) items[index].price = Number(newPrice) || 0;
+
+      const del = confirm('بدك تحذف هذا المنتج من الطلب؟ اضغط OK للحذف أو Cancel للإبقاء عليه');
+      if (del) items.splice(index, 1);
+    } else {
+      alert('رقم المنتج غير صحيح');
+    }
+  }
+
+  const add = confirm('بدك تضيف منتج جديد للطلب؟');
+  if (add){
+    const productName = prompt('اسم المنتج:');
+    if (productName){
+      const qty = Number(prompt('الكمية:', '1')) || 1;
+      const price = Number(prompt('السعر:', '0')) || 0;
+      const unitType = prompt('الوحدة: اكتب kg أو bag', 'kg') || 'kg';
+
+      items.push({
+        name: productName,
+        qty,
+        price,
+        unitType: unitType === 'bag' ? 'bag' : 'kg'
+      });
+    }
+  }
+
+  try{
+    const res = await fetch(`/api/orders/${id}/edit`, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body: JSON.stringify({
+        name,
+        phone,
+        country,
+        address,
+        notes,
+        deliveryRegion: order.deliveryRegion || '',
+        items
+      })
+    });
+
+    const data = await res.json().catch(()=>({}));
+
+    if (!res.ok){
+      if (res.status === 401){ window.location.href = '/login.html'; return; }
+      alert(data?.error || 'فشل تعديل الطلب');
+      return;
+    }
+
+    await fetchOrders();
+    alert('تم تعديل الطلب ✅');
   }catch(err){
     console.error(err);
     alert('مشكلة اتصال بالسيرفر');
