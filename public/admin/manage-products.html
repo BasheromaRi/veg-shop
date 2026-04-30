@@ -348,7 +348,31 @@
           : `<span class="badge b-off">غير متوفر</span>`;
 
         const unitLabel = p.unitType === 'bag' ? 'كيس' : 'كغم';
-        const imgs = (p.images || []).map(src => `<img class="thumb" src="${esc(src)}" />`).join('');
+        const imgs = (p.images || []).map(src => `
+  <div style="position:relative;">
+    <img class="thumb" src="${esc(src)}" />
+
+    <button
+      type="button"
+      onclick="deleteImage(${p.id}, '${encodeURIComponent(src)}')"
+      style="
+        position:absolute;
+        top:-6px;
+        left:-6px;
+        width:22px;
+        height:22px;
+        border:none;
+        border-radius:50%;
+        background:#d83a3a;
+        color:#fff;
+        cursor:pointer;
+        font-weight:1000;
+      "
+    >
+      ×
+    </button>
+  </div>
+`).join('');
         const qtyStep = Number(p.qtyStep) || 1;
 
         return `
@@ -484,7 +508,21 @@
       }
       loadProducts();
     }
-
+    window.deleteImage = async function(productId, image){
+      if (!confirm('حذف الصورة؟')) return;
+    
+      const { res, data } = await api(
+        `/api/products/${productId}/images?image=${image}`,
+        { method:'DELETE' }
+      );
+    
+      if (!res.ok){
+        alert(data?.error || 'فشل حذف الصورة');
+        return;
+      }
+    
+      loadProducts();
+    }
     window.uploadImages = async function(id, files){
       if (!files || !files.length) return;
 
