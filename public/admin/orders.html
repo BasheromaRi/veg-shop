@@ -298,7 +298,7 @@
         <button class="pill" data-region="الشمال">الشمال</button>
         <button class="pill" data-region="الجنوب">الجنوب</button>
         <button class="pill" data-region="حيفا">حيفا</button>
-        <button class="pill" data-region="الناصره وضواحيها">الناصره وضواحيفا</button>
+        <button class="pill" data-region="الناصرة وضواحيها">الناصرة وضواحيها</button>
         <button class="pill" data-region="المثلث">المثلث</button>
         <button class="pill" data-region="المركز">المركز</button>
         <button class="pill" data-region="الجولان / الهضبة">الجولان</button>        
@@ -473,9 +473,16 @@ ${items || '- (لا يوجد منتجات)'}
     (currentFilter === 'courier' && Number(order.assignedToCourier || 0) === 1) ||
     (order.status || 'new') === currentFilter;
 
-  const regionOk =
-    currentRegion === 'all' ||
-    (order.deliveryRegion || '') === currentRegion;
+  const orderRegion = String(order.deliveryRegion || '').trim();
+
+const regionOk =
+  currentRegion === 'all' ||
+  orderRegion === currentRegion ||
+  (currentRegion === 'حيفا' && orderRegion.includes('حيفا')) ||
+  (currentRegion === 'الناصرة وضواحيها' && (
+    orderRegion.includes('الناصرة') ||
+    orderRegion.includes('الناصره')
+  ));
 
   return statusOk && regionOk;
 }
@@ -609,14 +616,14 @@ ${items || '- (لا يوجد منتجات)'}
       }).join('');
     }
 
-    document.querySelectorAll('.pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        render();
-      });
-    });
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+});
 
     document.querySelectorAll('[data-region]').forEach(btn => {
     btn.addEventListener('click', () => {
