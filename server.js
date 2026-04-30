@@ -435,6 +435,72 @@ app.post('/api/products/:id/images', upload.array('images', 10), async (req, res
     res.status(500).json({ error: 'خطأ برفع الصور' });
   }
 });
+app.delete('/api/products/:id/images', (req, res) => {
+  try {
+    const productId = req.params.id;
+    const imagePath = decodeURIComponent(req.query.image || '');
+
+    if (!imagePath) {
+      return res.status(400).json({ error: 'الصورة غير موجودة' });
+    }
+
+    const filename = path.basename(imagePath);
+
+    db.run(
+      'DELETE FROM product_images WHERE product_id = ? AND image = ?',
+      [productId, filename],
+      (err) => {
+        if (err) return res.status(500).json({ error: 'DB error' });
+
+        const filePath = path.join(UPLOADS_DIR, 'products', productId, filename);
+
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch (e) {
+          console.error('Delete image file error:', e);
+        }
+
+        res.json({ success: true });
+      }
+    );
+  } catch (err) {
+    console.error('Delete image error:', err);
+    res.status(500).json({ error: 'خطأ بحذف الصورة' });
+  }
+});
+app.delete('/api/products/:id/images', (req, res) => {
+  try {
+    const productId = req.params.id;
+    const imagePath = decodeURIComponent(req.query.image || '');
+
+    if (!imagePath) {
+      return res.status(400).json({ error: 'الصورة غير موجودة' });
+    }
+
+    const filename = path.basename(imagePath);
+
+    db.run(
+      'DELETE FROM product_images WHERE product_id = ? AND image = ?',
+      [productId, filename],
+      (err) => {
+        if (err) return res.status(500).json({ error: 'DB error' });
+
+        const filePath = path.join(UPLOADS_DIR, 'products', productId, filename);
+
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch (e) {
+          console.error('Delete image file error:', e);
+        }
+
+        res.json({ success: true });
+      }
+    );
+  } catch (err) {
+    console.error('Delete image error:', err);
+    res.status(500).json({ error: 'خطأ بحذف الصورة' });
+  }
+});
 async function sendTelegramMessage(text) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.log('Telegram not configured');
