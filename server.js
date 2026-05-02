@@ -55,7 +55,9 @@ function ensureOrderColumns() {
           console.error('ALTER error:', e.message);
         }
       });
-
+    if (!names.has('phone2')) {
+      addCol(`ALTER TABLE orders ADD COLUMN phone2 TEXT DEFAULT ''`);
+    }
     if (!names.has('notes')) {
       addCol(`ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''`);
     }
@@ -119,6 +121,7 @@ db.serialize(() => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     phone TEXT,
+    phone2 TEXT DEFAULT '',
     country TEXT,
     address TEXT,
     notes TEXT DEFAULT '',
@@ -327,7 +330,7 @@ app.get('/api/products', (req, res) => {
 });
 
 app.post('/api/products', (req, res) => {
-  const { name, price, description, available, unitType, onCampaign, qtyStep } = req.body;
+  const { items, phone, phone2, country, address, name, notes, deliveryRegion } = req.body;
 
   db.run(
     `INSERT INTO products (name, price, description, available, unitType, onCampaign, qtyStep)
@@ -539,11 +542,12 @@ app.post('/api/orders', (req, res) => {
   const safeItems = Array.isArray(items) ? items : [];
 
   db.run(
-    `INSERT INTO orders (name, phone, country, address, notes, deliveryRegion, items, status, createdAt)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO orders (name, phone, phone2, country, address, notes, deliveryRegion, items, status, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       name || '',
       phone || '',
+      phone2 || '',
       country || '',
       address || '',
       notes || '',
@@ -578,6 +582,7 @@ app.post('/api/orders', (req, res) => {
 
 👤 الاسم: ${name || '-'}
 📞 الهاتف: ${phone || '-'}
+📞 هاتف إضافي: ${phone2 || '-'}
 📍 البلد: ${country || '-'}
 🗺️ المنطقة: ${deliveryRegion || '-'}
 🏠 العنوان: ${address || '-'}
@@ -623,17 +628,18 @@ app.put('/api/orders/:id/region', (req, res) => {
 });
 app.put('/api/orders/:id/edit', (req, res) => {
   const id = req.params.id;
-  const { name, phone, country, address, notes, deliveryRegion, items } = req.body;
+  const { name, phone, phone2, country, address, notes, deliveryRegion, items } = req.body;
 
   const safeItems = Array.isArray(items) ? items : [];
 
   db.run(
     `UPDATE orders
-     SET name = ?, phone = ?, country = ?, address = ?, notes = ?, deliveryRegion = ?, items = ?
+     SET name = ?, phone = ?, phone2 = ?, country = ?, address = ?, notes = ?, deliveryRegion = ?, items = ?
      WHERE id = ?`,
     [
       name || '',
       phone || '',
+      phone2 || '',
       country || '',
       address || '',
       notes || '',
