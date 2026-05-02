@@ -257,14 +257,14 @@
 
           <div class="field">
             <label>خطوة الكمية</label>
-            <select id="add_qtyStep">
-              <option value="1">كل 1</option>
-              <option value="2">كل 2</option>
-              <option value="3">كل 3</option>
-              <option value="5">كل 5</option>
-              <option value="10">كل 10</option>
-              <option value="14">كل 14</option>
-            </select>
+            <input
+              type="number"
+              id="add_qtyStep"
+              placeholder="اكتب خطوة الكمية"
+              min="0.1"
+              step="0.1"
+              value="1"
+            />
           </div>
 
           <div class="field">
