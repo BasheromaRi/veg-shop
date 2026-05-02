@@ -788,7 +788,7 @@ const regionOk =
   card.innerHTML += `
     <div id="editBox_${id}" style="margin-top:12px;border:2px solid #2b74c7;border-radius:16px;padding:12px;background:#f7fbff;">
       <h3 style="margin:0 0 10px;">تعديل الطلب #${id}</h3>
-
+      <input id="e_phone2_${id}" value="${esc(o.phone2 || '')}" placeholder="هاتف إضافي" style="width:100%;padding:10px;margin:5px 0;">
       <input id="e_name_${id}" value="${esc(o.name)}" placeholder="الاسم" style="width:100%;padding:10px;margin:5px 0;">
       <input id="e_phone_${id}" value="${esc(o.phone)}" placeholder="" style="width:100%;padding:10px;margin:5px 0;">
       <input id="e_country_${id}" value="${esc(o.country)}" placeholder="البلد" style="width:100%;padding:10px;margin:5px 0;">
@@ -877,6 +877,7 @@ window.saveEditOrder = async function(id){
   const payload = {
     name: document.getElementById(`e_name_${id}`).value.trim(),
     phone: document.getElementById(`e_phone_${id}`).value.trim(),
+    phone2: document.getElementById(`e_phone2_${id}`).value.trim(),
     country: document.getElementById(`e_country_${id}`).value.trim(),
     address: document.getElementById(`e_address_${id}`).value.trim(),
     notes: document.getElementById(`e_notes_${id}`).value.trim(),
