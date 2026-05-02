@@ -537,7 +537,7 @@ app.get('/api/orders', (req, res) => {
 });
 
 app.post('/api/orders', (req, res) => {
-  const { items, phone, country, address, name, notes, deliveryRegion } = req.body;
+  const { items, phone, phone2, country, address, name, notes, deliveryRegion } = req.body;
 
   const safeItems = Array.isArray(items) ? items : [];
 
