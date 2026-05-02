@@ -633,6 +633,12 @@ ${items}
                 <div class="label">الهاتف</div>
                 <div class="value">${esc(o.phone)}</div>
               </div>
+              ${order.phone2 ? `
+                <div class="info-row">
+                  <span class="label">هاتف إضافي</span>
+                  <span class="value">${order.phone2}</span>
+                </div>
+              ` : ''}
               <div class="row">
                 <div class="label">البلد</div>
                 <div class="value value-rtl">${esc(o.country)}</div>
