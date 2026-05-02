@@ -250,8 +250,21 @@
         autocomplete="tel"
         maxlength="10"
       >
+      
       <div id="phoneError" class="field-error"></div>
     </div>
+    <div class="field">
+  <label>رقم هاتف إضافي (اختياري)</label>
+  <input
+    type="tel"
+    id="phone2"
+    inputmode="numeric"
+    autocomplete="tel"
+    maxlength="10"
+    placeholder="اختياري"
+  >
+  <div id="phone2Error" class="field-error"></div>
+</div>
 
     <div class="field">
       <label>البلد</label>
@@ -298,10 +311,12 @@
 
   const elName = document.getElementById('name');
   const elPhone = document.getElementById('phone');
+  const elPhone2 = document.getElementById('phone2');
   const elCountry = document.getElementById('country');
   const elAddress = document.getElementById('address');
   const elNotes = document.getElementById('notes');
   const phoneError = document.getElementById('phoneError');
+  const phone2Error = document.getElementById('phone2Error');
 
   const FREE_DELIVERY_FROM = 300;
   const DELIVERY_FEE = 30;
@@ -311,27 +326,63 @@
   }
 
   function validatePhone(showMessage = true){
-    const digits = onlyDigits(elPhone.value);
+  const digits = onlyDigits(elPhone.value);
 
-    if (digits.length === 0){
-      phoneError.textContent = '';
-      return false;
-    }
-
-    if (digits.length < 10){
-      if (showMessage) phoneError.textContent = 'رقم الهاتف ناقص';
-      return false;
-    }
-
+  if (digits.length === 0){
     phoneError.textContent = '';
-    return true;
+    return false;
   }
+
+  if (!digits.startsWith('0')){
+    if (showMessage) phoneError.textContent = 'رقم الهاتف لازم يبدأ بـ 0';
+    return false;
+  }
+
+  if (digits.length !== 10){
+    if (showMessage) phoneError.textContent = 'رقم الهاتف لازم يكون 10 أرقام';
+    return false;
+  }
+
+  phoneError.textContent = '';
+  return true;
+}
 
   elPhone.addEventListener('input', () => {
     const digits = onlyDigits(elPhone.value).slice(0, 10);
     elPhone.value = digits;
     validatePhone(true);
   });
+  function validatePhone2(showMessage = true){
+  const digits = onlyDigits(elPhone2.value);
+
+  if (digits.length === 0){
+    phone2Error.textContent = '';
+    return true;
+  }
+
+  if (!digits.startsWith('0')){
+    if (showMessage) phone2Error.textContent = 'الرقم الإضافي لازم يبدأ بـ 0';
+    return false;
+  }
+
+  if (digits.length !== 10){
+    if (showMessage) phone2Error.textContent = 'الرقم الإضافي لازم يكون 10 أرقام';
+    return false;
+  }
+
+  phone2Error.textContent = '';
+  return true;
+}
+
+elPhone2.addEventListener('input', () => {
+  const digits = onlyDigits(elPhone2.value).slice(0, 10);
+  elPhone2.value = digits;
+  validatePhone2(true);
+});
+
+elPhone2.addEventListener('blur', () => {
+  validatePhone2(true);
+});
 
   elPhone.addEventListener('blur', () => {
     validatePhone(true);
@@ -421,6 +472,7 @@
     const order = {
       name: (elName.value || '').trim(),
       phone: onlyDigits(elPhone.value).slice(0, 10),
+      phone2: onlyDigits(elPhone2.value).slice(0, 10),
       country: (elCountry.value || '').trim(),
       address: (elAddress.value || '').trim(),
       notes: (elNotes.value || '').trim(),
@@ -433,9 +485,13 @@
       return;
     }
 
-    if(order.phone.length < 10){
-      phoneError.textContent = 'رقم الهاتف ناقص';
+    if(!validatePhone(true)){
       elPhone.focus();
+      return;
+    }
+    
+    if(!validatePhone2(true)){
+      elPhone2.focus();
       return;
     }
 
