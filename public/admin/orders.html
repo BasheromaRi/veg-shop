@@ -543,10 +543,11 @@ const regionOk =
               <div class="row"><div class="label">الاسم</div><div class="val">${esc(o.name || '-')}</div></div>
               <div class="row"><div class="label">الهاتف</div><div class="val valNum">${esc(o.phone || '-')}</div></div>
               ${o.phone2 ? `
-                <div class="info-row">
-                  <span class="label">هاتف إضافي</span>
-                  <span class="value">${order.phone2}</span>
-                </div>
+  <div class="row">
+    <div class="label">هاتف إضافي</div>
+    <div class="val valNum">${esc(o.phone2)}</div>
+  </div>
+` : ''}
                 ` : ''}
               <div class="row"><div class="label">البلد</div><div class="val">${esc(o.country || '-')}</div></div>
               <div class="row"><div class="label">العنوان</div><div class="val">${esc(o.address || '-')}</div></div>
