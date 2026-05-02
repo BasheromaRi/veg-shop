@@ -416,17 +416,17 @@
       const deliveryText = delivery === 0 ? 'توصيل مجاني ✅' : `₪${delivery}`;
 
       return `مرحبا ${order.name || ''} 👋
-تم تلقي طلبك بنجاح ✅
-تفاصيل الطلب (#${order.id}):
-
-${items || '- (لا يوجد منتجات)'}
-
-المجموع قبل التوصيل: ₪${subtotal}
-تكلفة التوصيل: ${deliveryText}
-المجموع الكلي للدفع: ₪${total}
-
-يرجى إرسال مَوقع (Location) على واتساب لتأكيد وتجهيز الطلب ✅`;
-    }
+        تم تلقي طلبك بنجاح ✅
+        تفاصيل الطلب (#${order.id}):
+        
+        ${items || '- (لا يوجد منتجات)'}
+        
+        المجموع قبل التوصيل: ₪${subtotal}
+        تكلفة التوصيل: ${deliveryText}
+        المجموع الكلي للدفع: ₪${total}
+        
+        يرجى إرسال مَوقع (Location) على واتساب لتأكيد وتجهيز الطلب ✅`;
+            }
 
     function makeWhatsAppLink(phoneE164, text){
       const msg = encodeURIComponent(text || '');
@@ -542,6 +542,12 @@ const regionOk =
             <div class="rows">
               <div class="row"><div class="label">الاسم</div><div class="val">${esc(o.name || '-')}</div></div>
               <div class="row"><div class="label">الهاتف</div><div class="val valNum">${esc(o.phone || '-')}</div></div>
+              ${o.phone2 ? `
+                <div class="info-row">
+                  <span class="label">هاتف إضافي</span>
+                  <span class="value">${order.phone2}</span>
+                </div>
+                ` : ''}
               <div class="row"><div class="label">البلد</div><div class="val">${esc(o.country || '-')}</div></div>
               <div class="row"><div class="label">العنوان</div><div class="val">${esc(o.address || '-')}</div></div>
               <div class="row"><div class="label">المنطقة</div><div class="val">${esc(o.deliveryRegion || '-')}</div></div>
@@ -783,7 +789,7 @@ const regionOk =
       <h3 style="margin:0 0 10px;">تعديل الطلب #${id}</h3>
 
       <input id="e_name_${id}" value="${esc(o.name)}" placeholder="الاسم" style="width:100%;padding:10px;margin:5px 0;">
-      <input id="e_phone_${id}" value="${esc(o.phone)}" placeholder="الهاتف" style="width:100%;padding:10px;margin:5px 0;">
+      <input id="e_phone_${id}" value="${esc(o.phone)}" placeholder="" style="width:100%;padding:10px;margin:5px 0;">
       <input id="e_country_${id}" value="${esc(o.country)}" placeholder="البلد" style="width:100%;padding:10px;margin:5px 0;">
       <input id="e_address_${id}" value="${esc(o.address)}" placeholder="العنوان" style="width:100%;padding:10px;margin:5px 0;">
       <select id="e_region_${id}" style="width:100%;padding:10px;margin:5px 0;">
