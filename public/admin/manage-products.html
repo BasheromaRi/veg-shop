@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>إدارة المنتجات</title>
   <link rel="stylesheet" href="/styles.css" />
 
@@ -48,7 +48,7 @@
       border:1px solid #d7e2db;
       border-radius:12px;
       padding:10px 12px;
-      font-size:14px;
+      font-size:16px;
       background:#fff;
       outline:none;
     }
@@ -182,6 +182,7 @@
       padding:10px;
       background:#fff;
       width:100%;
+      font-size:16px;
     }
 
     .msg{
@@ -207,11 +208,13 @@
       .sub{ font-size:11px; }
       .badge{ font-size:10px; padding:5px 8px; }
       .field label{ font-size:11px; }
+
       .field input, .field select, .field textarea{
         padding:8px 10px;
-        font-size:12px;
+        font-size:16px;
         border-radius:10px;
       }
+
       .btn{ width:100%; font-size:12px; padding:9px 10px; }
       .actions{ justify-content:stretch; }
       .thumb{ width:56px; height:56px; }
@@ -244,7 +247,7 @@
 
           <div class="field">
             <label>السعر (₪)</label>
-            <input id="add_price" type="number" required step="any" placeholder="مثال: 25" />
+            <input id="add_price" type="number" required step="any" placeholder="مثال: 8.33" />
           </div>
 
           <div class="field">
@@ -288,9 +291,14 @@
             <textarea id="add_description" placeholder="وصف قصير للمنتج..."></textarea>
           </div>
 
+          <div class="field" style="grid-column:1 / -1;">
+            <label>صور المنتج</label>
+            <input id="add_images" class="file" type="file" accept="image/*" multiple />
+          </div>
+
           <div style="grid-column:1 / -1;">
             <button class="btn btn-green" type="submit">➕ إضافة المنتج</button>
-            <div class="hint">خطوة الكمية: إذا اخترت 5 تظهر للزبون 5، 10، 15، 20...</div>
+            <div class="hint">خطوة الكمية: إذا كتبت 12 تظهر للزبون 12، 24، 36...</div>
             <div id="addMsg" class="msg"></div>
           </div>
         </div>
@@ -319,12 +327,6 @@
       return { res, data };
     }
 
-    function stepOptions(selected){
-      const steps = [1,2,3,5,10,14];
-      const val = Number(selected) || 1;
-      return steps.map(s => `<option value="${s}" ${val === s ? 'selected' : ''}>كل ${s}</option>`).join('');
-    }
-
     async function loadProducts(){
       listEl.innerHTML = 'تحميل...';
 
@@ -348,32 +350,33 @@
           : `<span class="badge b-off">غير متوفر</span>`;
 
         const unitLabel = p.unitType === 'bag' ? 'كيس' : 'كغم';
-        const imgs = (p.images || []).map(src => `
-  <div style="position:relative;">
-    <img class="thumb" src="${esc(src)}" />
-
-    <button
-      type="button"
-      onclick="deleteImage(${p.id}, '${encodeURIComponent(src)}')"
-      style="
-        position:absolute;
-        top:-6px;
-        left:-6px;
-        width:22px;
-        height:22px;
-        border:none;
-        border-radius:50%;
-        background:#d83a3a;
-        color:#fff;
-        cursor:pointer;
-        font-weight:1000;
-      "
-    >
-      ×
-    </button>
-  </div>
-`).join('');
         const qtyStep = Number(p.qtyStep) || 1;
+
+        const imgs = (p.images || []).map(src => `
+          <div style="position:relative;">
+            <img class="thumb" src="${esc(src)}" />
+
+            <button
+              type="button"
+              onclick="deleteImage(${p.id}, '${encodeURIComponent(src)}')"
+              style="
+                position:absolute;
+                top:-6px;
+                left:-6px;
+                width:22px;
+                height:22px;
+                border:none;
+                border-radius:50%;
+                background:#d83a3a;
+                color:#fff;
+                cursor:pointer;
+                font-weight:1000;
+              "
+            >
+              ×
+            </button>
+          </div>
+        `).join('');
 
         return `
           <div class="card" id="p_${esc(p.id)}">
@@ -393,7 +396,7 @@
 
               <div class="field">
                 <label>السعر (₪)</label>
-                <input id="price_${esc(p.id)}" type="number" step="0.5" value="${esc(p.price)}" disabled />
+                <input id="price_${esc(p.id)}" type="number" step="any" value="${esc(p.price)}" disabled />
               </div>
 
               <div class="field">
@@ -406,9 +409,14 @@
 
               <div class="field">
                 <label>خطوة الكمية</label>
-                <select id="step_${esc(p.id)}" disabled>
-                  ${stepOptions(qtyStep)}
-                </select>
+                <input
+                  id="step_${esc(p.id)}"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value="${qtyStep}"
+                  disabled
+                />
               </div>
 
               <div class="field">
@@ -508,21 +516,23 @@
       }
       loadProducts();
     }
+
     window.deleteImage = async function(productId, image){
       if (!confirm('حذف الصورة؟')) return;
-    
+
       const { res, data } = await api(
         `/api/products/${productId}/images?image=${image}`,
         { method:'DELETE' }
       );
-    
+
       if (!res.ok){
         alert(data?.error || 'فشل حذف الصورة');
         return;
       }
-    
+
       loadProducts();
     }
+
     window.uploadImages = async function(id, files){
       if (!files || !files.length) return;
 
@@ -569,6 +579,19 @@
         if (res.status === 401){ window.location.href='/login.html'; return; }
         addMsg.textContent = data?.error || 'فشل إضافة المنتج';
         return;
+      }
+
+      const newId = data?.id || data?.product?.id;
+      const files = document.getElementById('add_images').files;
+
+      if (newId && files && files.length){
+        const fd = new FormData();
+        for (const f of files) fd.append('images', f);
+
+        await api(`/api/products/${newId}/images`, {
+          method:'POST',
+          body: fd
+        });
       }
 
       addMsg.style.color = '#2e8b57';
