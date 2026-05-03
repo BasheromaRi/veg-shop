@@ -457,6 +457,8 @@
         <button class="pill" data-filter="done">تم التسليم</button>
         <button class="pill" data-filter="cancelled">ملغي</button>
       </div>
+      <input id="searchInput" type="text" placeholder="ابحث بالاسم / الهاتف / البلد..."
+style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-size:14px;font-weight:900;background:#fff;margin-bottom:12px;">
 
       <button class="btn btn-light" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
@@ -550,7 +552,12 @@ ${items}
 
 📍 ابعت الموقع (Location) على الواتساب لتنسيق التوصيل.`;
 }
-
+    function matchesSearch(order, text){
+      if (!text) return true;
+      const t = text.toLowerCase();
+      const hay = `${order.name||''} ${order.phone||''} ${order.phone2||''} ${order.country||''} ${order.address||''}`.toLowerCase();
+      return hay.includes(t);
+    }
     function matchesFilter(order){
       if (currentFilter === 'all') return true;
       return (order.status || 'new') === currentFilter;
@@ -578,7 +585,10 @@ ${items}
     }
 
     function render(){
-      const filtered = orders.filter(matchesFilter);
+      const searchText = document.getElementById('searchInput')?.value.trim() || '';
+const filtered = orders
+  .filter(matchesFilter)
+  .filter(o => matchesSearch(o, searchText));
 
       ordersCount.textContent = `عدد الطلبات: ${filtered.length}`;
 
@@ -785,7 +795,15 @@ ${items}
       window.location.href = '/courier-login';
     });
 
-    fetchOrders();
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/courier/logout', { method:'POST', credentials:'include' }).catch(()=>{});
+  window.location.href = '/courier-login';
+});
+
+document.getElementById('searchInput').addEventListener('input', render);
+
+fetchOrders();
+    
   </script>
 </body>
 </html>
