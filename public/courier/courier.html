@@ -790,10 +790,7 @@ const filtered = orders
       });
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await fetch('/api/courier/logout', { method:'POST', credentials:'include' }).catch(()=>{});
-      window.location.href = '/courier-login';
-    });
+    
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
   await fetch('/api/courier/logout', { method:'POST', credentials:'include' }).catch(()=>{});
