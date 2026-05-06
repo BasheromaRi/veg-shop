@@ -559,11 +559,22 @@ ${items}
 📍 ابعت الموقع (Location) على الواتساب لتنسيق التوصيل.`;
 }
     function matchesSearch(order, text){
-      if (!text) return true;
-      const t = text.toLowerCase();
-      const hay = `${order.name||''} ${order.phone||''} ${order.phone2||''} ${order.country||''} ${order.address||''}`.toLowerCase();
-      return hay.includes(t);
-    }
+  if (!text) return true;
+
+  const t = String(text || '').toLowerCase().replace('#','').trim();
+
+  const hay = `
+    ${order.id || ''}
+    ${order.name || ''}
+    ${order.phone || ''}
+    ${order.phone2 || ''}
+    ${order.country || ''}
+    ${order.address || ''}
+    ${order.deliveryRegion || ''}
+  `.toLowerCase();
+
+  return hay.includes(t);
+}
     function matchesFilter(order){
       if (currentFilter === 'all') return true;
       return (order.status || 'new') === currentFilter;
