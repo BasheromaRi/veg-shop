@@ -518,8 +518,11 @@ style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-
     }
 
     function calcTotal(items){
-      return (items || []).reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
-    }
+  return Math.round(
+    (items || []).reduce((sum, i) =>
+      sum + (Number(i.price)||0) * (Number(i.qty)||0), 0)
+  );
+}
 
     function normalizePhone(phone){
       return String(phone || '').replace(/\D/g,'');
