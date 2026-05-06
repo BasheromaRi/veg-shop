@@ -541,7 +541,7 @@ style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-
   ).join('\n');
 
   const total = calcTotal(order.items || []);
-  const delivery = total >= 300 ? 0 : 30;
+  const delivery = total >= 299 ? 0 : 30;
   const grand = total + delivery;
 
   return `مرحبا 👋
@@ -616,7 +616,7 @@ const filtered = orders
 
       list.innerHTML = filtered.map(o => {
         const total = calcTotal(o.items || []);
-        const delivery = total >= 300 ? 0 : 30;
+        const delivery = total >= 299 ? 0 : 30;
         const grand = total + delivery;
 
         const phoneClean = normalizePhoneForWA(o.phone);
