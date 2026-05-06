@@ -499,42 +499,28 @@ style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-
     try{
       const d = new Date(iso);
       return d.toLocaleString('ar-EG', {
-        year:'numeric',
-        month:'2-digit',
-        day:'2-digit',
-        hour:'2-digit',
-        minute:'2-digit'
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit'
       });
     }catch(e){ return iso || ''; }
   }
 
   function statusBadge(status){
     const s = status || 'new';
-
-    if (s === 'done') {
-      return `<span class="badge b-done">تم التسليم</span>`;
-    }
-
-    if (s === 'out_for_delivery') {
-      return `<span class="badge b-delivery">🚚 قيد التوصيل</span>`;
-    }
-
-    if (s === 'contacted') {
-      return `<span class="badge b-contact">تم التواصل</span>`;
-    }
-
-    if (s === 'cancelled') {
-      return `<span class="badge b-cancel">ملغي</span>`;
-    }
-
+    if (s === 'done') return `<span class="badge b-done">تم التسليم</span>`;
+    if (s === 'out_for_delivery') return `<span class="badge b-delivery">🚚 قيد التوصيل</span>`;
+    if (s === 'contacted') return `<span class="badge b-contact">تم التواصل</span>`;
+    if (s === 'cancelled') return `<span class="badge b-cancel">ملغي</span>`;
     return `<span class="badge b-new">جديد</span>`;
   }
 
+  function money(n){
+    return Math.round(Number(n) || 0);
+  }
+
   function calcTotal(items){
-    return Math.round(
-      (items || []).reduce((sum, i) =>
-        sum + (Number(i.price) || 0) * (Number(i.qty) || 0), 0)
-    );
+    return money((items || []).reduce((sum, i) =>
+      sum + (Number(i.price)||0) * (Number(i.qty)||0), 0));
   }
 
   function normalizePhone(phone){
@@ -543,29 +529,22 @@ style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-
 
   function normalizePhoneForWA(phone){
     let p = normalizePhone(phone);
-
     if (!p) return '';
-
     if (p.startsWith('0') && p.length === 10) {
       p = '972' + p.slice(1);
     }
-
     return p;
   }
 
   function buildWhatsappText(order){
-
     const items = (order.items || []).map(i => {
-      const line = Math.round(
-        (Number(i.price) || 0) * (Number(i.qty) || 0)
-      );
-
+      const line = money((Number(i.price)||0) * (Number(i.qty)||0));
       return `• ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${line}`;
     }).join('\n');
 
     const total = calcTotal(order.items || []);
     const delivery = total >= 299 ? 0 : 30;
-    const grand = Math.round(total + delivery);
+    const grand = money(total + delivery);
 
     return `مرحبا 👋
 أنا الشليح تبع خيرات صندله 🚚
@@ -584,11 +563,7 @@ ${items}
 
   function matchesSearch(order, text){
     if (!text) return true;
-
-    const t = String(text || '')
-      .toLowerCase()
-      .replace('#','')
-      .trim();
+    const t = String(text || '').toLowerCase().replace('#','').trim();
 
     const hay = `
       ${order.id || ''}
@@ -612,29 +587,21 @@ ${items}
     list.innerHTML = 'تحميل...';
 
     try{
-      const res = await fetch(
-        `/api/courier/orders?status=${encodeURIComponent(currentFilter)}`,
-        { credentials:'include' }
-      );
+      const res = await fetch(`/api/courier/orders?status=${encodeURIComponent(currentFilter)}`, {
+        credentials:'include'
+      });
 
       if(!res.ok){
-
         if(res.status === 401){
           window.location.href = '/courier-login';
           return;
         }
-
         list.innerHTML = `<div class="empty">خطأ في تحميل الطلبات.</div>`;
         return;
       }
 
       const data = await res.json();
-
-      orders = (data || []).map(o => ({
-        ...o,
-        items: safeItems(o.items)
-      }));
-
+      orders = (data || []).map(o => ({ ...o, items: safeItems(o.items) }));
       render();
 
     }catch(err){
@@ -644,9 +611,7 @@ ${items}
   }
 
   function render(){
-
-    const searchText =
-      document.getElementById('searchInput')?.value.trim() || '';
+    const searchText = document.getElementById('searchInput')?.value.trim() || '';
 
     const filtered = orders
       .filter(matchesFilter)
@@ -655,57 +620,32 @@ ${items}
     ordersCount.textContent = `عدد الطلبات: ${filtered.length}`;
 
     if(!filtered.length){
-      list.innerHTML = `
-        <div class="empty">
-          لا توجد طلبات ضمن هذه الحالة.
-        </div>
-      `;
+      list.innerHTML = `<div class="empty">لا توجد طلبات ضمن هذه الحالة.</div>`;
       return;
     }
 
     list.innerHTML = filtered.map(o => {
-
       const total = calcTotal(o.items || []);
       const delivery = total >= 299 ? 0 : 30;
-      const grand = Math.round(total + delivery);
+      const grand = money(total + delivery);
 
       const phoneClean = normalizePhoneForWA(o.phone);
       const phoneCall = normalizePhone(o.phone);
-
       const msg = encodeURIComponent(buildWhatsappText(o));
-
-      const wa = phoneClean
-        ? `https://wa.me/${phoneClean}?text=${msg}`
-        : '';
-
-      const callLink = phoneCall
-        ? `tel:${phoneCall}`
-        : '';
+      const wa = phoneClean ? `https://wa.me/${phoneClean}?text=${msg}` : '';
+      const callLink = phoneCall ? `tel:${phoneCall}` : '';
 
       const itemsHtml = (o.items || []).map(it => {
-
-        const unit =
-          it.unitType === 'bag'
-            ? 'كيس'
-            : 'كغم';
-
-        const line = Math.round(
-          (Number(it.price) || 0) * (Number(it.qty) || 0)
-        );
+        const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
+        const line = money((Number(it.price)||0) * (Number(it.qty)||0));
 
         return `
           <div class="item">
             <div>
               <strong>${esc(it.name)}</strong>
-
-              <div class="muted">
-                ${esc(it.qty)} ${unit} × ₪${esc(it.price)}
-              </div>
+              <div class="muted">${esc(it.qty)} ${unit} × ₪${esc(money(it.price))}</div>
             </div>
-
-            <div style="font-weight:1000;">
-              ₪${esc(line)}
-            </div>
+            <div style="font-weight:1000;">₪${esc(line)}</div>
           </div>
         `;
       }).join('');
@@ -714,149 +654,201 @@ ${items}
 
       return `
         <div class="card">
-
           <div class="head">
             <div>
-              <div class="title">
-                طلب رقم #${esc(o.id)}
-              </div>
-
-              <div class="meta">
-                ${formatDate(o.createdAt)}
-              </div>
+              <div class="title">طلب رقم #${esc(o.id)}</div>
+              <div class="meta">${formatDate(o.createdAt)}</div>
             </div>
-
             ${statusBadge(o.status)}
           </div>
 
           <div class="rows">
-
             <div class="row">
               <div class="label">الاسم</div>
-              <div class="value value-rtl">
-                ${esc(o.name)}
-              </div>
+              <div class="value value-rtl">${esc(o.name)}</div>
             </div>
 
             <div class="row">
               <div class="label">الهاتف</div>
-              <div class="value">
-                ${esc(o.phone)}
-              </div>
+              <div class="value">${esc(o.phone)}</div>
             </div>
 
             ${o.phone2 ? `
-              <div class="info-row">
-                <span class="label">هاتف إضافي</span>
-                <span class="value">${o.phone2}</span>
+              <div class="row">
+                <div class="label">هاتف إضافي</div>
+                <div class="value">${esc(o.phone2)}</div>
               </div>
             ` : ''}
 
             <div class="row">
               <div class="label">البلد</div>
-              <div class="value value-rtl">
-                ${esc(o.country)}
-              </div>
+              <div class="value value-rtl">${esc(o.country)}</div>
             </div>
 
             <div class="row">
               <div class="label">العنوان</div>
-              <div class="addr">
-                ${esc(o.address)}
-              </div>
+              <div class="addr">${esc(o.address)}</div>
             </div>
-
           </div>
 
           <div class="items">
-
-            <div class="items-title">
-              المنتجات
-            </div>
-
+            <div class="items-title">المنتجات</div>
             ${itemsHtml || '<div class="muted">لا يوجد منتجات</div>'}
-
           </div>
 
           <div class="summary-box">
-
             <div class="row">
-              <div class="label">
-                المجموع قبل التوصيل
-              </div>
-
-              <div class="value">
-                ₪${esc(total)}
-              </div>
+              <div class="label">المجموع قبل التوصيل</div>
+              <div class="value">₪${esc(total)}</div>
             </div>
 
             <div class="row">
-              <div class="label">
-                التوصيل
-              </div>
-
-              <div class="value value-rtl">
-                ${delivery === 0 ? 'توصيل مجاني ✅' : '₪30'}
-              </div>
+              <div class="label">التوصيل</div>
+              <div class="value value-rtl">${delivery === 0 ? 'توصيل مجاني ✅' : '₪30'}</div>
             </div>
 
             <div class="row">
-              <div class="label">
-                المجموع الكلي
-              </div>
-
-              <div class="value">
-                ₪${esc(grand)}
-              </div>
+              <div class="label">المجموع الكلي</div>
+              <div class="value">₪${esc(grand)}</div>
             </div>
 
             ${o.status === 'cancelled' ? `
               <div class="row" style="margin-top:2px;">
                 <div class="label">سبب الإلغاء</div>
-                <div class="addr">
-                  ${cancelText || '—'}
-                </div>
+                <div class="addr">${cancelText || '—'}</div>
               </div>
             ` : ''}
-
           </div>
 
           <div class="actions">
-
             ${
               wa
-                ? `<a class="btn btn-green" target="_blank" href="${wa}">واتساب</a>`
-                : `<button class="btn btn-light" type="button" disabled>لا يوجد واتساب</button>`
+              ? `<a class="btn btn-green" target="_blank" href="${wa}">واتساب</a>`
+              : `<button class="btn btn-light" type="button" disabled>لا يوجد واتساب</button>`
             }
 
             ${
               callLink
-                ? `<a class="btn btn-call" href="${callLink}">📞 اتصال</a>`
-                : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم</button>`
+              ? `<a class="btn btn-call" href="${callLink}">📞 اتصال</a>`
+              : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم</button>`
             }
 
-            <button
-              class="btn btn-blue"
-              type="button"
-              onclick="markDelivered(${esc(o.id)})"
-            >
-              ✅ تم التسليم
-            </button>
-
-            <button
-              class="btn btn-red"
-              type="button"
-              onclick="toggleCancelBox(${esc(o.id)})"
-            >
-              ❌ ملغي
-            </button>
-
+            <button class="btn btn-blue" type="button" onclick="markDelivered(${esc(o.id)})">✅ تم التسليم</button>
+            <button class="btn btn-red" type="button" onclick="toggleCancelBox(${esc(o.id)})">❌ ملغي</button>
           </div>
 
+          <div class="cancelBox" id="cancelBox-${esc(o.id)}">
+            <div class="cancelTitle">سبب الإلغاء</div>
+
+            <select id="cancelSel-${esc(o.id)}">
+              <option value="الزبون لا يرد">الزبون لا يرد</option>
+              <option value="العنوان غير واضح">العنوان غير واضح</option>
+              <option value="الزبون لغى الطلب">الزبون لغى الطلب</option>
+              <option value="غير متوفر وقت التسليم">غير متوفر وقت التسليم</option>
+              <option value="سبب آخر">سبب آخر</option>
+            </select>
+
+            <input id="cancelTxt-${esc(o.id)}" placeholder="إذا سبب آخر... اكتب هون" />
+
+            <button class="btn btn-red" style="width:100%; margin-top:10px;" type="button" onclick="confirmCancel(${esc(o.id)})">
+              تأكيد الإلغاء
+            </button>
+          </div>
         </div>
       `;
     }).join('');
   }
+
+  window.toggleCancelBox = function(id){
+    const box = document.getElementById('cancelBox-' + id);
+    if (!box) return;
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+  };
+
+  window.markDelivered = async function(id){
+    try{
+      const res = await fetch(`/api/courier/orders/${id}/delivered`, {
+        method:'PUT',
+        credentials:'include'
+      });
+
+      if(!res.ok){
+        if(res.status === 401){
+          window.location.href = '/courier-login';
+          return;
+        }
+        alert('فشل تحديث الحالة');
+        return;
+      }
+
+      await fetchOrders();
+
+    }catch(err){
+      console.error(err);
+      alert('مشكلة اتصال');
+    }
+  };
+
+  window.confirmCancel = async function(id){
+    const sel = document.getElementById('cancelSel-' + id);
+    const txt = document.getElementById('cancelTxt-' + id);
+
+    let reason = (sel?.value || '').trim();
+    const extra = (txt?.value || '').trim();
+
+    if (reason === 'سبب آخر' && extra) reason = extra;
+
+    if (!reason) {
+      alert('اكتب سبب الإلغاء');
+      return;
+    }
+
+    try{
+      const res = await fetch(`/api/courier/orders/${id}/cancel`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json'},
+        credentials:'include',
+        body: JSON.stringify({ reason })
+      });
+
+      if(!res.ok){
+        if(res.status === 401){
+          window.location.href = '/courier-login';
+          return;
+        }
+        alert('فشل الإلغاء');
+        return;
+      }
+
+      await fetchOrders();
+
+    }catch(err){
+      console.error(err);
+      alert('مشكلة اتصال');
+    }
+  };
+
+  document.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      fetchOrders();
+    });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await fetch('/api/courier/logout', {
+      method:'POST',
+      credentials:'include'
+    }).catch(()=>{});
+
+    window.location.href = '/courier-login';
+  });
+
+  document.getElementById('searchInput').addEventListener('input', render);
+
+  fetchOrders();
 </script>
 </body>
 </html>
