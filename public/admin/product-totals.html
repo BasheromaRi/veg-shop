@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="/styles.css" />
   <style>
     .box{background:#fff;border:1px solid #dfe7e2;border-radius:16px;padding:12px;margin-top:12px;box-shadow:0 1px 10px rgba(0,0,0,.06)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
     .pills{display:flex;gap:8px;flex-wrap:wrap}
     .pill{border:1px solid #d7e2db;background:#fff;padding:10px 12px;border-radius:999px;font-weight:900;cursor:pointer;font-size:13px}
     .pill.active{background:#eaf5ef;border-color:#9dd3b1}
@@ -16,12 +15,22 @@
     .name{font-weight:1000}
     .qty{font-weight:1000;direction:ltr}
     .muted{color:#6a7b72;font-size:12px}
-    input,
-select,
-textarea,
-button {
-  font-size: 16px !important;
-}
+
+    .moneyBox{
+      background:#eaf7ef;
+      border:1px solid #a8e0be;
+      padding:14px;
+      border-radius:16px;
+      margin-top:12px;
+      font-size:20px;
+      font-weight:1000;
+      color:#0f5a2a;
+      text-align:center;
+    }
+
+    input, select, textarea, button {
+      font-size: 16px !important;
+    }
   </style>
 </head>
 
@@ -66,32 +75,73 @@ button {
       </div>
     </div>
 
+    <div id="grandTotalBox" class="moneyBox">المجموع الكلي للدفع: ₪0</div>
+
     <div id="list" class="grid">تحميل...</div>
   </div>
 
   <script>
     const list = document.getElementById('list');
+    const grandTotalBox = document.getElementById('grandTotalBox');
+
     let currentStatus = 'all';
     let selectedRegions = ['all'];
 
     function unitLabel(u){ return (u === 'bag') ? 'كيس' : 'كغم'; }
 
+    function calcOrdersGrandTotal(orders){
+      let grandTotal = 0;
+
+      (orders || []).forEach(order => {
+        if (currentStatus !== 'all' && (order.status || 'new') !== currentStatus) return;
+
+        if (!selectedRegions.includes('all')) {
+          const orderRegion = String(order.deliveryRegion || '').trim();
+          if (!selectedRegions.includes(orderRegion)) return;
+        }
+
+        const items = Array.isArray(order.items) ? order.items : [];
+
+        const subtotal = Math.round(items.reduce((sum, i) => {
+          return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
+        }, 0));
+
+        const delivery = subtotal >= 300 ? 0 : 30;
+        grandTotal += subtotal + delivery;
+      });
+
+      return Math.round(grandTotal);
+    }
+
     async function loadTotals(){
       list.textContent = 'تحميل...';
+      grandTotalBox.textContent = 'المجموع الكلي للدفع: جاري الحساب...';
 
       try{
         const regionParam = selectedRegions.join(',');
         const url = `/api/reports/totals?status=${encodeURIComponent(currentStatus)}&region=${encodeURIComponent(regionParam)}`;
 
-        const res = await fetch(url, { credentials:'include' });
+        const [totalsRes, ordersRes] = await Promise.all([
+          fetch(url, { credentials:'include' }),
+          fetch('/api/orders', { credentials:'include' })
+        ]);
 
-        if(!res.ok){
-          if(res.status===401){ window.location.href='/login.html'; return; }
+        if(!totalsRes.ok || !ordersRes.ok){
+          if(totalsRes.status===401 || ordersRes.status===401){
+            window.location.href='/login.html';
+            return;
+          }
           list.textContent = 'خطأ في تحميل الإحصائيات';
+          grandTotalBox.textContent = 'المجموع الكلي للدفع: ₪0';
           return;
         }
 
-        const data = await res.json().catch(()=>({}));
+        const data = await totalsRes.json().catch(()=>({}));
+        const orders = await ordersRes.json().catch(()=>[]);
+
+        const totalPay = calcOrdersGrandTotal(orders);
+        grandTotalBox.textContent = `المجموع الكلي للدفع: ₪${totalPay}`;
+
         const totals = data.totals || [];
 
         if(!totals.length){
@@ -112,6 +162,7 @@ button {
       }catch(e){
         console.error(e);
         list.textContent = 'مشكلة اتصال بالسيرفر';
+        grandTotalBox.textContent = 'المجموع الكلي للدفع: ₪0';
       }
     }
 
@@ -125,45 +176,36 @@ button {
     });
 
     document.querySelectorAll('[data-r]').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    const region = b.dataset.r;
+      b.addEventListener('click', ()=>{
+        const region = b.dataset.r;
 
-    if(region === 'all'){
-      selectedRegions = ['all'];
+        if(region === 'all'){
+          selectedRegions = ['all'];
+          document.querySelectorAll('[data-r]').forEach(x=>x.classList.remove('active'));
+          b.classList.add('active');
+        } else {
+          selectedRegions = selectedRegions.filter(r => r !== 'all');
 
-      document.querySelectorAll('[data-r]').forEach(x=>{
-        x.classList.remove('active');
+          const allBtn = document.querySelector('[data-r="all"]');
+          if(allBtn) allBtn.classList.remove('active');
+
+          if(selectedRegions.includes(region)){
+            selectedRegions = selectedRegions.filter(r => r !== region);
+            b.classList.remove('active');
+          } else {
+            selectedRegions.push(region);
+            b.classList.add('active');
+          }
+
+          if(!selectedRegions.length){
+            selectedRegions = ['all'];
+            if(allBtn) allBtn.classList.add('active');
+          }
+        }
+
+        loadTotals();
       });
-
-      b.classList.add('active');
-
-    } else {
-
-      selectedRegions = selectedRegions.filter(r => r !== 'all');
-
-      const allBtn = document.querySelector('[data-r="all"]');
-      if(allBtn) allBtn.classList.remove('active');
-
-      if(selectedRegions.includes(region)){
-
-        selectedRegions = selectedRegions.filter(r => r !== region);
-        b.classList.remove('active');
-
-      } else {
-
-        selectedRegions.push(region);
-        b.classList.add('active');
-      }
-
-      if(!selectedRegions.length){
-        selectedRegions = ['all'];
-        if(allBtn) allBtn.classList.add('active');
-      }
-    }
-
-    loadTotals();
-  });
-});
+    });
 
     loadTotals();
   </script>
