@@ -158,9 +158,18 @@ db.serialize(() => {
 const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS || 'Q1azP0lm';
 const COURIER_PIN = process.env.COURIER_PIN || '7788';
+
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = '795056938';
+
 const MIN_ORDER_TOTAL = 200;
+
+/* ================== WHATSAPP CLOUD API ================== */
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+const WHATSAPP_TEMPLATE_NAME = process.env.WHATSAPP_TEMPLATE_NAME || 'order_received';
+const WHATSAPP_TEMPLATE_LANG = process.env.WHATSAPP_TEMPLATE_LANG || 'ar';
+const WHATSAPP_GRAPH_VERSION = process.env.WHATSAPP_GRAPH_VERSION || 'v23.0';
 
 /* ================== MIDDLEWARE ================== */
 app.use(cors({ origin: true, credentials: true }));
@@ -528,6 +537,96 @@ async function sendTelegramMessage(text) {
   }
 }
 
+/* ================== WHATSAPP ================== */
+function normalizeWhatsappPhone(phone) {
+  let digits = String(phone || '').replace(/\D/g, '');
+
+  if (!digits) return '';
+
+  if (digits.startsWith('972')) {
+    return digits;
+  }
+
+  if (digits.startsWith('0')) {
+    return '972' + digits.slice(1);
+  }
+
+  if (digits.startsWith('5')) {
+    return '972' + digits;
+  }
+
+  return digits;
+}
+
+async function sendWhatsAppOrderConfirmation({ phone, name, orderId, total }) {
+  if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_NUMBER_ID) {
+    console.log('WhatsApp not configured');
+    return;
+  }
+
+  const to = normalizeWhatsappPhone(phone);
+
+  if (!to) {
+    console.log('WhatsApp phone missing');
+    return;
+  }
+
+  try {
+    const url = `https://graph.facebook.com/${WHATSAPP_GRAPH_VERSION}/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
+
+    const payload = {
+      messaging_product: 'whatsapp',
+      to,
+      type: 'template',
+      template: {
+        name: WHATSAPP_TEMPLATE_NAME,
+        language: {
+          code: WHATSAPP_TEMPLATE_LANG
+        },
+        components: [
+          {
+            type: 'body',
+            parameters: [
+              {
+                type: 'text',
+                text: String(name || 'زبوننا العزيز')
+              },
+              {
+                type: 'text',
+                text: String(`#${orderId}`)
+              },
+              {
+                type: 'text',
+                text: String(`₪${total}`)
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.text();
+
+    if (!res.ok) {
+      console.error('WhatsApp send failed:', data);
+      return;
+    }
+
+    console.log('WhatsApp message sent:', data);
+  } catch (err) {
+    console.error('WhatsApp error:', err);
+  }
+}
+
 /* ================== ORDERS ================== */
 app.get('/api/orders', (req, res) => {
   db.all('SELECT * FROM orders ORDER BY id DESC', [], (err, rows) => {
@@ -606,6 +705,13 @@ ${itemsText || '-'}
 ✅ المجموع الكلي: ₪${total}`;
 
       sendTelegramMessage(msg);
+
+      sendWhatsAppOrderConfirmation({
+        phone,
+        name,
+        orderId,
+        total
+      });
 
       res.json({ success: true, orderId });
     }
