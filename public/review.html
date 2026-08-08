@@ -632,12 +632,10 @@
           <div class="item-price">₪${line}</div>
 
           <div class="item-actions">
-            <div class="qty-controls">
-              <button type="button" class="qty-btn" data-action="plus" data-key="${esc(i.key)}">+</button>
-              <div class="qty-num">${esc(i.qty)} ${unit}</div>
-              <button type="button" class="qty-btn" data-action="minus" data-key="${esc(i.key)}">−</button>
+            <div class="item-line">
+              لمتابعة تعديل الكمية، ارجع للمتجر
             </div>
-
+          
             <button type="button" class="remove-btn" data-action="remove" data-key="${esc(i.key)}">
               حذف المنتج
             </button>
@@ -689,44 +687,19 @@
   }
 
   cartBox.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button[data-action]');
-    if(!btn) return;
+  const btn = e.target.closest('button[data-action="remove"]');
+  if(!btn) return;
 
-    const action = btn.dataset.action;
-    const key = btn.dataset.key;
+  const key = btn.dataset.key;
 
-    if(!cart[key]) return;
+  if(!cart[key]) return;
 
-    if(action === 'remove'){
-      if(confirm('بدك تحذف هذا المنتج من السلة؟')){
-        delete cart[key];
-        saveCart();
-        renderCart();
-      }
-      return;
-    }
-
-    const item = cart[key];
-    const step = getStep(item);
-    const currentQty = cleanQty(item.qty);
-
-    if(action === 'plus'){
-      item.qty = cleanQty(currentQty + step);
-    }
-
-    if(action === 'minus'){
-      const newQty = cleanQty(currentQty - step);
-
-      if(newQty <= 0){
-        delete cart[key];
-      }else{
-        item.qty = newQty;
-      }
-    }
-
+  if(confirm('بدك تحذف هذا المنتج من السلة؟')){
+    delete cart[key];
     saveCart();
     renderCart();
-  });
+  }
+});
 
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
