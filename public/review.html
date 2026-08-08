@@ -2,14 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
   <title>مراجعة الطلب</title>
   <link rel="stylesheet" href="/styles.css">
 
   <style>
-    *{
-      box-sizing:border-box;
-    }
+    *{ box-sizing:border-box; }
 
     body{
       overflow-x:hidden;
@@ -32,17 +31,84 @@
     }
 
     .cart-item{
-      display:flex;
-      justify-content:space-between;
+      display:grid;
+      grid-template-columns: 1fr auto;
       gap:10px;
-      font-size:14px;
-      padding:8px 0;
+      align-items:center;
+      padding:12px 0;
       border-bottom:1px dashed #e7e2d6;
       line-height:1.5;
     }
 
     .cart-item:last-child{
       border-bottom:none;
+    }
+
+    .item-title{
+      font-weight:1000;
+      color:#1f3b2d;
+      font-size:15px;
+      margin-bottom:4px;
+    }
+
+    .item-line{
+      color:#6a7b72;
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .item-price{
+      font-weight:1000;
+      color:#163c25;
+      direction:ltr;
+      text-align:left;
+      white-space:nowrap;
+    }
+
+    .item-actions{
+      grid-column:1 / -1;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-top:6px;
+    }
+
+    .qty-controls{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      direction:ltr;
+    }
+
+    .qty-btn{
+      width:34px;
+      height:34px;
+      border:none;
+      border-radius:12px;
+      background:#eaf5ef;
+      color:#1f6b3d;
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.05);
+    }
+
+    .qty-num{
+      min-width:52px;
+      text-align:center;
+      font-weight:1000;
+      color:#163c25;
+      direction:ltr;
+    }
+
+    .remove-btn{
+      border:none;
+      background:#fff1f1;
+      color:#c0392b;
+      padding:8px 12px;
+      border-radius:12px;
+      font-weight:1000;
+      cursor:pointer;
     }
 
     .cart-summary{
@@ -79,6 +145,44 @@
       font-weight:1000;
     }
 
+    .min-warning{
+      margin-top:12px;
+      padding:13px;
+      border-radius:16px;
+      background:#fff7e6;
+      border:1px solid #ffd48a;
+      color:#8a5a00;
+      font-size:14px;
+      font-weight:1000;
+      line-height:1.7;
+    }
+
+    .ok-note{
+      margin-top:12px;
+      padding:13px;
+      border-radius:16px;
+      background:#eaf7ef;
+      border:1px solid #a8e0be;
+      color:#0f5a2a;
+      font-size:14px;
+      font-weight:1000;
+      line-height:1.7;
+    }
+
+    .continue-btn{
+      display:block;
+      width:100%;
+      margin-top:10px;
+      text-align:center;
+      background:#f2f7f4;
+      color:#245b39;
+      padding:12px;
+      border-radius:16px;
+      font-weight:1000;
+      text-decoration:none;
+      border:1px solid #d7e8dd;
+    }
+
     .field{
       margin-bottom:14px;
     }
@@ -101,6 +205,7 @@
       background:#fff;
       color:#1f3b2d;
     }
+
     .field textarea{
       width:100%;
       max-width:100%;
@@ -115,19 +220,17 @@
       transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
       -webkit-appearance:none;
       appearance:none;
-    }
-
-    .field input:focus,
-    .field textarea:focus{
-      border-color:#9dd3b1;
-      box-shadow:0 0 0 4px rgba(46,139,87,.10);
-      background:#fff;
-    }
-
-    .field textarea{
       min-height:110px;
       resize:vertical;
       line-height:1.6;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus{
+      border-color:#9dd3b1;
+      box-shadow:0 0 0 4px rgba(46,139,87,.10);
+      background:#fff;
     }
 
     .field-error{
@@ -153,13 +256,8 @@
       transition:transform .12s ease, filter .12s ease;
     }
 
-    .btn-main:hover{
-      filter:brightness(1.03);
-    }
-
-    .btn-main:active{
-      transform:scale(.98);
-    }
+    .btn-main:hover{ filter:brightness(1.03); }
+    .btn-main:active{ transform:scale(.98); }
 
     .btn-main:disabled{
       opacity:.7;
@@ -173,12 +271,52 @@
       font-size:15px;
       text-align:center;
       padding:10px 4px;
+      line-height:1.7;
+    }
+
+    .success-box{
+      display:none;
+      background:#fff;
+      border:1px solid #d8e8dc;
+      border-radius:22px;
+      padding:20px;
+      text-align:center;
+      box-shadow:0 10px 26px rgba(0,0,0,.08);
+      margin-top:16px;
+    }
+
+    .success-icon{
+      font-size:42px;
+      margin-bottom:8px;
+    }
+
+    .success-title{
+      font-size:22px;
+      font-weight:1000;
+      color:#0f5a2a;
+      margin-bottom:8px;
+    }
+
+    .success-text{
+      color:#405348;
+      font-size:15px;
+      font-weight:900;
+      line-height:1.8;
+      margin-bottom:14px;
+    }
+
+    .success-order{
+      background:#f7fbf8;
+      border:1px solid #d8e8dc;
+      border-radius:16px;
+      padding:12px;
+      font-weight:1000;
+      color:#163c25;
+      margin-bottom:14px;
     }
 
     @media (max-width:600px){
-      .container{
-        padding:14px;
-      }
+      .container{ padding:14px; }
 
       .cart-box{
         padding:12px;
@@ -186,27 +324,21 @@
       }
 
       .cart-item{
-        font-size:13px;
+        grid-template-columns:1fr;
       }
 
-      .summary-row{
-        font-size:14px;
+      .item-price{
+        text-align:right;
       }
 
-      .summary-row small{
-        font-size:12px;
-      }
-
-      .summary-total{
-        font-size:16px;
-      }
-
-      .field label{
-        font-size:13px;
-      }
+      .summary-row{ font-size:14px; }
+      .summary-row small{ font-size:12px; }
+      .summary-total{ font-size:16px; }
+      .field label{ font-size:13px; }
 
       .field input,
-      .field textarea{
+      .field textarea,
+      .field select{
         font-size:16px;
         padding:12px 13px;
         border-radius:15px;
@@ -217,12 +349,13 @@
         padding:13px;
       }
     }
+
     input,
-select,
-textarea,
-button {
-  font-size: 16px !important;
-}
+    select,
+    textarea,
+    button {
+      font-size: 16px !important;
+    }
   </style>
 </head>
 
@@ -256,43 +389,43 @@ button {
         autocomplete="tel"
         maxlength="10"
       >
-      
       <div id="phoneError" class="field-error"></div>
     </div>
+
     <div class="field">
-  <label>رقم هاتف إضافي (اختياري)</label>
-  <input
-    type="tel"
-    id="phone2"
-    inputmode="numeric"
-    autocomplete="tel"
-    maxlength="10"
-    placeholder="اختياري"
-  >
-  <div id="phone2Error" class="field-error"></div>
-</div>
+      <label>رقم هاتف إضافي (اختياري)</label>
+      <input
+        type="tel"
+        id="phone2"
+        inputmode="numeric"
+        autocomplete="tel"
+        maxlength="10"
+        placeholder="اختياري"
+      >
+      <div id="phone2Error" class="field-error"></div>
+    </div>
 
     <div class="field">
       <label>البلد</label>
       <input type="text" id="country" required>
     </div>
+
     <div class="field">
-      
-  <label>المنطقة</label>
-  <select id="deliveryRegion" required>
-    <option value="">اختر المنطقة</option>
-    <option value="الشمال">الشمال</option>
-    <option value="الجنوب">الجنوب</option>
-    <option value="حيفا">حيفا</option>
-    <option value="الناصرة وضواحيها">الناصرة وضواحيها</option>
-    <option value="المثلث">المثلث</option>
-    <option value="المركز">المركز</option>
-    <option value="الجولان / الهضبه">الجولان / الهضبه</option>
-  </select>
-</div>
+      <label>المنطقة</label>
+      <select id="deliveryRegion" required>
+        <option value="">اختر المنطقة</option>
+        <option value="الشمال">الشمال</option>
+        <option value="الجنوب">الجنوب</option>
+        <option value="حيفا">حيفا</option>
+        <option value="الناصرة وضواحيها">الناصرة وضواحيها</option>
+        <option value="المثلث">المثلث</option>
+        <option value="المركز">المركز</option>
+        <option value="الجولان / الهضبه">الجولان / الهضبه</option>
+      </select>
+    </div>
+
     <div class="field">
       <label>العنوان</label>
-      
       <input type="text" id="address" required autocomplete="street-address">
     </div>
 
@@ -306,14 +439,32 @@ button {
     </button>
   </form>
 
+  <div id="successBox" class="success-box">
+    <div class="success-icon">✅</div>
+    <div class="success-title">تم تلقي طلبك بنجاح</div>
+    <div class="success-text">
+      شكرًا لطلبك من خيرات صندله 🌿<br>
+      وصلنا طلبك، وسنقوم بالتواصل معك قبل موعد التوصيل لتأكيد التفاصيل.
+    </div>
+    <div id="successOrder" class="success-order"></div>
+    <a class="continue-btn" href="/index.html">الرجوع للمتجر</a>
+  </div>
+
 </div>
 
 <script>
   let cart = {};
+
+  const MIN_ORDER_TOTAL = 200;
+  const FREE_DELIVERY_FROM = 300;
+  const DELIVERY_FEE = 30;
+
   const elRegion = document.getElementById('deliveryRegion');
   const cartBox = document.getElementById('cartBox');
   const form = document.getElementById('orderForm');
   const submitBtn = document.getElementById('submitBtn');
+  const successBox = document.getElementById('successBox');
+  const successOrder = document.getElementById('successOrder');
 
   const elName = document.getElementById('name');
   const elPhone = document.getElementById('phone');
@@ -324,95 +475,118 @@ button {
   const phoneError = document.getElementById('phoneError');
   const phone2Error = document.getElementById('phone2Error');
 
-  const FREE_DELIVERY_FROM = 300;
-  const DELIVERY_FEE = 30;
+  function esc(v){
+    return String(v ?? '').replace(/[&<>"']/g, (m) => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#039;'
+    }[m]));
+  }
 
   function onlyDigits(value){
     return String(value || '').replace(/\D/g, '');
   }
 
+  function unitLabel(item){
+    return item.unitType === 'bag' ? 'كيس' : 'كغم';
+  }
+
+  function getStep(item){
+    const step = Number(item.qtyStep || item.step || 1);
+    return step > 0 ? step : 1;
+  }
+
+  function cleanQty(num){
+    return Math.round(Number(num || 0) * 100) / 100;
+  }
+
+  function saveCart(){
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+
   function validatePhone(showMessage = true){
-  const digits = onlyDigits(elPhone.value);
+    const digits = onlyDigits(elPhone.value);
 
-  if (digits.length === 0){
+    if (digits.length === 0){
+      phoneError.textContent = '';
+      return false;
+    }
+
+    if (!digits.startsWith('0')){
+      if (showMessage) phoneError.textContent = 'رقم الهاتف لازم يبدأ بـ 0';
+      return false;
+    }
+
+    if (digits.length !== 10){
+      if (showMessage) phoneError.textContent = 'رقم الهاتف لازم يكون 10 أرقام';
+      return false;
+    }
+
     phoneError.textContent = '';
-    return false;
+    return true;
   }
 
-  if (!digits.startsWith('0')){
-    if (showMessage) phoneError.textContent = 'رقم الهاتف لازم يبدأ بـ 0';
-    return false;
-  }
+  function validatePhone2(showMessage = true){
+    const digits = onlyDigits(elPhone2.value);
 
-  if (digits.length !== 10){
-    if (showMessage) phoneError.textContent = 'رقم الهاتف لازم يكون 10 أرقام';
-    return false;
-  }
+    if (digits.length === 0){
+      phone2Error.textContent = '';
+      return true;
+    }
 
-  phoneError.textContent = '';
-  return true;
-}
+    if (!digits.startsWith('0')){
+      if (showMessage) phone2Error.textContent = 'الرقم الإضافي لازم يبدأ بـ 0';
+      return false;
+    }
+
+    if (digits.length !== 10){
+      if (showMessage) phone2Error.textContent = 'الرقم الإضافي لازم يكون 10 أرقام';
+      return false;
+    }
+
+    phone2Error.textContent = '';
+    return true;
+  }
 
   elPhone.addEventListener('input', () => {
     const digits = onlyDigits(elPhone.value).slice(0, 10);
     elPhone.value = digits;
     validatePhone(true);
   });
-  function validatePhone2(showMessage = true){
-  const digits = onlyDigits(elPhone2.value);
-
-  if (digits.length === 0){
-    phone2Error.textContent = '';
-    return true;
-  }
-
-  if (!digits.startsWith('0')){
-    if (showMessage) phone2Error.textContent = 'الرقم الإضافي لازم يبدأ بـ 0';
-    return false;
-  }
-
-  if (digits.length !== 10){
-    if (showMessage) phone2Error.textContent = 'الرقم الإضافي لازم يكون 10 أرقام';
-    return false;
-  }
-
-  phone2Error.textContent = '';
-  return true;
-}
-
-elPhone2.addEventListener('input', () => {
-  const digits = onlyDigits(elPhone2.value).slice(0, 10);
-  elPhone2.value = digits;
-  validatePhone2(true);
-});
-
-elPhone2.addEventListener('blur', () => {
-  validatePhone2(true);
-});
 
   elPhone.addEventListener('blur', () => {
     validatePhone(true);
   });
 
+  elPhone2.addEventListener('input', () => {
+    const digits = onlyDigits(elPhone2.value).slice(0, 10);
+    elPhone2.value = digits;
+    validatePhone2(true);
+  });
+
+  elPhone2.addEventListener('blur', () => {
+    validatePhone2(true);
+  });
+
   function calculateTotals(items){
-  const subtotalRaw = Math.round((items || []).reduce((sum, item) => {
-  return sum + ((Number(item.price) || 0) * (Number(item.qty) || 0));
-}, 0));
+    const subtotal = Math.round((items || []).reduce((sum, item) => {
+      return sum + ((Number(item.price) || 0) * (Number(item.qty) || 0));
+    }, 0));
 
-  const subtotal = Math.floor(subtotalRaw);
-  const delivery = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
-  const grandTotal = Math.floor(subtotal + delivery);
+    const delivery = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
+    const grandTotal = Math.round(subtotal + delivery);
 
-  return { subtotal, delivery, grandTotal };
-}
-  
-  
+    return { subtotal, delivery, grandTotal };
+  }
 
   function loadCart(){
     const saved = localStorage.getItem('cart');
 
     if(!saved){
-      cartBox.innerHTML = '<div class="empty-box">السلة فارغة</div>';
+      cart = {};
+      renderCart();
       return;
     }
 
@@ -422,10 +596,21 @@ elPhone2.addEventListener('blur', () => {
       cart = {};
     }
 
-    const items = Object.values(cart);
+    renderCart();
+  }
+
+  function renderCart(){
+    const entries = Object.entries(cart || {});
+    const items = entries.map(([key, item]) => ({ key, ...item }));
 
     if(!items.length){
-      cartBox.innerHTML = '<div class="empty-box">السلة فارغة</div>';
+      cartBox.innerHTML = `
+        <div class="empty-box">
+          السلة فارغة<br>
+          اختار منتجاتك من المتجر وكمل طلبك بسهولة.
+        </div>
+        <a class="continue-btn" href="/index.html">الرجوع للمتجر</a>
+      `;
       return;
     }
 
@@ -433,16 +618,36 @@ elPhone2.addEventListener('blur', () => {
 
     items.forEach(i=>{
       const line = Math.round((Number(i.price) || 0) * (Number(i.qty) || 0));
+      const unit = unitLabel(i);
 
       html += `
         <div class="cart-item">
-          <div>${i.name} (${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'})</div>
-          <div>₪${line}</div>
+          <div>
+            <div class="item-title">${esc(i.name)}</div>
+            <div class="item-line">
+              الكمية: ${esc(i.qty)} ${unit}
+            </div>
+          </div>
+
+          <div class="item-price">₪${line}</div>
+
+          <div class="item-actions">
+            <div class="qty-controls">
+              <button type="button" class="qty-btn" data-action="plus" data-key="${esc(i.key)}">+</button>
+              <div class="qty-num">${esc(i.qty)} ${unit}</div>
+              <button type="button" class="qty-btn" data-action="minus" data-key="${esc(i.key)}">−</button>
+            </div>
+
+            <button type="button" class="remove-btn" data-action="remove" data-key="${esc(i.key)}">
+              حذف المنتج
+            </button>
+          </div>
         </div>
       `;
     });
 
     const { subtotal, delivery, grandTotal } = calculateTotals(items);
+    const remaining = Math.max(0, MIN_ORDER_TOTAL - subtotal);
 
     html += `
       <div class="cart-summary">
@@ -463,15 +668,81 @@ elPhone2.addEventListener('blur', () => {
       </div>
     `;
 
+    if(subtotal < MIN_ORDER_TOTAL){
+      html += `
+        <div class="min-warning">
+          عشان نوصلك الطلب، الحد الأدنى للطلب هو ₪${MIN_ORDER_TOTAL}.<br>
+          المجموع الحالي ₪${subtotal}، باقي عليك ₪${remaining} فقط لإتمام الطلب.
+        </div>
+        <a class="continue-btn" href="/index.html">إضافة منتجات للطلب</a>
+      `;
+    }else{
+      html += `
+        <div class="ok-note">
+          طلبك جاهز للإرسال ✅<br>
+          عبّي بياناتك واضغط تأكيد الطلب.
+        </div>
+      `;
+    }
+
     cartBox.innerHTML = html;
   }
+
+  cartBox.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+
+    const action = btn.dataset.action;
+    const key = btn.dataset.key;
+
+    if(!cart[key]) return;
+
+    if(action === 'remove'){
+      if(confirm('بدك تحذف هذا المنتج من السلة؟')){
+        delete cart[key];
+        saveCart();
+        renderCart();
+      }
+      return;
+    }
+
+    const item = cart[key];
+    const step = getStep(item);
+    const currentQty = cleanQty(item.qty);
+
+    if(action === 'plus'){
+      item.qty = cleanQty(currentQty + step);
+    }
+
+    if(action === 'minus'){
+      const newQty = cleanQty(currentQty - step);
+
+      if(newQty <= 0){
+        delete cart[key];
+      }else{
+        item.qty = newQty;
+      }
+    }
+
+    saveCart();
+    renderCart();
+  });
 
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
 
     const items = Object.values(cart || {});
+
     if(!items.length){
-      alert('السلة فارغة');
+      alert('السلة فارغة. اختار منتجاتك من المتجر وكمل الطلب.');
+      return;
+    }
+
+    const totalsCheck = calculateTotals(items);
+
+    if(totalsCheck.subtotal < MIN_ORDER_TOTAL){
+      const remaining = MIN_ORDER_TOTAL - totalsCheck.subtotal;
+      alert(`عشان نوصلك الطلب، الحد الأدنى هو ₪${MIN_ORDER_TOTAL}.\nالمجموع الحالي ₪${totalsCheck.subtotal}، باقي عليك ₪${remaining} لإتمام الطلب.`);
       return;
     }
 
@@ -495,14 +766,14 @@ elPhone2.addEventListener('blur', () => {
       elPhone.focus();
       return;
     }
-    
+
     if(!validatePhone2(true)){
       elPhone2.focus();
       return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'جاري الإرسال...';
+    submitBtn.textContent = 'جاري إرسال الطلب...';
 
     try{
       const res = await fetch('/api/orders',{
@@ -515,8 +786,15 @@ elPhone2.addEventListener('blur', () => {
 
       if(res.ok && data.success){
         localStorage.removeItem('cart');
-        alert('تم إرسال الطلب بنجاح ✅');
-        window.location.href = '/index.html';
+        cart = {};
+
+        cartBox.style.display = 'none';
+        form.style.display = 'none';
+
+        successOrder.textContent = data.orderId ? `رقم الطلب: #${data.orderId}` : '';
+        successBox.style.display = 'block';
+
+        window.scrollTo({ top:0, behavior:'smooth' });
       }else{
         alert(data?.error || 'حدث خطأ بإرسال الطلب');
       }
