@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
   <title>خَيْرَات صَنْدَلَه 💚</title>
   <link rel="stylesheet" href="/styles.css">
 
@@ -161,6 +162,85 @@
       box-shadow:0 4px 10px rgba(0,0,0,.25);
       border:2px solid #fff4e8;
       z-index:2;
+    }
+
+    .cart-status-box{
+      background:#fffdf8;
+      border:1px solid #e7e2d6;
+      border-radius:20px;
+      padding:14px;
+      margin: 14px 0 18px;
+      box-shadow:0 8px 20px rgba(0,0,0,.05);
+    }
+
+    .cart-status-title{
+      font-size:16px;
+      font-weight:1000;
+      color:#163c25;
+      margin-bottom:8px;
+    }
+
+    .cart-status-text{
+      font-size:14px;
+      font-weight:900;
+      line-height:1.8;
+      color:#405348;
+    }
+
+    .cart-status-warning{
+      background:#fff7e6;
+      border:1px solid #ffd48a;
+      color:#8a5a00;
+      padding:12px;
+      border-radius:16px;
+      font-weight:1000;
+      line-height:1.7;
+      margin-top:10px;
+      text-align:center;
+    }
+
+    .cart-status-ready{
+      background:#eaf7ef;
+      border:1px solid #a8e0be;
+      color:#0f5a2a;
+      padding:12px;
+      border-radius:16px;
+      font-weight:1000;
+      line-height:1.7;
+      margin-top:10px;
+      text-align:center;
+    }
+
+    .cart-progress{
+      height:12px;
+      background:#f1eadb;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:12px;
+      border:1px solid #eadfc9;
+    }
+
+    .cart-progress-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, #7bc58f, #2f7a49);
+      border-radius:999px;
+      transition:width .25s ease;
+    }
+
+    .cart-status-btn{
+      display:block;
+      width:100%;
+      margin-top:12px;
+      border:none;
+      border-radius:16px;
+      padding:12px;
+      background:#eef8f1;
+      color:#245b39;
+      font-size:16px;
+      font-weight:1000;
+      cursor:pointer;
+      text-align:center;
     }
 
     .card h3{ margin: 8px 0 6px; }
@@ -461,6 +541,13 @@
       100%{ transform:scale(1); }
     }
 
+    input,
+    select,
+    textarea,
+    button {
+      font-size: 16px !important;
+    }
+
     @media (max-width:520px){
       .modal-actions{
         grid-template-columns:1fr;
@@ -510,7 +597,7 @@
 
   <a href="/index.html" onclick="closeMenu()">🏠 الرئيسية</a>
   <a href="#campaignBanner" onclick="closeMenu()">🔥 العروض</a>
-  <a href="/review.html" onclick="closeMenu()">🛒 سلة المشتريات</a>
+  <a href="javascript:void(0)" onclick="closeMenu(); goToCart();">🛒 سلة المشتريات</a>
   <a href="#deliveryPolicy" onclick="closeMenu()">📦 سياسة التوصيل</a>
   <a href="#contactSection" onclick="closeMenu()">📞 تواصل معنا</a>
   <a href="#aboutSection" onclick="closeMenu()">ℹ️ من نحن</a>
@@ -537,42 +624,43 @@
     <div id="campaignContent"></div>
   </div>
 
+  <div id="cartStatusBox" class="cart-status-box" style="display:none;"></div>
+
   <h2>منتجاتنا</h2>
   <div id="productsContainer">جاري تحميل المنتجات...</div>
 
- <section id="deliveryPolicy" class="contact-card" aria-label="سياسة التوصيل">
-  <div class="contact-head">
-    <h3>سياسة التوصيل 📦</h3>
-  </div>
+  <section id="deliveryPolicy" class="contact-card" aria-label="سياسة التوصيل">
+    <div class="contact-head">
+      <h3>سياسة التوصيل 📦</h3>
+    </div>
 
-  <div style="line-height:1.9; color:#35513f; font-weight:900; font-size:14px;">
-    🚚 التوصيل خلال أسبوع من تأكيد الطلب.<br>
-    📍 التوصيل متوفر فقط لبلاد الداخل.<br><br>
+    <div style="line-height:1.9; color:#35513f; font-weight:900; font-size:14px;">
+      🚚 التوصيل خلال أسبوع من تأكيد الطلب.<br>
+      📍 التوصيل متوفر فقط لبلاد الداخل.<br><br>
 
-    💰 رسوم التوصيل: 30 ₪<br>
-    🎁 التوصيل مجاني للطلبات فوق 300 ₪<br><br>
+      🛒 الحد الأدنى للطلب للتوصيل: 200 ₪<br>
+      💰 رسوم التوصيل: 30 ₪<br>
+      🎁 التوصيل مجاني للطلبات من 300 ₪ وما فوق<br><br>
 
-    📞 يتم التواصل معك قبل يوم التوصيل لتأكيد الموعد.
-  </div>
-</section>
+      📞 يتم التواصل معك قبل يوم التوصيل لتأكيد الموعد.
+    </div>
+  </section>
 
   <section id="aboutSection" class="contact-card" aria-label="من نحن">
-  <div class="contact-head">
-    <h3>من نحن 🌿</h3>
-  </div>
+    <div class="contact-head">
+      <h3>من نحن 🌿</h3>
+    </div>
 
-  <div style="line-height:2; color:#2f4a3a; font-weight:900; font-size:14px;">
-    
-    🌱 إحنا من صندله، وخضارنا مباشرة من صندله ومن قرى مرج ابن عامر — أرض الخير والطبيعة 🌾<br><br>
+    <div style="line-height:2; color:#2f4a3a; font-weight:900; font-size:14px;">
+      🌱 إحنا من صندله، وخضارنا مباشرة من صندله ومن قرى مرج ابن عامر — أرض الخير والطبيعة 🌾<br><br>
 
-    🥬 نهتم نوصللك خضار طازة، نظيفة، ومختارة بعناية.<br><br>
+      🥬 نهتم نوصللك خضار طازة، نظيفة، ومختارة بعناية.<br><br>
 
-    💚 نشتغل بثقة وأمانة، وهدفنا دايمًا إنك ترجع تطلب مرة ثانية لأنك راضي 100%.<br><br>
+      💚 نشتغل بثقة وأمانة، وهدفنا دايمًا إنك ترجع تطلب مرة ثانية لأنك راضي 100%.<br><br>
 
-    🚚 خدمة توصيل مريحة وسريعة لحد باب البيت، مع متابعة معك قبل التوصيل.
-    
-  </div>
-</section>
+      🚚 خدمة توصيل مريحة وسريعة لحد باب البيت، مع متابعة معك قبل التوصيل.
+    </div>
+  </section>
 
   <section id="contactSection" class="contact-card" aria-label="تواصل معنا">
     <div class="contact-head">
@@ -647,6 +735,10 @@
 </div>
 
 <script>
+const MIN_ORDER_TOTAL = 200;
+const FREE_DELIVERY_FROM = 300;
+const DELIVERY_FEE = 30;
+
 let products = [];
 let cart = {};
 let activeProduct = null;
@@ -675,7 +767,11 @@ function hasProductCampaign(p){
 
 function escHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, (m) => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
   }[m]));
 }
 
@@ -691,6 +787,12 @@ function buildModalSelectOptions(p, currentQty){
     const selected = Number(currentQty) === v ? 'selected' : '';
     return `<option value="${v}" ${selected}>${v}</option>`;
   }).join('');
+}
+
+function getCartSubtotal(){
+  return Math.round(Object.values(cart || {}).reduce((sum, item) => {
+    return sum + ((Number(item.price) || 0) * (Number(item.qty) || 0));
+  }, 0));
 }
 
 async function loadCampaigns(){
@@ -808,9 +910,10 @@ function openQtyModal(productId, btn){
   input.value = currentQty > 20 ? currentQty : '';
 
   document.getElementById('modalHint').textContent =
-  step > 1
-    ? `هذا المنتج لازم تكون الكمية مضاعفات ${step} مثل ${step}، ${step * 2}، ${step * 3}...`
-    : 'تقدر تختار من القائمة أو تكتب أي كمية.';
+    step > 1
+      ? `هذا المنتج لازم تكون الكمية مضاعفات ${step} مثل ${step}، ${step * 2}، ${step * 3}...`
+      : 'تقدر تختار من القائمة أو تكتب أي كمية.';
+
   document.getElementById('qtyModalBackdrop').classList.add('show');
 
   setTimeout(() => {
@@ -864,10 +967,11 @@ function confirmAddToCart(){
   }
 
   const step = getQtyStep(p);
-if (step > 1 && qty !== 0 && (qty % step !== 0)){
-  alert(`لازم الكمية تكون مضاعفات ${step} مثل ${step}، ${step * 2}، ${step * 3}...`);
-  return;
-}
+
+  if (step > 1 && qty !== 0 && (qty % step !== 0)){
+    alert(`لازم الكمية تكون مضاعفات ${step} مثل ${step}، ${step * 2}، ${step * 3}...`);
+    return;
+  }
 
   if (qty === 0){
     delete cart[p.id];
@@ -877,7 +981,8 @@ if (step > 1 && qty !== 0 && (qty % step !== 0)){
       name: p.name,
       price: p.price,
       unitType: p.unitType,
-      qty
+      qty,
+      qtyStep: step
     };
   }
 
@@ -902,18 +1007,113 @@ function loadCartFromStorage() {
 
 function updateCartCount() {
   const itemCount = Object.keys(cart).length;
-  const totalPrice = Object.values(cart).reduce((sum, item) => {
-    return sum + (item.price * item.qty);
-  }, 0);
+  const totalPrice = getCartSubtotal();
 
   const countEl = document.getElementById('cartCount');
   const totalEl = document.getElementById('cartTotal');
 
   if (countEl) countEl.textContent = itemCount;
   if (totalEl) totalEl.textContent = `₪${Math.floor(totalPrice)}`;
+
+  updateCartStatusBox();
+}
+
+function updateCartStatusBox(){
+  const box = document.getElementById('cartStatusBox');
+  if (!box) return;
+
+  const itemCount = Object.keys(cart || {}).length;
+  const subtotal = getCartSubtotal();
+
+  if (!itemCount){
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+
+  box.style.display = 'block';
+
+  const delivery = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
+  const total = subtotal + delivery;
+  const remaining = Math.max(0, MIN_ORDER_TOTAL - subtotal);
+  const progress = Math.min(100, Math.round((subtotal / MIN_ORDER_TOTAL) * 100));
+
+  let statusHtml = '';
+
+  if (subtotal < MIN_ORDER_TOTAL){
+    statusHtml = `
+      <div class="cart-status-warning">
+        عشان نوصلك الطلب، الحد الأدنى للطلب هو ₪${MIN_ORDER_TOTAL}.<br>
+        المجموع الحالي ₪${subtotal}، باقي عليك ₪${remaining} فقط لإتمام الطلب 🌿
+      </div>
+      <button class="cart-status-btn" type="button" onclick="document.getElementById('productsContainer').scrollIntoView({behavior:'smooth'});">
+        إضافة منتجات لإكمال الطلب
+      </button>
+    `;
+  } else if (subtotal >= FREE_DELIVERY_FROM){
+    statusHtml = `
+      <div class="cart-status-ready">
+        طلبك جاهز للمراجعة ✅<br>
+        وكمان حصلت على توصيل مجاني 🎁
+      </div>
+      <button class="cart-status-btn" type="button" onclick="goToCart()">
+        مراجعة الطلب
+      </button>
+    `;
+  } else {
+    statusHtml = `
+      <div class="cart-status-ready">
+        طلبك جاهز للمراجعة ✅<br>
+        تقدر تكمل الطلب الآن.
+      </div>
+      <button class="cart-status-btn" type="button" onclick="goToCart()">
+        مراجعة الطلب
+      </button>
+    `;
+  }
+
+  box.innerHTML = `
+    <div class="cart-status-title">🛒 سلة المشتريات</div>
+
+    <div class="cart-status-text">
+      عدد المنتجات بالسلة: ${itemCount}<br>
+      المجموع قبل التوصيل: ₪${subtotal}<br>
+      التوصيل: ${delivery === 0 ? 'مجاني ✅' : '₪' + delivery}<br>
+      المجموع الكلي: ₪${total}
+    </div>
+
+    <div class="cart-progress">
+      <div class="cart-progress-fill" style="width:${progress}%"></div>
+    </div>
+
+    ${statusHtml}
+  `;
 }
 
 function goToCart() {
+  const itemCount = Object.keys(cart || {}).length;
+  const subtotal = getCartSubtotal();
+
+  if (!itemCount){
+    alert('السلة فارغة. اختار منتجاتك وكمل الطلب 🌿');
+    return;
+  }
+
+  if (subtotal < MIN_ORDER_TOTAL){
+    const remaining = MIN_ORDER_TOTAL - subtotal;
+
+    alert(
+      `عشان نوصلك الطلب، الحد الأدنى للطلب هو ₪${MIN_ORDER_TOTAL}.\n` +
+      `المجموع الحالي ₪${subtotal}، باقي عليك ₪${remaining} فقط.\n` +
+      `ضيف منتجات وكمل طلبك معنا 🌿`
+    );
+
+    const box = document.getElementById('cartStatusBox');
+    if (box) box.scrollIntoView({ behavior:'smooth', block:'center' });
+
+    return;
+  }
+
   window.location.href = '/review.html';
 }
 
@@ -926,8 +1126,10 @@ document.addEventListener('keydown', (e) => {
 
 document.addEventListener('DOMContentLoaded', loadProducts);
 </script>
+
 <a href="https://wa.me/972507979828" target="_blank" class="whatsapp-float">
   💬
 </a>
+
 </body>
 </html>
