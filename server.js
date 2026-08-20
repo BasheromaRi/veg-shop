@@ -678,7 +678,7 @@ app.post('/api/orders', (req, res) => {
 
       const orderId = this.lastID;
 
-      const delivery = cleanSubtotal >= 300 ? 0 : 30;
+      const delivery = cleanSubtotal >= 300 ? 0 : 40;
       const total = Math.round(cleanSubtotal + delivery);
 
       const itemsText = safeItems.map(i => {
@@ -701,7 +701,7 @@ app.post('/api/orders', (req, res) => {
 ${itemsText || '-'}
 
 💰 المجموع قبل التوصيل: ₪${cleanSubtotal}
-🚚 التوصيل: ${delivery === 0 ? 'مجاني ✅' : '₪30'}
+🚚 التوصيل: ${delivery === 0 ? 'مجاني ✅' : '₪40'}
 ✅ المجموع الكلي: ₪${total}`;
 
       sendTelegramMessage(msg);
