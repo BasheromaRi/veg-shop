@@ -106,7 +106,7 @@
           return sum + ((Number(i.price) || 0) * (Number(i.qty) || 0));
         }, 0));
 
-        const delivery = subtotal >= 300 ? 0 : 30;
+        const delivery = subtotal >= 300 ? 0 : 40;
         grandTotal += subtotal + delivery;
       });
 
