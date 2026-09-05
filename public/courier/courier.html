@@ -60,7 +60,7 @@
       display:grid;
       gap:14px;
       margin:12px 0 18px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns:repeat(2, minmax(0, 1fr));
       align-items:start;
     }
 
@@ -230,7 +230,7 @@
 
     .actions{
       display:grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns:repeat(5, 1fr);
       gap:10px;
       margin-top:14px;
     }
@@ -245,7 +245,9 @@
       text-align:center;
       transition:transform .12s ease, filter .12s ease;
       text-decoration:none;
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
 
     .btn:hover{
@@ -258,6 +260,11 @@
 
     .btn-green{
       background:#2e8b57;
+      color:#fff;
+    }
+
+    .btn-whatsapp-open{
+      background:#25D366;
       color:#fff;
     }
 
@@ -306,7 +313,7 @@
       margin-top:8px;
       font-weight:900;
       background:#fff;
-      font-size:14px;
+      font-size:16px;
       outline:none;
     }
 
@@ -324,7 +331,7 @@
       color:#6a7b72;
       text-align:center;
       font-weight:900;
-      grid-column: 1 / -1;
+      grid-column:1 / -1;
     }
 
     .page-note{
@@ -338,179 +345,227 @@
       border-radius:14px;
     }
 
-    @media (max-width:1000px){
+    @media (max-width:1100px){
       .actions{
         grid-template-columns:1fr 1fr;
       }
     }
 
     @media (max-width:700px){
-  .grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap:10px;
-  }
+      .grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:10px;
+      }
 
-  .topbar{
-    align-items:stretch;
-  }
+      .topbar{
+        align-items:stretch;
+      }
 
-  .filters{
-    width:100%;
-  }
+      .filters{
+        width:100%;
+      }
 
-  .pill{
-    flex:1 1 auto;
-    text-align:center;
-  }
+      .pill{
+        flex:1 1 auto;
+        text-align:center;
+      }
 
-  .actions{
-    grid-template-columns:1fr;
-  }
+      .actions{
+        grid-template-columns:1fr;
+      }
 
-  .btn{
-    width:100%;
-    font-size:13px;
-    padding:10px 10px;
-  }
+      .btn{
+        width:100%;
+        font-size:13px;
+        padding:10px;
+      }
 
-  .title{
-    font-size:14px;
-  }
+      .title{
+        font-size:14px;
+      }
 
-  .meta{
-    font-size:11px;
-  }
+      .meta{
+        font-size:11px;
+      }
 
-  .card{
-    padding:10px;
-    border-radius:16px;
-  }
+      .card{
+        padding:10px;
+        border-radius:16px;
+      }
 
-  .rows,
-  .summary-box{
-    padding:8px;
-    gap:8px;
-  }
+      .rows,
+      .summary-box{
+        padding:8px;
+        gap:8px;
+      }
 
-  .row{
-    font-size:12px;
-    gap:8px;
-  }
+      .row{
+        font-size:12px;
+        gap:8px;
+      }
 
-  .label{
-    font-size:11px;
-    min-width:60px;
-  }
+      .label{
+        font-size:11px;
+        min-width:60px;
+      }
 
-  .value,
-  .value-rtl,
-  .addr{
-    font-size:12px;
-  }
+      .value,
+      .value-rtl,
+      .addr{
+        font-size:12px;
+      }
 
-  .items-title{
-    font-size:13px;
-  }
+      .items-title{
+        font-size:13px;
+      }
 
-  .item{
-    font-size:12px;
-    padding:8px 0;
-  }
+      .item{
+        font-size:12px;
+        padding:8px 0;
+      }
 
-  .muted{
-    font-size:11px;
-  }
+      .muted{
+        font-size:11px;
+      }
 
-  .badge{
-    font-size:10px;
-    padding:5px 8px;
-  }
+      .badge{
+        font-size:10px;
+        padding:5px 8px;
+      }
 
-  .countBox,
-  .page-note{
-    font-size:12px;
-    padding:10px;
-  }
-}
+      .countBox,
+      .page-note{
+        font-size:12px;
+        padding:10px;
+      }
+    }
 
-@media (max-width:360px){
-  .grid{
-    grid-template-columns:1fr;
-  }
-}
-input,
-select,
-textarea,
-button {
-  font-size: 16px !important;
-}
+    @media (max-width:360px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    input,
+    select,
+    textarea,
+    button{
+      font-size:16px !important;
+    }
   </style>
 </head>
 
 <body style="text-align:right;">
-  <header>
-    <span>طلبات الشليح</span>
-    <a href="/index.html" style="color:#fff; float:left; text-decoration:none; font-size:14px;">الرجوع للمتجر</a>
-  </header>
 
-  <div class="container wrap">
-    <div class="topbar">
-      <div class="filters">
-        <button class="pill active" data-filter="all">الكل</button>
-        <button class="pill" data-filter="new">جديد</button>
-        <button class="pill" data-filter="contacted">تم التواصل</button>
-        <button class="pill" data-filter="out_for_delivery">🚚 قيد التوصيل</button>
-        <button class="pill" data-filter="done">تم التسليم</button>
-        <button class="pill" data-filter="cancelled">ملغي</button>
-      </div>
-      <input id="searchInput" type="text" placeholder="ابحث بالاسم / الهاتف / البلد..."
-style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-size:14px;font-weight:900;background:#fff;margin-bottom:12px;">
+<header>
+  <span>طلبات الشليح</span>
+  <a href="/index.html" style="color:#fff; float:left; text-decoration:none; font-size:14px;">
+    الرجوع للمتجر
+  </a>
+</header>
 
-      <button class="btn btn-light" id="logoutBtn" type="button">تسجيل خروج</button>
+<div class="container wrap">
+
+  <div class="topbar">
+    <div class="filters">
+      <button class="pill active" data-filter="all">الكل</button>
+      <button class="pill" data-filter="new">جديد</button>
+      <button class="pill" data-filter="contacted">تم التواصل</button>
+      <button class="pill" data-filter="out_for_delivery">🚚 قيد التوصيل</button>
+      <button class="pill" data-filter="done">تم التسليم</button>
+      <button class="pill" data-filter="cancelled">ملغي</button>
     </div>
 
-    <div class="page-note">
-      هنا تظهر فقط الطلبات التي اختارها المسؤول للتوصيل.
-    </div>
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="ابحث برقم الطلب / الاسم / الهاتف / البلد..."
+      style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-size:16px;font-weight:900;background:#fff;margin-bottom:12px;"
+    >
 
-    <div id="ordersCount" class="countBox">عدد الطلبات: 0</div>
-
-    <div id="list" class="grid">تحميل...</div>
+    <button class="btn btn-light" id="logoutBtn" type="button">
+      تسجيل خروج
+    </button>
   </div>
 
-  <script>
+  <div class="page-note">
+    هنا تظهر فقط الطلبات التي اختارها المسؤول للتوصيل.
+  </div>
+
+  <div id="ordersCount" class="countBox">
+    عدد الطلبات: 0
+  </div>
+
+  <div id="list" class="grid">
+    تحميل...
+  </div>
+</div>
+
+<script>
+  const FREE_DELIVERY_FROM = 300;
+  const DELIVERY_FEE = 40;
+
   const list = document.getElementById('list');
   const ordersCount = document.getElementById('ordersCount');
+
   let orders = [];
   let currentFilter = 'all';
 
   function esc(s){
     return String(s ?? '').replace(/[&<>"']/g, (m) => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
     }[m]));
   }
 
   function safeItems(items){
     if (Array.isArray(items)) return items;
-    try { return JSON.parse(items || '[]'); } catch { return []; }
+
+    try{
+      return JSON.parse(items || '[]');
+    }catch{
+      return [];
+    }
   }
 
   function formatDate(iso){
     try{
       const d = new Date(iso);
+
       return d.toLocaleString('ar-EG', {
-        year:'numeric', month:'2-digit', day:'2-digit',
-        hour:'2-digit', minute:'2-digit'
+        year:'numeric',
+        month:'2-digit',
+        day:'2-digit',
+        hour:'2-digit',
+        minute:'2-digit'
       });
-    }catch(e){ return iso || ''; }
+    }catch(e){
+      return iso || '';
+    }
   }
 
   function statusBadge(status){
     const s = status || 'new';
-    if (s === 'done') return `<span class="badge b-done">تم التسليم</span>`;
-    if (s === 'out_for_delivery') return `<span class="badge b-delivery">🚚 قيد التوصيل</span>`;
-    if (s === 'contacted') return `<span class="badge b-contact">تم التواصل</span>`;
-    if (s === 'cancelled') return `<span class="badge b-cancel">ملغي</span>`;
+
+    if (s === 'done'){
+      return `<span class="badge b-done">تم التسليم</span>`;
+    }
+
+    if (s === 'out_for_delivery'){
+      return `<span class="badge b-delivery">🚚 قيد التوصيل</span>`;
+    }
+
+    if (s === 'contacted'){
+      return `<span class="badge b-contact">تم التواصل</span>`;
+    }
+
+    if (s === 'cancelled'){
+      return `<span class="badge b-cancel">ملغي</span>`;
+    }
+
     return `<span class="badge b-new">جديد</span>`;
   }
 
@@ -519,8 +574,11 @@ style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-
   }
 
   function calcTotal(items){
-    return money((items || []).reduce((sum, i) =>
-      sum + (Number(i.price)||0) * (Number(i.qty)||0), 0));
+    return money(
+      (items || []).reduce((sum, i) => {
+        return sum + (Number(i.price) || 0) * (Number(i.qty) || 0);
+      }, 0)
+    );
   }
 
   function normalizePhone(phone){
@@ -529,22 +587,36 @@ style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-
 
   function normalizePhoneForWA(phone){
     let p = normalizePhone(phone);
+
     if (!p) return '';
-    if (p.startsWith('0') && p.length === 10) {
-      p = '972' + p.slice(1);
+
+    if (p.startsWith('972')){
+      return p;
     }
+
+    if (p.startsWith('0')){
+      return '972' + p.slice(1);
+    }
+
+    if (p.startsWith('5')){
+      return '972' + p;
+    }
+
     return p;
   }
 
   function buildWhatsappText(order){
     const items = (order.items || []).map(i => {
-      const line = money((Number(i.price)||0) * (Number(i.qty)||0));
+      const line = money(
+        (Number(i.price) || 0) * (Number(i.qty) || 0)
+      );
+
       return `• ${i.name} — ${i.qty} ${i.unitType === 'bag' ? 'كيس' : 'كغم'} — ₪${line}`;
     }).join('\n');
 
-    const total = calcTotal(order.items || []);
-    const delivery = total >= 299 ? 0 : 30;
-    const grand = money(total + delivery);
+    const subtotal = calcTotal(order.items || []);
+    const delivery = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
+    const grand = money(subtotal + delivery);
 
     return `مرحبا 👋
 أنا الشليح تبع خيرات صندله 🚚
@@ -554,8 +626,8 @@ style="width:100%;padding:12px;border:1px solid #d7e2db;border-radius:14px;font-
 🛒 المنتجات:
 ${items}
 
-💰 المجموع قبل التوصيل: ₪${total}
-🚚 التوصيل: ${delivery === 0 ? 'مجاني ✅' : '₪30'}
+💰 المجموع قبل التوصيل: ₪${subtotal}
+🚚 التوصيل: ${delivery === 0 ? 'مجاني ✅' : `₪${delivery}`}
 ✅ المجموع الكلي: ₪${grand}
 
 📍 ابعت الموقع (Location) على الواتساب لتنسيق التوصيل.`;
@@ -563,7 +635,11 @@ ${items}
 
   function matchesSearch(order, text){
     if (!text) return true;
-    const t = String(text || '').toLowerCase().replace('#','').trim();
+
+    const t = String(text || '')
+      .toLowerCase()
+      .replace('#','')
+      .trim();
 
     const hay = `
       ${order.id || ''}
@@ -587,196 +663,435 @@ ${items}
     list.innerHTML = 'تحميل...';
 
     try{
-      const res = await fetch(`/api/courier/orders?status=${encodeURIComponent(currentFilter)}`, {
-        credentials:'include'
-      });
+      const res = await fetch(
+        `/api/courier/orders?status=${encodeURIComponent(currentFilter)}`,
+        {
+          credentials:'include'
+        }
+      );
 
       if(!res.ok){
         if(res.status === 401){
           window.location.href = '/courier-login';
           return;
         }
-        list.innerHTML = `<div class="empty">خطأ في تحميل الطلبات.</div>`;
+
+        list.innerHTML = `
+          <div class="empty">
+            خطأ في تحميل الطلبات.
+          </div>
+        `;
+
         return;
       }
 
       const data = await res.json();
-      orders = (data || []).map(o => ({ ...o, items: safeItems(o.items) }));
+
+      orders = (data || []).map(o => ({
+        ...o,
+        items:safeItems(o.items)
+      }));
+
       render();
 
     }catch(err){
       console.error(err);
-      list.innerHTML = `<div class="empty">مشكلة اتصال بالسيرفر.</div>`;
+
+      list.innerHTML = `
+        <div class="empty">
+          مشكلة اتصال بالسيرفر.
+        </div>
+      `;
     }
   }
 
   function render(){
-    const searchText = document.getElementById('searchInput')?.value.trim() || '';
+    const searchText =
+      document.getElementById('searchInput')?.value.trim() || '';
 
     const filtered = orders
       .filter(matchesFilter)
       .filter(o => matchesSearch(o, searchText));
 
-    ordersCount.textContent = `عدد الطلبات: ${filtered.length}`;
+    ordersCount.textContent =
+      `عدد الطلبات: ${filtered.length}`;
 
     if(!filtered.length){
-      list.innerHTML = `<div class="empty">لا توجد طلبات ضمن هذه الحالة.</div>`;
+      list.innerHTML = `
+        <div class="empty">
+          لا توجد طلبات ضمن هذه الحالة.
+        </div>
+      `;
+
       return;
     }
 
     list.innerHTML = filtered.map(o => {
-      const total = calcTotal(o.items || []);
-      const delivery = total >= 299 ? 0 : 30;
-      const grand = money(total + delivery);
+
+      const subtotal = calcTotal(o.items || []);
+      const delivery =
+        subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
+
+      const grand = money(subtotal + delivery);
 
       const phoneClean = normalizePhoneForWA(o.phone);
       const phoneCall = normalizePhone(o.phone);
-      const msg = encodeURIComponent(buildWhatsappText(o));
-      const wa = phoneClean ? `https://wa.me/${phoneClean}?text=${msg}` : '';
-      const callLink = phoneCall ? `tel:${phoneCall}` : '';
+
+      const msg =
+        encodeURIComponent(buildWhatsappText(o));
+
+      /* واتساب مع نص جاهز */
+      const waWithText = phoneClean
+        ? `https://wa.me/${phoneClean}?text=${msg}`
+        : '';
+
+      /* واتساب بدون أي نص */
+      const waOpen = phoneClean
+        ? `https://wa.me/${phoneClean}`
+        : '';
+
+      const callLink = phoneCall
+        ? `tel:${phoneCall}`
+        : '';
 
       const itemsHtml = (o.items || []).map(it => {
-        const unit = it.unitType === 'bag' ? 'كيس' : 'كغم';
-        const line = money((Number(it.price)||0) * (Number(it.qty)||0));
+
+        const unit =
+          it.unitType === 'bag'
+            ? 'كيس'
+            : 'كغم';
+
+        const line = money(
+          (Number(it.price) || 0) *
+          (Number(it.qty) || 0)
+        );
 
         return `
           <div class="item">
             <div>
               <strong>${esc(it.name)}</strong>
-              <div class="muted">${esc(it.qty)} ${unit} × ₪${esc(money(it.price))}</div>
+
+              <div class="muted">
+                ${esc(it.qty)} ${unit}
+                × ₪${esc(money(it.price))}
+              </div>
             </div>
-            <div style="font-weight:1000;">₪${esc(line)}</div>
+
+            <div style="font-weight:1000;">
+              ₪${esc(line)}
+            </div>
           </div>
         `;
       }).join('');
 
-      const cancelText = esc(o.cancelReason || '');
+      const cancelText =
+        esc(o.cancelReason || '');
 
       return `
         <div class="card">
+
           <div class="head">
             <div>
-              <div class="title">طلب رقم #${esc(o.id)}</div>
-              <div class="meta">${formatDate(o.createdAt)}</div>
+              <div class="title">
+                طلب رقم #${esc(o.id)}
+              </div>
+
+              <div class="meta">
+                ${formatDate(o.createdAt)}
+              </div>
             </div>
+
             ${statusBadge(o.status)}
           </div>
 
           <div class="rows">
+
             <div class="row">
-              <div class="label">الاسم</div>
-              <div class="value value-rtl">${esc(o.name)}</div>
+              <div class="label">
+                الاسم
+              </div>
+
+              <div class="value value-rtl">
+                ${esc(o.name)}
+              </div>
             </div>
 
             <div class="row">
-              <div class="label">الهاتف</div>
-              <div class="value">${esc(o.phone)}</div>
+              <div class="label">
+                الهاتف
+              </div>
+
+              <div class="value">
+                ${esc(o.phone)}
+              </div>
             </div>
 
             ${o.phone2 ? `
               <div class="row">
-                <div class="label">هاتف إضافي</div>
-                <div class="value">${esc(o.phone2)}</div>
+                <div class="label">
+                  هاتف إضافي
+                </div>
+
+                <div class="value">
+                  ${esc(o.phone2)}
+                </div>
               </div>
             ` : ''}
 
             <div class="row">
-              <div class="label">البلد</div>
-              <div class="value value-rtl">${esc(o.country)}</div>
+              <div class="label">
+                البلد
+              </div>
+
+              <div class="value value-rtl">
+                ${esc(o.country)}
+              </div>
             </div>
 
             <div class="row">
-              <div class="label">العنوان</div>
-              <div class="addr">${esc(o.address)}</div>
+              <div class="label">
+                العنوان
+              </div>
+
+              <div class="addr">
+                ${esc(o.address)}
+              </div>
             </div>
+
           </div>
 
           <div class="items">
-            <div class="items-title">المنتجات</div>
-            ${itemsHtml || '<div class="muted">لا يوجد منتجات</div>'}
+
+            <div class="items-title">
+              المنتجات
+            </div>
+
+            ${itemsHtml ||
+              '<div class="muted">لا يوجد منتجات</div>'}
+
           </div>
 
           <div class="summary-box">
+
             <div class="row">
-              <div class="label">المجموع قبل التوصيل</div>
-              <div class="value">₪${esc(total)}</div>
+              <div class="label">
+                المجموع قبل التوصيل
+              </div>
+
+              <div class="value">
+                ₪${esc(subtotal)}
+              </div>
             </div>
 
             <div class="row">
-              <div class="label">التوصيل</div>
-              <div class="value value-rtl">${delivery === 0 ? 'توصيل مجاني ✅' : '₪30'}</div>
+              <div class="label">
+                التوصيل
+              </div>
+
+              <div class="value value-rtl">
+                ${
+                  delivery === 0
+                    ? 'توصيل مجاني ✅'
+                    : `₪${delivery}`
+                }
+              </div>
             </div>
 
             <div class="row">
-              <div class="label">المجموع الكلي</div>
-              <div class="value">₪${esc(grand)}</div>
+              <div class="label">
+                المجموع الكلي
+              </div>
+
+              <div class="value">
+                ₪${esc(grand)}
+              </div>
             </div>
 
             ${o.status === 'cancelled' ? `
               <div class="row" style="margin-top:2px;">
-                <div class="label">سبب الإلغاء</div>
-                <div class="addr">${cancelText || '—'}</div>
+                <div class="label">
+                  سبب الإلغاء
+                </div>
+
+                <div class="addr">
+                  ${cancelText || '—'}
+                </div>
               </div>
             ` : ''}
+
           </div>
 
           <div class="actions">
+
             ${
-              wa
-              ? `<a class="btn btn-green" target="_blank" href="${wa}">واتساب</a>`
-              : `<button class="btn btn-light" type="button" disabled>لا يوجد واتساب</button>`
+              waWithText
+                ? `
+                  <a
+                    class="btn btn-green"
+                    target="_blank"
+                    rel="noopener"
+                    href="${waWithText}"
+                  >
+                    💬 واتساب مع نص
+                  </a>
+                `
+                : `
+                  <button
+                    class="btn btn-light"
+                    type="button"
+                    disabled
+                  >
+                    لا يوجد واتساب
+                  </button>
+                `
+            }
+
+            ${
+              waOpen
+                ? `
+                  <a
+                    class="btn btn-whatsapp-open"
+                    target="_blank"
+                    rel="noopener"
+                    href="${waOpen}"
+                  >
+                    🟢 فتح واتساب
+                  </a>
+                `
+                : `
+                  <button
+                    class="btn btn-light"
+                    type="button"
+                    disabled
+                  >
+                    لا يوجد واتساب
+                  </button>
+                `
             }
 
             ${
               callLink
-              ? `<a class="btn btn-call" href="${callLink}">📞 اتصال</a>`
-              : `<button class="btn btn-light" type="button" disabled>لا يوجد رقم</button>`
+                ? `
+                  <a
+                    class="btn btn-call"
+                    href="${callLink}"
+                  >
+                    📞 اتصال
+                  </a>
+                `
+                : `
+                  <button
+                    class="btn btn-light"
+                    type="button"
+                    disabled
+                  >
+                    لا يوجد رقم
+                  </button>
+                `
             }
 
-            <button class="btn btn-blue" type="button" onclick="markDelivered(${esc(o.id)})">✅ تم التسليم</button>
-            <button class="btn btn-red" type="button" onclick="toggleCancelBox(${esc(o.id)})">❌ ملغي</button>
+            <button
+              class="btn btn-blue"
+              type="button"
+              onclick="markDelivered(${esc(o.id)})"
+            >
+              ✅ تم التسليم
+            </button>
+
+            <button
+              class="btn btn-red"
+              type="button"
+              onclick="toggleCancelBox(${esc(o.id)})"
+            >
+              ❌ ملغي
+            </button>
+
           </div>
 
-          <div class="cancelBox" id="cancelBox-${esc(o.id)}">
-            <div class="cancelTitle">سبب الإلغاء</div>
+          <div
+            class="cancelBox"
+            id="cancelBox-${esc(o.id)}"
+          >
+
+            <div class="cancelTitle">
+              سبب الإلغاء
+            </div>
 
             <select id="cancelSel-${esc(o.id)}">
-              <option value="الزبون لا يرد">الزبون لا يرد</option>
-              <option value="العنوان غير واضح">العنوان غير واضح</option>
-              <option value="الزبون لغى الطلب">الزبون لغى الطلب</option>
-              <option value="غير متوفر وقت التسليم">غير متوفر وقت التسليم</option>
-              <option value="سبب آخر">سبب آخر</option>
+              <option value="الزبون لا يرد">
+                الزبون لا يرد
+              </option>
+
+              <option value="العنوان غير واضح">
+                العنوان غير واضح
+              </option>
+
+              <option value="الزبون لغى الطلب">
+                الزبون لغى الطلب
+              </option>
+
+              <option value="غير متوفر وقت التسليم">
+                غير متوفر وقت التسليم
+              </option>
+
+              <option value="سبب آخر">
+                سبب آخر
+              </option>
             </select>
 
-            <input id="cancelTxt-${esc(o.id)}" placeholder="إذا سبب آخر... اكتب هون" />
+            <input
+              id="cancelTxt-${esc(o.id)}"
+              placeholder="إذا سبب آخر... اكتب هون"
+            />
 
-            <button class="btn btn-red" style="width:100%; margin-top:10px;" type="button" onclick="confirmCancel(${esc(o.id)})">
+            <button
+              class="btn btn-red"
+              style="width:100%; margin-top:10px;"
+              type="button"
+              onclick="confirmCancel(${esc(o.id)})"
+            >
               تأكيد الإلغاء
             </button>
+
           </div>
+
         </div>
       `;
     }).join('');
   }
 
   window.toggleCancelBox = function(id){
-    const box = document.getElementById('cancelBox-' + id);
+    const box =
+      document.getElementById('cancelBox-' + id);
+
     if (!box) return;
-    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+
+    box.style.display =
+      box.style.display === 'block'
+        ? 'none'
+        : 'block';
   };
 
   window.markDelivered = async function(id){
     try{
-      const res = await fetch(`/api/courier/orders/${id}/delivered`, {
-        method:'PUT',
-        credentials:'include'
-      });
+
+      const res = await fetch(
+        `/api/courier/orders/${id}/delivered`,
+        {
+          method:'PUT',
+          credentials:'include'
+        }
+      );
 
       if(!res.ok){
+
         if(res.status === 401){
-          window.location.href = '/courier-login';
+          window.location.href =
+            '/courier-login';
+
           return;
         }
+
         alert('فشل تحديث الحالة');
         return;
       }
@@ -790,32 +1105,54 @@ ${items}
   };
 
   window.confirmCancel = async function(id){
-    const sel = document.getElementById('cancelSel-' + id);
-    const txt = document.getElementById('cancelTxt-' + id);
 
-    let reason = (sel?.value || '').trim();
-    const extra = (txt?.value || '').trim();
+    const sel =
+      document.getElementById('cancelSel-' + id);
 
-    if (reason === 'سبب آخر' && extra) reason = extra;
+    const txt =
+      document.getElementById('cancelTxt-' + id);
 
-    if (!reason) {
+    let reason =
+      (sel?.value || '').trim();
+
+    const extra =
+      (txt?.value || '').trim();
+
+    if (
+      reason === 'سبب آخر' &&
+      extra
+    ){
+      reason = extra;
+    }
+
+    if (!reason){
       alert('اكتب سبب الإلغاء');
       return;
     }
 
     try{
-      const res = await fetch(`/api/courier/orders/${id}/cancel`, {
-        method:'PUT',
-        headers:{'Content-Type':'application/json'},
-        credentials:'include',
-        body: JSON.stringify({ reason })
-      });
+
+      const res = await fetch(
+        `/api/courier/orders/${id}/cancel`,
+        {
+          method:'PUT',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          credentials:'include',
+          body:JSON.stringify({ reason })
+        }
+      );
 
       if(!res.ok){
+
         if(res.status === 401){
-          window.location.href = '/courier-login';
+          window.location.href =
+            '/courier-login';
+
           return;
         }
+
         alert('فشل الإلغاء');
         return;
       }
@@ -828,27 +1165,49 @@ ${items}
     }
   };
 
-  document.querySelectorAll('.pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentFilter = btn.dataset.filter;
-      fetchOrders();
+  document
+    .querySelectorAll('.pill')
+    .forEach(btn => {
+
+      btn.addEventListener('click', () => {
+
+        document
+          .querySelectorAll('.pill')
+          .forEach(b =>
+            b.classList.remove('active')
+          );
+
+        btn.classList.add('active');
+
+        currentFilter =
+          btn.dataset.filter;
+
+        fetchOrders();
+      });
     });
-  });
 
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await fetch('/api/courier/logout', {
-      method:'POST',
-      credentials:'include'
-    }).catch(()=>{});
+  document
+    .getElementById('logoutBtn')
+    .addEventListener('click', async () => {
 
-    window.location.href = '/courier-login';
-  });
+      await fetch(
+        '/api/courier/logout',
+        {
+          method:'POST',
+          credentials:'include'
+        }
+      ).catch(()=>{});
 
-  document.getElementById('searchInput').addEventListener('input', render);
+      window.location.href =
+        '/courier-login';
+    });
+
+  document
+    .getElementById('searchInput')
+    .addEventListener('input', render);
 
   fetchOrders();
 </script>
+
 </body>
 </html>
